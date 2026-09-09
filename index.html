@@ -623,8 +623,8 @@
         }
 
         // Lấy danh sách Schedule sau khi thêm 1 giờ ảo (Nếu start trùng hiện tại)
-        function getEffectiveSchedule(acc, activeDayObj) {
-            let currentAbs = getEpochHours(activeDayObj.year, activeDayObj.month, activeDayObj.day, activeDayObj.hour);
+        function getEffectiveSchedule(acc, activeDayObj, realNowAbs) {
+	    let currentAbs = (realNowAbs !== undefined) ? realNowAbs : getEpochHours(activeDayObj.year, activeDayObj.month, activeDayObj.day, activeDayObj.hour);
             return acc.schedule.map(r => {
                 let s = getEpochHours(r.start.year, r.start.month, r.start.day, r.start.hour);
                 let e = getEpochHours(r.end.year, r.end.month, r.end.day, r.end.hour);
@@ -636,12 +636,12 @@
         }
 
         // Logic tạo danh sách các Slot Trống chính xác
-        function generateFreeSlots(acc, activeDayObj) {
-            let currentAbs = getEpochHours(activeDayObj.year, activeDayObj.month, activeDayObj.day, activeDayObj.hour);
-            let startTimelineAbs = currentAbs; 
-            
-            let slots = [];
-            let effSched = getEffectiveSchedule(acc, activeDayObj);
+        function generateFreeSlots(acc, activeDayObj, realNowAbs) {
+    let startTimelineAbs = getEpochHours(activeDayObj.year, activeDayObj.month, activeDayObj.day, activeDayObj.hour);
+    let currentAbs = (realNowAbs !== undefined) ? realNowAbs : startTimelineAbs;
+    
+    let slots = [];
+    let effSched = getEffectiveSchedule(acc, activeDayObj, currentAbs);
             
             effSched.sort((a,b) => a.startAbs - b.startAbs);
             
@@ -1155,9 +1155,17 @@
             });
         }
         
-        function getCoverage(accIdx, checkS, checkE, currentAbs) {
+	function getCoverage(accIdx, checkS, checkE, currentAbs) {
             const today = getSystemDate();
-            let freeSlots = generateFreeSlots(accounts[accIdx], today);
+            
+            // Fix quá khứ: Nếu giờ checkS nhỏ hơn hiện tại, lấy giờ checkS làm gốc để sinh slot trống
+            let checkDayObj = { ...today };
+            if (checkS < currentAbs) {
+                let d = fromEpochHours(checkS);
+                checkDayObj = { year: d.y, month: d.m, day: d.d, hour: d.h };
+            }
+            
+            let freeSlots = generateFreeSlots(accounts[accIdx], checkDayObj, currentAbs);
             
             let covered = 0;
             let nonFreeRanges = [];
@@ -1196,10 +1204,19 @@
                 return `Dạ acc ${accName} ${timeDesc} có trống ạ.`;
             }
             
-            // Logic kiểm tra giờ liền kề trống cho khung 1 tiếng (Chạy trước khi chặn hoàn toàn res.covered === 0)
+	    // Logic kiểm tra giờ liền kề trống cho khung 1 tiếng (Chạy trước khi chặn hoàn toàn res.covered === 0)
             if (inE - inS === 1) {
                 const today = getSystemDate();
-                let freeSlots = generateFreeSlots(accounts[accIdx], today);
+                
+                // Fix quá khứ tương tự getCoverage
+                let checkDayObj = { ...today };
+                if (inS < currentAbs) {
+                    let d = fromEpochHours(inS);
+                    checkDayObj = { year: d.y, month: d.m, day: d.d, hour: d.h };
+                }
+                
+                let freeSlots = generateFreeSlots(accounts[accIdx], checkDayObj, currentAbs);
+
                 let nextHourFree = false;
                 let nextHour = inS + 1; // Lấy chính xác mốc bắt đầu + 1
                 for (let s of freeSlots) {
@@ -1238,42 +1255,26 @@
             return `Dạ acc ${accName} ${timeDesc} không trống mất rồi ạ.`;
         }
 
-        function runCheckBoth(checkS, checkE, durationCheck, inS, inE, currentAbs, timeStrS) {
-            const timeDesc = (inS === currentAbs) ? "hiện tại" : "lúc đó";
-            const res4 = getCoverage(0, checkS, checkE, currentAbs);
-            const res2 = getCoverage(1, checkS, checkE, currentAbs);
-            
-            const isFull4 = (res4.covered === durationCheck);
-            const isFull2 = (res2.covered === durationCheck);
-            
-            if (isFull4 && isFull2) {
-                return `Dạ cả 2 acc ${timeDesc} đều có trống ạ.`;
+	function runCheckBoth(checkS, checkE, durationCheck, inS, inE, currentAbs, timeStrS) {
+            // BƯỚC 1: Lấy kết quả hiển thị chuẩn của từng acc bằng cách gọi hàm runCheckSingle
+            let msg4 = runCheckSingle(0, checkS, checkE, durationCheck, inS, inE, currentAbs, timeStrS);
+            let msg2 = runCheckSingle(1, checkS, checkE, durationCheck, inS, inE, currentAbs, timeStrS);
+
+            // BƯỚC 2: Xóa tên acc khỏi chuỗi để so sánh xem 2 acc có chung 1 kết quả/trường hợp hay không
+            let norm4 = msg4.replace("acc 4ss", "").trim();
+            let norm2 = msg2.replace("acc 2ss", "").trim();
+
+            if (norm4 === norm2) {
+                // NẾU CHUNG TRƯỜNG HỢP: Gộp thành "cả 2 acc"
+                return msg4.replace("acc 4ss", "cả 2 acc");
+            } else {
+                // NẾU KHÁC TRƯỜNG HỢP: Tách riêng, 4ss trên, 2ss dưới, đổi "Dạ" thành "Còn", ngăn cách 1 hàng trống
+                let modifiedMsg2 = msg2;
+                if (modifiedMsg2.startsWith("Dạ ")) {
+                    modifiedMsg2 = "Còn " + modifiedMsg2.substring(3); // Cắt từ chữ "Dạ " và thay bằng "Còn "
+                }
+                return msg4 + "\n\n" + modifiedMsg2;
             }
-            if (res4.covered === 0 && res2.covered === 0) {
-                return `Dạ cả 2 acc ${timeDesc} đều không trống mất rồi ạ.`;
-            }
-            
-	    // Rule B
-            if (inE - inS === 1 && !isFull4 && !isFull2) {
-                const today = getSystemDate();
-                let f4 = generateFreeSlots(accounts[0], today);
-                let f2 = generateFreeSlots(accounts[1], today);
-                let nextHour = inS + 1; // Lấy chính xác mốc bắt đầu + 1
-                
-                let nh4 = false, nh2 = false;
-                for (let s of f4) if (nextHour >= s.s && (s.e === -1 || nextHour < s.e)) { nh4 = true; break; }
-                for (let s of f2) if (nextHour >= s.s && (s.e === -1 || nextHour < s.e)) { nh2 = true; break; }
-                
-                if (nh4 && nh2) return `Dạ cả 2 acc lúc ${formatTimeT(nextHour, currentAbs)} thì mới đều trống ạ.`;
-                if (nh4) return `Dạ acc 4ss lúc ${formatTimeT(nextHour, currentAbs)} thì mới trống ạ.`;
-                if (nh2) return `Dạ acc 2ss lúc ${formatTimeT(nextHour, currentAbs)} thì mới trống ạ.`;
-            }
-            
-            let msg = "";
-            if (isFull4) msg += `Dạ acc 4ss ${timeDesc} có trống ạ.\n`;
-	    if (isFull2) msg += `Dạ acc 2ss ${timeDesc} có trống ạ.\n`;
-            
-            return msg;
         }
 
         // --- XÓA SẠCH LỊCH & RESET DOANH THU ---
@@ -1542,11 +1543,10 @@ function parseRevenueStartTime(revStr, today) {
     return getEpochHours(today.year, today.month, today.day, 0);
 }
 
-// Kiểm tra xem lịch có nằm hoàn toàn trong các slot trống không
-function isFullyFree(acc, startAbs, reqEndAbs, currentAbs) {
+function isFullyFree(acc, startAbs, reqEndAbs, currentAbs, realNowAbs) {
     let d = fromEpochHours(currentAbs);
     let dayObj = { year: d.y, month: d.m, day: d.d, hour: d.h };
-    let slots = generateFreeSlots(acc, dayObj);
+    let slots = generateFreeSlots(acc, dayObj, (realNowAbs !== undefined) ? realNowAbs : currentAbs);
     
     for (let s of slots) {
         if (startAbs >= s.s && (s.e === -1 || reqEndAbs <= s.e)) {
@@ -1600,7 +1600,7 @@ function isFullyFree(acc, startAbs, reqEndAbs, currentAbs) {
         // Nếu giờ bắt đầu (startAbs) nhỏ hơn giờ hiện tại (currentAbs) -> Đang nhập lịch quá khứ
         // Ta sẽ dùng chính startAbs làm mốc thời gian để quét khe trống thay vì currentAbs
         let checkAbs = startAbs < currentAbs ? startAbs : currentAbs;
-        const isFree = isFullyFree(acc, startAbs, reqEndAbs, checkAbs);
+        const isFree = isFullyFree(acc, startAbs, reqEndAbs, checkAbs, currentAbs);
         // --- KẾT THÚC ĐOẠN FIX ---
 
             if (isEditingSameAcc) {
