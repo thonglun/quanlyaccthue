@@ -36,9 +36,6 @@
                 <p id="system-date" class="text-sm text-indigo-200 mt-1">Ngày hệ thống: --</p>
             </div>
             <div class="flex flex-wrap items-center gap-3">
-                <button onclick="toggleForceNextDay()" id="btn-force-day" class="bg-indigo-800 hover:bg-indigo-900 text-white font-semibold px-4 py-2.5 rounded-xl text-sm border border-indigo-400/30 transition shadow-sm">
-                    Ép xóa hôm nay: OFF
-                </button>
                 <button onclick="openFreeScheduleModal()" class="bg-teal-500 hover:bg-teal-600 text-white font-bold px-4 py-2.5 rounded-xl text-sm flex items-center gap-2 shadow transition">
                     <i class="fa-solid fa-list-check"></i> Lịch trống
                 </button>
@@ -503,7 +500,6 @@
             { accountName: "2ss", revenue: 0, revenueStartTime: "", schedule: [] }
         ];
         let notes = [];
-        let forceNextDayMode = false;
         let activeTab = 'upcoming';
 
         // Hàm tính số ngày trong tháng dựa vào Năm và Tháng
@@ -760,7 +756,6 @@
                 if (data) {
                     if (data.accounts) accounts = data.accounts;
                     if (data.notes) notes = data.notes;
-                    if (data.forceNextDayMode !== undefined) forceNextDayMode = data.forceNextDayMode;
 
                     accounts.forEach(acc => { if (!acc.schedule) acc.schedule = []; });
                     renderUI();
@@ -771,8 +766,7 @@
         function saveData() {
             db.ref('rental_data').set({
                 accounts: accounts,
-                notes: notes,
-                forceNextDayMode: forceNextDayMode
+                notes: notes
             });
         }
 
@@ -829,17 +823,10 @@
         function renderUI() {
             const today = getSystemDate();
             let activeDayObj = {...today};
-            
-            // Xử lý Force Day (nếu ON => coi như qua 1 ngày)
-            if (forceNextDayMode) {
-                let dt = new Date(today.year, today.month - 1, today.day + 1, today.hour);
-                activeDayObj = { y: dt.getFullYear(), month: dt.getMonth() + 1, day: dt.getDate(), hour: dt.getHours() };
-            }
 
             const currentAbs = getEpochHours(activeDayObj.year, activeDayObj.month, activeDayObj.day, activeDayObj.hour);
 
             document.getElementById('system-date').innerText = `Ngày hệ thống: ${today.day}/${today.month}/${today.year}`;
-            document.getElementById('btn-force-day').innerText = `Ép xóa hôm nay: ${forceNextDayMode ? 'ON' : 'OFF'}`;
 
             accounts.forEach(acc => {
                 cleanOldData(acc, activeDayObj);
@@ -1223,7 +1210,7 @@
                     if (nextHour >= s.s && (s.e === -1 || nextHour < s.e)) { nextHourFree = true; break; }
                 }
                 if (nextHourFree) {
-                    return `Dạ acc ${accName} lúc ${formatTimeT(nextHour, currentAbs)} thì mới trống ạ.`;
+                    return `Dạ acc ${accName} ${timeDesc} không trống mất rồi ạ.\n👉 Nhưng lúc ${formatTimeT(nextHour, currentAbs)} thì acc ${accName} sẽ trống ạ.`;
                 }
             }
 
@@ -1261,12 +1248,12 @@
             let msg2 = runCheckSingle(1, checkS, checkE, durationCheck, inS, inE, currentAbs, timeStrS);
 
             // BƯỚC 2: Xóa tên acc khỏi chuỗi để so sánh xem 2 acc có chung 1 kết quả/trường hợp hay không
-            let norm4 = msg4.replace("acc 4ss", "").trim();
-            let norm2 = msg2.replace("acc 2ss", "").trim();
+            let norm4 = msg4.replace(/acc 4ss/g, "").trim();
+            let norm2 = msg2.replace(/acc 2ss/g, "").trim();
 
             if (norm4 === norm2) {
                 // NẾU CHUNG TRƯỜNG HỢP: Gộp thành "cả 2 acc"
-                return msg4.replace("acc 4ss", "cả 2 acc");
+                return msg4.replace(/acc 4ss/g, "cả 2 acc");
             } else {
                 // NẾU KHÁC TRƯỜNG HỢP: Tách riêng, 4ss trên, 2ss dưới, đổi "Dạ" thành "Còn", ngăn cách 1 hàng trống
                 let modifiedMsg2 = msg2;
@@ -1471,12 +1458,6 @@
             document.getElementById('calc-page-3').classList.remove('hidden');
         }
 
-        function toggleForceNextDay() {
-            forceNextDayMode = !forceNextDayMode;
-            saveData();
-            renderUI();
-        }
-
         function openAddModal() {
             const today = getSystemDate();
             document.getElementById('modal-title').innerText = "Nhập Lịch Thuê Mới";
@@ -1585,7 +1566,6 @@ function isFullyFree(acc, startAbs, reqEndAbs, currentAbs, realNowAbs) {
             if (startAbs >= endAbs) { showCustomAlert("Thời gian bắt đầu phải nhỏ hơn kết thúc!"); return; }
 
             let currentAbs = toAbsoluteHours(today.year, today.month, today.day, today.hour);
-            if (forceNextDayMode) currentAbs += 24;
 
             let reqEndAbs = endAbs;
             if (startAbs === currentAbs) reqEndAbs += 1;
