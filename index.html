@@ -1,0 +1,1690 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ Thống Quản Lý Thuê Acc Game</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        
+        /* Ẩn mũi tên spinner mặc định của input type="number" */
+        input[type="number"]::-webkit-inner-spin-button, 
+        input[type="number"]::-webkit-outer-spin-button { 
+            -webkit-appearance: none; 
+            margin: 0; 
+        }
+        input[type="number"] {
+            -moz-appearance: textfield;
+        }
+
+        /* Hiệu ứng mượt cho các nút copy */
+        .copy-btn-morph {
+            transition: all 0.3s ease;
+        }
+    </style>
+</head>
+<body class="bg-slate-100 min-h-screen text-gray-800 p-4 md:p-6">
+
+    <div class="max-w-7xl mx-auto space-y-6">
+
+        <!-- HEADER BANNER -->
+        <div class="bg-indigo-600 text-white rounded-2xl p-6 shadow-md flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div>
+                <h1 class="text-2xl font-black uppercase tracking-wide">Hệ Thống Quản Lý Acc</h1>
+                <p id="system-date" class="text-sm text-indigo-200 mt-1">Ngày hệ thống: --</p>
+            </div>
+            <div class="flex flex-wrap items-center gap-3">
+                <button onclick="toggleForceNextDay()" id="btn-force-day" class="bg-indigo-800 hover:bg-indigo-900 text-white font-semibold px-4 py-2.5 rounded-xl text-sm border border-indigo-400/30 transition shadow-sm">
+                    Ép xóa hôm nay: OFF
+                </button>
+                <button onclick="openFreeScheduleModal()" class="bg-teal-500 hover:bg-teal-600 text-white font-bold px-4 py-2.5 rounded-xl text-sm flex items-center gap-2 shadow transition">
+                    <i class="fa-solid fa-list-check"></i> Lịch trống
+                </button>
+                <button onclick="openCheckModal()" class="bg-cyan-500 hover:bg-cyan-600 text-white font-bold px-4 py-2.5 rounded-xl text-sm flex items-center gap-2 shadow transition">
+                    <i class="fa-solid fa-calendar-check"></i> Kiểm tra
+                </button>
+                <button onclick="openAddModal()" class="bg-emerald-500 hover:bg-emerald-600 text-white font-bold px-4 py-2.5 rounded-xl text-sm flex items-center gap-2 shadow transition">
+                    <i class="fa-solid fa-calendar-plus"></i> Nhập lịch mới
+                </button>
+                <button onclick="openResetRevenueModal()" class="bg-amber-500 hover:bg-amber-600 text-white font-bold px-4 py-2.5 rounded-xl text-sm flex items-center gap-2 shadow transition">
+                    <i class="fa-solid fa-rotate-left"></i> Reset doanh thu
+                </button>
+                <button onclick="openClearAllDataModal()" class="bg-rose-500 hover:bg-rose-600 text-white font-bold px-4 py-2.5 rounded-xl text-sm flex items-center gap-2 shadow transition">
+                    <i class="fa-solid fa-trash-can"></i> Xóa sạch lịch
+                </button>
+            </div>
+        </div>
+
+        <!-- MAIN DASHBOARD GRID -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+            <!-- CỘT TRÁI (7 CỘT): DOANH THU & BẢNG LỊCH CHÍNH -->
+            <div class="lg:col-span-7 space-y-6">
+
+                <!-- Thẻ Tổng Doanh Thu -->
+                <div class="relative bg-indigo-700 text-white rounded-2xl p-6 shadow-md overflow-hidden">
+                    <div class="text-xs font-bold uppercase tracking-wider text-indigo-200 mb-1">TỔNG DOANH THU CẢ 2 ACC</div>
+                    <div id="total-revenue" class="text-4xl font-black mb-4">0 VNĐ</div>
+                    <div class="grid grid-cols-2 gap-4 border-t border-indigo-500/50 pt-3 text-sm">
+                        <div>
+                            <div class="font-bold text-indigo-100">Acc 4ss: <span id="rev-4ss" class="text-white">0 VNĐ</span></div>
+                            <div id="rev-start-4ss" class="text-xs text-indigo-200 mt-0.5">Từ 0h ngày --</div>
+                        </div>
+                        <div>
+                            <div class="font-bold text-indigo-100">Acc 2ss: <span id="rev-2ss" class="text-white">0 VNĐ</span></div>
+                            <div id="rev-start-2ss" class="text-xs text-indigo-200 mt-0.5">Từ 0h ngày --</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Nút Tính tiền -->
+                    <button onclick="openCalcModal()" class="absolute top-4 right-4 bg-indigo-500 hover:bg-indigo-600 text-white font-bold px-4 py-2 rounded-xl text-sm shadow transition flex items-center gap-1.5 border border-indigo-400">
+                        <i class="fa-solid fa-calculator"></i> Tính tiền
+                    </button>
+                </div>
+
+                <!-- TABS ĐIỀU HƯỚNG QUẢN LÝ -->
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                    <div class="flex border-b text-sm font-bold bg-gray-50/50">
+                        <button onclick="switchTab('upcoming')" id="tab-btn-upcoming" class="flex-1 py-3.5 text-center border-b-2 border-indigo-600 text-indigo-600 transition">Sắp lên ca</button>
+                        <button onclick="switchTab('all')" id="tab-btn-all" class="flex-1 py-3.5 text-center text-gray-500 hover:text-indigo-600 transition">Tất cả lịch</button>
+                        <button onclick="switchTab('notes')" id="tab-btn-notes" class="flex-1 py-3.5 text-center text-gray-500 hover:text-indigo-600 transition">Ghi chú</button>
+                    </div>
+
+                    <div class="p-5">
+                        <!-- TAB 1: SẮP LÊN CA -->
+                        <div id="tab-upcoming" class="space-y-6">
+                            <div>
+                                <div class="flex items-center justify-between mb-3">
+                                    <h3 class="text-xs font-bold text-indigo-600 uppercase tracking-wider flex items-center gap-1.5">
+                                        <i class="fa-solid fa-circle-play text-emerald-500 text-[10px]"></i> Acc: 4ss
+                                    </h3>
+                                </div>
+                                <div id="list-upcoming-4ss" class="space-y-2">
+                                    <p class="text-gray-400 text-sm italic">(Không có lịch sắp lên ca)</p>
+                                </div>
+                            </div>
+                            <div class="border-t border-gray-100 pt-4">
+                                <div class="flex items-center justify-between mb-3">
+                                    <h3 class="text-xs font-bold text-indigo-600 uppercase tracking-wider flex items-center gap-1.5">
+                                        <i class="fa-solid fa-circle-play text-emerald-500 text-[10px]"></i> Acc: 2ss
+                                    </h3>
+                                </div>
+                                <div id="list-upcoming-2ss" class="space-y-2">
+                                    <p class="text-gray-400 text-sm italic">(Không có lịch sắp lên ca)</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- TAB 2: TẤT CẢ LỊCH -->
+                        <div id="tab-all" class="hidden space-y-6">
+                            <div>
+                                <div class="flex items-center justify-between mb-3">
+                                    <h3 class="text-xs font-bold text-indigo-600 uppercase tracking-wider flex items-center gap-1.5">
+                                        <i class="fa-solid fa-list-ul text-indigo-500 text-[10px]"></i> Acc: 4ss
+                                    </h3>
+                                </div>
+                                <div id="list-all-4ss" class="space-y-2">
+                                    <p class="text-gray-400 text-sm italic">(Chưa có lịch thuê)</p>
+                                </div>
+                            </div>
+                            <div class="border-t border-gray-100 pt-4">
+                                <div class="flex items-center justify-between mb-3">
+                                    <h3 class="text-xs font-bold text-indigo-600 uppercase tracking-wider flex items-center gap-1.5">
+                                        <i class="fa-solid fa-list-ul text-indigo-500 text-[10px]"></i> Acc: 2ss
+                                    </h3>
+                                </div>
+                                <div id="list-all-2ss" class="space-y-2">
+                                    <p class="text-gray-400 text-sm italic">(Chưa có lịch thuê)</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- TAB 3: GHI CHÚ -->
+                        <div id="tab-notes" class="hidden space-y-4">
+                            <div class="flex justify-between items-center">
+                                <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider">Ghi Chú Hệ Thống</h3>
+                                <button onclick="addNote()" class="text-xs bg-indigo-50 text-indigo-600 font-bold px-3 py-1.5 rounded-lg border border-indigo-100 hover:bg-indigo-100">+ Thêm Ghi Chú</button>
+                            </div>
+                            <div id="list-notes" class="space-y-2">
+                                <p class="text-gray-400 text-sm italic">Chưa có ghi chú hệ thống.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- CỘT PHẢI (5 CỘT): ĐỒNG HỒ HỆ THỐNG THỜI GIAN THỰC -->
+            <div class="lg:col-span-5 space-y-6 flex flex-col justify-stretch">
+                <div class="bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-white rounded-2xl p-6 shadow-xl border border-indigo-500/20 text-center flex flex-col justify-center items-center min-h-[360px] h-full space-y-4">
+                    <div class="flex items-center gap-2 text-indigo-300 font-bold uppercase tracking-widest text-xs">
+                        <i class="fa-solid fa-clock text-amber-400 text-sm animate-pulse"></i>
+                        <span>Thời Gian Hệ Thống Việt Nam</span>
+                    </div>
+                    
+                    <div id="clock-time" class="text-5xl md:text-6xl font-black tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-indigo-200 to-teal-200 font-mono drop-shadow">
+                        --:--:--
+                    </div>
+                    
+                    <div id="clock-date" class="text-sm md:text-base font-bold text-indigo-200 bg-indigo-900/60 px-5 py-2.5 rounded-xl border border-indigo-700/50 shadow-inner">
+                        --/--/----
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- MODAL KIỂM TRA LỊCH TRỐNG -->
+    <div id="modal-check" class="fixed inset-0 bg-black/50 hidden items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-2xl w-full max-w-md p-6 space-y-4 shadow-xl">
+            <h3 class="text-lg font-bold text-gray-800 border-b pb-2">Kiểm Tra Khung Giờ</h3>
+            
+            <div class="space-y-3 text-sm">
+                <div>
+                    <label class="block font-medium mb-1">Tài Khoản</label>
+                    <select id="check-acc" class="w-full border rounded-lg p-2.5 bg-gray-50 focus:ring-2 focus:ring-cyan-500 outline-none font-medium">
+                        <option value="" disabled selected hidden>-- Chọn tài khoản --</option>
+                        <option value="0">Acc 4ss</option>
+                        <option value="1">Acc 2ss</option>
+                        <option value="2">Cả 2 acc</option>
+                    </select>
+                </div>
+
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block font-medium mb-1">Ngày BẮT ĐẦU</label>
+                        <div class="flex items-center bg-white border border-gray-300 rounded-xl overflow-hidden focus-within:border-cyan-500 focus-within:ring-2 focus-within:ring-cyan-200 transition shadow-sm">
+                            <button type="button" onclick="stepInput('check-sday', -1)" class="px-4 py-2.5 bg-gray-50 hover:bg-gray-100 text-gray-600 font-bold border-r border-gray-200 transition active:bg-gray-200"><i class="fa-solid fa-minus text-xs"></i></button>
+                            <input type="number" id="check-sday" min="1" max="31" placeholder="Ngày" class="w-full py-2.5 bg-transparent outline-none text-center font-bold text-gray-800">
+                            <button type="button" onclick="stepInput('check-sday', 1)" class="px-4 py-2.5 bg-gray-50 hover:bg-gray-100 text-gray-600 font-bold border-l border-gray-200 transition active:bg-gray-200"><i class="fa-solid fa-plus text-xs"></i></button>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block font-medium mb-1">Ngày KẾT THÚC</label>
+                        <div class="flex items-center bg-white border border-gray-300 rounded-xl overflow-hidden focus-within:border-cyan-500 focus-within:ring-2 focus-within:ring-cyan-200 transition shadow-sm">
+                            <button type="button" onclick="stepInput('check-eday', -1)" class="px-4 py-2.5 bg-gray-50 hover:bg-gray-100 text-gray-600 font-bold border-r border-gray-200 transition active:bg-gray-200"><i class="fa-solid fa-minus text-xs"></i></button>
+                            <input type="number" id="check-eday" min="1" max="31" placeholder="Ngày" class="w-full py-2.5 bg-transparent outline-none text-center font-bold text-gray-800">
+                            <button type="button" onclick="stepInput('check-eday', 1)" class="px-4 py-2.5 bg-gray-50 hover:bg-gray-100 text-gray-600 font-bold border-l border-gray-200 transition active:bg-gray-200"><i class="fa-solid fa-plus text-xs"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block font-medium mb-1">Giờ BẮT ĐẦU (0-23)</label>
+                        <div class="flex items-center bg-white border border-gray-300 rounded-xl overflow-hidden focus-within:border-cyan-500 focus-within:ring-2 focus-within:ring-cyan-200 transition shadow-sm">
+                            <button type="button" onclick="stepInput('check-shour', -1)" class="px-4 py-2.5 bg-gray-50 hover:bg-gray-100 text-gray-600 font-bold border-r border-gray-200 transition active:bg-gray-200"><i class="fa-solid fa-minus text-xs"></i></button>
+                            <input type="number" id="check-shour" min="0" max="23" placeholder="Giờ" class="w-full py-2.5 bg-transparent outline-none text-center font-bold text-gray-800">
+                            <button type="button" onclick="stepInput('check-shour', 1)" class="px-4 py-2.5 bg-gray-50 hover:bg-gray-100 text-gray-600 font-bold border-l border-gray-200 transition active:bg-gray-200"><i class="fa-solid fa-plus text-xs"></i></button>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block font-medium mb-1">Giờ KẾT THÚC (0-23)</label>
+                        <div class="flex items-center bg-white border border-gray-300 rounded-xl overflow-hidden focus-within:border-cyan-500 focus-within:ring-2 focus-within:ring-cyan-200 transition shadow-sm">
+                            <button type="button" onclick="stepInput('check-ehour', -1)" class="px-4 py-2.5 bg-gray-50 hover:bg-gray-100 text-gray-600 font-bold border-r border-gray-200 transition active:bg-gray-200"><i class="fa-solid fa-minus text-xs"></i></button>
+                            <input type="number" id="check-ehour" min="0" max="23" placeholder="Giờ" class="w-full py-2.5 bg-transparent outline-none text-center font-bold text-gray-800">
+                            <button type="button" onclick="stepInput('check-ehour', 1)" class="px-4 py-2.5 bg-gray-50 hover:bg-gray-100 text-gray-600 font-bold border-l border-gray-200 transition active:bg-gray-200"><i class="fa-solid fa-plus text-xs"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-2 text-xs pt-1">
+                    <div>
+                        <label class="block font-medium mb-1 text-gray-700">Tháng / Năm BẮT ĐẦU</label>
+                        <div class="grid grid-cols-2 gap-1">
+                            <div class="flex items-center bg-white border border-gray-300 rounded-lg overflow-hidden focus-within:border-cyan-500 focus-within:ring-1 focus-within:ring-cyan-200 transition shadow-sm">
+                                <button type="button" onclick="stepInput('check-smonth', -1)" class="px-2 py-1.5 bg-gray-50 hover:bg-gray-100 text-gray-600 font-bold border-r border-gray-200 transition active:bg-gray-200"><i class="fa-solid fa-minus text-[10px]"></i></button>
+                                <input type="number" id="check-smonth" min="1" max="12" placeholder="Tháng" class="w-full py-1.5 bg-transparent outline-none text-center font-bold text-gray-800 text-xs">
+                                <button type="button" onclick="stepInput('check-smonth', 1)" class="px-2 py-1.5 bg-gray-50 hover:bg-gray-100 text-gray-600 font-bold border-l border-gray-200 transition active:bg-gray-200"><i class="fa-solid fa-plus text-[10px]"></i></button>
+                            </div>
+                            <div class="flex items-center bg-white border border-gray-300 rounded-lg overflow-hidden focus-within:border-cyan-500 focus-within:ring-1 focus-within:ring-cyan-200 transition shadow-sm">
+                                <button type="button" onclick="stepInput('check-syear', -1)" class="px-2 py-1.5 bg-gray-50 hover:bg-gray-100 text-gray-600 font-bold border-r border-gray-200 transition active:bg-gray-200"><i class="fa-solid fa-minus text-[10px]"></i></button>
+                                <input type="number" id="check-syear" min="2020" max="2099" placeholder="Năm" class="w-full py-1.5 bg-transparent outline-none text-center font-bold text-gray-800 text-xs">
+                                <button type="button" onclick="stepInput('check-syear', 1)" class="px-2 py-1.5 bg-gray-50 hover:bg-gray-100 text-gray-600 font-bold border-l border-gray-200 transition active:bg-gray-200"><i class="fa-solid fa-plus text-[10px]"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block font-medium mb-1 text-gray-700">Tháng / Năm KẾT THÚC</label>
+                        <div class="grid grid-cols-2 gap-1">
+                            <div class="flex items-center bg-white border border-gray-300 rounded-lg overflow-hidden focus-within:border-cyan-500 focus-within:ring-1 focus-within:ring-cyan-200 transition shadow-sm">
+                                <button type="button" onclick="stepInput('check-emonth', -1)" class="px-2 py-1.5 bg-gray-50 hover:bg-gray-100 text-gray-600 font-bold border-r border-gray-200 transition active:bg-gray-200"><i class="fa-solid fa-minus text-[10px]"></i></button>
+                                <input type="number" id="check-emonth" min="1" max="12" placeholder="Tháng" class="w-full py-1.5 bg-transparent outline-none text-center font-bold text-gray-800 text-xs">
+                                <button type="button" onclick="stepInput('check-emonth', 1)" class="px-2 py-1.5 bg-gray-50 hover:bg-gray-100 text-gray-600 font-bold border-l border-gray-200 transition active:bg-gray-200"><i class="fa-solid fa-plus text-[10px]"></i></button>
+                            </div>
+                            <div class="flex items-center bg-white border border-gray-300 rounded-lg overflow-hidden focus-within:border-cyan-500 focus-within:ring-1 focus-within:ring-cyan-200 transition shadow-sm">
+                                <button type="button" onclick="stepInput('check-eyear', -1)" class="px-2 py-1.5 bg-gray-50 hover:bg-gray-100 text-gray-600 font-bold border-r border-gray-200 transition active:bg-gray-200"><i class="fa-solid fa-minus text-[10px]"></i></button>
+                                <input type="number" id="check-eyear" min="2020" max="2099" placeholder="Năm" class="w-full py-1.5 bg-transparent outline-none text-center font-bold text-gray-800 text-xs">
+                                <button type="button" onclick="stepInput('check-eyear', 1)" class="px-2 py-1.5 bg-gray-50 hover:bg-gray-100 text-gray-600 font-bold border-l border-gray-200 transition active:bg-gray-200"><i class="fa-solid fa-plus text-[10px]"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex gap-2 pt-2">
+                <button onclick="closeCheckModal()" class="flex-1 py-2.5 rounded-xl bg-rose-500 hover:bg-rose-600 font-semibold text-white transition">Hủy</button>
+                <button onclick="executeCheck()" class="flex-1 py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-600 font-semibold text-white">Kiểm Tra</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL CUSTOM ALERT (HIỂN THỊ KẾT QUẢ / THÔNG BÁO CHUNG) -->
+    <div id="modal-custom-alert" class="fixed inset-0 bg-black/50 hidden items-center justify-center p-4 z-[60]">
+        <div class="bg-white rounded-2xl w-full max-w-md p-6 space-y-4 shadow-xl text-center">
+            <h3 class="text-lg font-bold text-gray-800 border-b pb-2">Thông báo</h3>
+            <p id="custom-alert-message" class="text-gray-700 text-sm font-medium whitespace-pre-wrap text-left"></p>
+            <div class="flex gap-2 pt-4">
+                <button onclick="closeCustomAlert()" class="flex-1 py-2.5 rounded-xl bg-rose-500 hover:bg-rose-600 font-semibold text-white transition">Đóng</button>
+                <button id="btn-back-alert" onclick="backFromAlert()" class="flex-1 py-2.5 rounded-xl bg-indigo-500 hover:bg-indigo-600 font-semibold text-white transition hidden">Quay lại</button>
+                <button id="btn-copy-alert" onclick="copyAlertMessage()" class="flex-1 py-2.5 rounded-xl bg-sky-500 hover:bg-sky-600 font-semibold text-white transition hidden copy-btn-morph">
+                    <i class="fa-regular fa-copy mr-1"></i> Copy
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL TÍNH TIỀN (TRANG 2 & TRANG 3) -->
+    <div id="modal-calculate" class="fixed inset-0 bg-black/50 hidden items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-2xl w-full max-w-md p-6 space-y-4 shadow-xl">
+            
+            <!-- TRANG 2: CẤU HÌNH -->
+            <div id="calc-page-2" class="space-y-4">
+                <h3 id="calc-title" class="text-lg font-bold text-gray-800 border-b pb-2">Tính Tiền - Cấu Hình</h3>
+                
+                <div>
+                    <label class="block font-medium mb-1 text-sm">Cách thức đăng nhập</label>
+                    <div class="grid grid-cols-3 gap-2">
+                        <button type="button" onclick="setCalcLogin('LINE')" id="calc-login-LINE" class="py-2.5 px-3 rounded-xl border font-bold text-xs transition bg-indigo-50 border-indigo-500 text-indigo-700">LINE</button>
+                        <button type="button" onclick="setCalcLogin('Google')" id="calc-login-Google" class="py-2.5 px-3 rounded-xl border font-bold text-xs transition bg-gray-50 border-gray-200 text-gray-700">Google</button>
+                        <button type="button" onclick="setCalcLogin('Scan PC')" id="calc-login-Scan" class="py-2.5 px-3 rounded-xl border font-bold text-xs transition bg-gray-50 border-gray-200 text-gray-700">Scan PC</button>
+                    </div>
+                </div>
+
+                <div id="calc-scan-options" class="hidden space-y-2">
+                    <label class="block font-medium mb-1 text-sm">Thời điểm thuê</label>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button type="button" onclick="setCalcTiming('Thuê ngay')" id="calc-timing-now" class="py-2.5 px-3 rounded-xl border font-bold text-xs transition bg-indigo-50 border-indigo-500 text-indigo-700">Thuê ngay</button>
+                        <button type="button" onclick="setCalcTiming('Đặt trước')" id="calc-timing-later" class="py-2.5 px-3 rounded-xl border font-bold text-xs transition bg-gray-50 border-gray-200 text-gray-700">Đặt trước</button>
+                    </div>
+                </div>
+
+                <div id="calc-hours-container" class="space-y-3">
+                    <!-- Dynamic hours input(s) -->
+                </div>
+
+                <div class="flex gap-2 pt-2">
+                    <button onclick="closeCalcModal()" class="flex-1 py-2.5 rounded-xl bg-rose-500 hover:bg-rose-600 font-semibold text-white transition text-sm">Hủy</button>
+                    <button onclick="backToCalcPage1()" class="flex-1 py-2.5 rounded-xl bg-indigo-500 hover:bg-indigo-600 font-semibold text-white transition text-sm">Quay lại</button>
+                    <button onclick="finishCalculation()" class="flex-1 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 font-semibold text-white transition text-sm">Hoàn tất</button>
+                </div>
+            </div>
+
+            <!-- TRANG 3: KẾT QUẢ -->
+            <div id="calc-page-3" class="space-y-4 hidden">
+                <h3 class="text-lg font-bold text-gray-800 border-b pb-2">Kết Quả - Mẫu Tin Nhắn</h3>
+                <div id="calc-result-text" class="bg-gray-50 p-4 rounded-xl border border-gray-200 text-sm font-mono whitespace-pre-wrap max-h-64 overflow-y-auto text-gray-800"></div>
+                
+                <div class="flex gap-2 pt-2">
+                    <button onclick="closeCalcModal()" class="flex-1 py-2.5 rounded-xl bg-rose-500 hover:bg-rose-600 font-semibold text-white transition text-sm">Hủy</button>
+                    <button onclick="backToCalcPage2()" class="flex-1 py-2.5 rounded-xl bg-indigo-500 hover:bg-indigo-600 font-semibold text-white transition text-sm">Quay lại</button>
+                    <button id="btn-copy-calc" onclick="copyCalcResult()" class="flex-1 py-2.5 rounded-xl bg-sky-500 hover:bg-sky-600 font-semibold text-white transition text-sm copy-btn-morph">
+                        <i class="fa-regular fa-copy mr-1"></i> Copy
+                    </button>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+
+    <!-- MODAL CUSTOM CONFIRM -->
+    <div id="modal-custom-confirm" class="fixed inset-0 bg-black/50 hidden items-center justify-center p-4 z-[60]">
+        <div class="bg-white rounded-2xl w-full max-w-sm p-6 space-y-4 shadow-xl text-center">
+            <h3 class="text-lg font-bold text-gray-800 border-b pb-2">Xác nhận</h3>
+            <p id="custom-confirm-message" class="text-gray-700 text-sm font-medium"></p>
+            <div class="flex gap-2 pt-4">
+                <button id="btn-confirm-cancel" class="flex-1 py-2.5 rounded-xl bg-rose-500 hover:bg-rose-600 font-semibold text-white transition">Hủy</button>
+                <button id="btn-confirm-back" class="flex-1 py-2.5 rounded-xl bg-indigo-500 hover:bg-indigo-600 font-semibold text-white transition">Quay lại</button>
+                <button id="btn-confirm-ok" class="flex-1 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 font-semibold text-white transition">Đồng ý</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL CUSTOM PROMPT / LỰA CHỌN -->
+    <div id="modal-custom-prompt" class="fixed inset-0 bg-black/50 hidden items-center justify-center p-4 z-[60]">
+        <div class="bg-white rounded-2xl w-full max-w-sm p-6 space-y-4 shadow-xl">
+            <h3 id="custom-prompt-title" class="text-lg font-bold text-gray-800 border-b pb-2">Nhập thông tin</h3>
+            <input type="text" id="custom-prompt-input" class="w-full border rounded-lg p-2.5 focus:ring-2 focus:ring-indigo-500 outline-none text-sm" placeholder="Nhập tại đây...">
+            <div id="custom-prompt-options" class="space-y-2 hidden"></div>
+            <div id="custom-prompt-buttons" class="flex gap-2 pt-2">
+                <button onclick="closeCustomPrompt()" class="flex-1 py-2.5 rounded-xl bg-rose-500 hover:bg-rose-600 font-semibold text-white transition">Hủy</button>
+                <button id="btn-prompt-ok" class="flex-1 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 font-semibold text-white transition">Xác nhận</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL THÊM / SỬA LỊCH THUÊ -->
+    <div id="modal-rental" class="fixed inset-0 bg-black/50 hidden items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-2xl w-full max-w-md p-6 space-y-4 shadow-xl">
+            <h3 id="modal-title" class="text-lg font-bold text-gray-800 border-b pb-2">Nhập Lịch Thuê Mới</h3>
+            
+            <input type="hidden" id="edit-acc-idx">
+            <input type="hidden" id="edit-rental-idx">
+
+            <div class="space-y-3 text-sm">
+                <div>
+                    <label class="block font-medium mb-1">Tài Khoản</label>
+                    <select id="form-acc" class="w-full border rounded-lg p-2.5 bg-gray-50 focus:ring-2 focus:ring-indigo-500 outline-none font-medium">
+                        <option value="" disabled selected hidden>-- Chọn tài khoản --</option>
+                        <option value="0">Acc 4ss</option>
+                        <option value="1">Acc 2ss</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block font-medium mb-1">Loại Thiết Bị</label>
+                    <select id="form-device" class="w-full border rounded-lg p-2.5 bg-gray-50 focus:ring-2 focus:ring-indigo-500 outline-none font-medium">
+                        <option value="" disabled selected hidden>-- Chọn thiết bị --</option>
+                        <option value="MOBILE">MOBILE</option>
+                        <option value="Google">Google</option>
+                        <option value="Scan PC">Scan PC</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block font-medium mb-1">Tên Khách Thuê</label>
+                    <input type="text" id="form-tenant" placeholder="Nhập tên khách..." class="w-full border rounded-lg p-2.5 focus:ring-2 focus:ring-indigo-500 outline-none">
+                </div>
+
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block font-medium mb-1">Ngày BẮT ĐẦU</label>
+                        <div class="flex items-center bg-white border border-gray-300 rounded-xl overflow-hidden focus-within:border-indigo-500 focus-within:ring-2 focus-within:ring-indigo-200 transition shadow-sm">
+                            <button type="button" onclick="stepInput('form-sday', -1)" class="px-4 py-2.5 bg-gray-50 hover:bg-gray-100 text-gray-600 font-bold border-r border-gray-200 transition active:bg-gray-200"><i class="fa-solid fa-minus text-xs"></i></button>
+                            <input type="number" id="form-sday" min="1" max="31" placeholder="Ngày" class="w-full py-2.5 bg-transparent outline-none text-center font-bold text-gray-800">
+                            <button type="button" onclick="stepInput('form-sday', 1)" class="px-4 py-2.5 bg-gray-50 hover:bg-gray-100 text-gray-600 font-bold border-l border-gray-200 transition active:bg-gray-200"><i class="fa-solid fa-plus text-xs"></i></button>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block font-medium mb-1">Ngày KẾT THÚC</label>
+                        <div class="flex items-center bg-white border border-gray-300 rounded-xl overflow-hidden focus-within:border-indigo-500 focus-within:ring-2 focus-within:ring-indigo-200 transition shadow-sm">
+                            <button type="button" onclick="stepInput('form-eday', -1)" class="px-4 py-2.5 bg-gray-50 hover:bg-gray-100 text-gray-600 font-bold border-r border-gray-200 transition active:bg-gray-200"><i class="fa-solid fa-minus text-xs"></i></button>
+                            <input type="number" id="form-eday" min="1" max="31" placeholder="Ngày" class="w-full py-2.5 bg-transparent outline-none text-center font-bold text-gray-800">
+                            <button type="button" onclick="stepInput('form-eday', 1)" class="px-4 py-2.5 bg-gray-50 hover:bg-gray-100 text-gray-600 font-bold border-l border-gray-200 transition active:bg-gray-200"><i class="fa-solid fa-plus text-xs"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block font-medium mb-1">Giờ BẮT ĐẦU (0-23)</label>
+                        <div class="flex items-center bg-white border border-gray-300 rounded-xl overflow-hidden focus-within:border-indigo-500 focus-within:ring-2 focus-within:ring-indigo-200 transition shadow-sm">
+                            <button type="button" onclick="stepInput('form-shour', -1)" class="px-4 py-2.5 bg-gray-50 hover:bg-gray-100 text-gray-600 font-bold border-r border-gray-200 transition active:bg-gray-200"><i class="fa-solid fa-minus text-xs"></i></button>
+                            <input type="number" id="form-shour" min="0" max="23" placeholder="Giờ" class="w-full py-2.5 bg-transparent outline-none text-center font-bold text-gray-800">
+                            <button type="button" onclick="stepInput('form-shour', 1)" class="px-4 py-2.5 bg-gray-50 hover:bg-gray-100 text-gray-600 font-bold border-l border-gray-200 transition active:bg-gray-200"><i class="fa-solid fa-plus text-xs"></i></button>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block font-medium mb-1">Giờ KẾT THÚC (0-23)</label>
+                        <div class="flex items-center bg-white border border-gray-300 rounded-xl overflow-hidden focus-within:border-indigo-500 focus-within:ring-2 focus-within:ring-indigo-200 transition shadow-sm">
+                            <button type="button" onclick="stepInput('form-ehour', -1)" class="px-4 py-2.5 bg-gray-50 hover:bg-gray-100 text-gray-600 font-bold border-r border-gray-200 transition active:bg-gray-200"><i class="fa-solid fa-minus text-xs"></i></button>
+                            <input type="number" id="form-ehour" min="0" max="23" placeholder="Giờ" class="w-full py-2.5 bg-transparent outline-none text-center font-bold text-gray-800">
+                            <button type="button" onclick="stepInput('form-ehour', 1)" class="px-4 py-2.5 bg-gray-50 hover:bg-gray-100 text-gray-600 font-bold border-l border-gray-200 transition active:bg-gray-200"><i class="fa-solid fa-plus text-xs"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-2 text-xs pt-1">
+                    <div>
+                        <label class="block font-medium mb-1 text-gray-700">Tháng / Năm BẮT ĐẦU</label>
+                        <div class="grid grid-cols-2 gap-1">
+                            <div class="flex items-center bg-white border border-gray-300 rounded-lg overflow-hidden focus-within:border-indigo-500 focus-within:ring-1 focus-within:ring-indigo-200 transition shadow-sm">
+                                <button type="button" onclick="stepInput('form-smonth', -1)" class="px-2 py-1.5 bg-gray-50 hover:bg-gray-100 text-gray-600 font-bold border-r border-gray-200 transition active:bg-gray-200"><i class="fa-solid fa-minus text-[10px]"></i></button>
+                                <input type="number" id="form-smonth" min="1" max="12" placeholder="Tháng" class="w-full py-1.5 bg-transparent outline-none text-center font-bold text-gray-800 text-xs">
+                                <button type="button" onclick="stepInput('form-smonth', 1)" class="px-2 py-1.5 bg-gray-50 hover:bg-gray-100 text-gray-600 font-bold border-l border-gray-200 transition active:bg-gray-200"><i class="fa-solid fa-plus text-[10px]"></i></button>
+                            </div>
+                            <div class="flex items-center bg-white border border-gray-300 rounded-lg overflow-hidden focus-within:border-indigo-500 focus-within:ring-1 focus-within:ring-indigo-200 transition shadow-sm">
+                                <button type="button" onclick="stepInput('form-syear', -1)" class="px-2 py-1.5 bg-gray-50 hover:bg-gray-100 text-gray-600 font-bold border-r border-gray-200 transition active:bg-gray-200"><i class="fa-solid fa-minus text-[10px]"></i></button>
+                                <input type="number" id="form-syear" min="2020" max="2099" placeholder="Năm" class="w-full py-1.5 bg-transparent outline-none text-center font-bold text-gray-800 text-xs">
+                                <button type="button" onclick="stepInput('form-syear', 1)" class="px-2 py-1.5 bg-gray-50 hover:bg-gray-100 text-gray-600 font-bold border-l border-gray-200 transition active:bg-gray-200"><i class="fa-solid fa-plus text-[10px]"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block font-medium mb-1 text-gray-700">Tháng / Năm KẾT THÚC</label>
+                        <div class="grid grid-cols-2 gap-1">
+                            <div class="flex items-center bg-white border border-gray-300 rounded-lg overflow-hidden focus-within:border-indigo-500 focus-within:ring-1 focus-within:ring-indigo-200 transition shadow-sm">
+                                <button type="button" onclick="stepInput('form-emonth', -1)" class="px-2 py-1.5 bg-gray-50 hover:bg-gray-100 text-gray-600 font-bold border-r border-gray-200 transition active:bg-gray-200"><i class="fa-solid fa-minus text-[10px]"></i></button>
+                                <input type="number" id="form-emonth" min="1" max="12" placeholder="Tháng" class="w-full py-1.5 bg-transparent outline-none text-center font-bold text-gray-800 text-xs">
+                                <button type="button" onclick="stepInput('form-emonth', 1)" class="px-2 py-1.5 bg-gray-50 hover:bg-gray-100 text-gray-600 font-bold border-l border-gray-200 transition active:bg-gray-200"><i class="fa-solid fa-plus text-[10px]"></i></button>
+                            </div>
+                            <div class="flex items-center bg-white border border-gray-300 rounded-lg overflow-hidden focus-within:border-indigo-500 focus-within:ring-1 focus-within:ring-indigo-200 transition shadow-sm">
+                                <button type="button" onclick="stepInput('form-eyear', -1)" class="px-2 py-1.5 bg-gray-50 hover:bg-gray-100 text-gray-600 font-bold border-r border-gray-200 transition active:bg-gray-200"><i class="fa-solid fa-minus text-[10px]"></i></button>
+                                <input type="number" id="form-eyear" min="2020" max="2099" placeholder="Năm" class="w-full py-1.5 bg-transparent outline-none text-center font-bold text-gray-800 text-xs">
+                                <button type="button" onclick="stepInput('form-eyear', 1)" class="px-2 py-1.5 bg-gray-50 hover:bg-gray-100 text-gray-600 font-bold border-l border-gray-200 transition active:bg-gray-200"><i class="fa-solid fa-plus text-[10px]"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex gap-2 pt-2">
+                <button onclick="closeModal()" class="flex-1 py-2.5 rounded-xl bg-rose-500 hover:bg-rose-600 font-semibold text-white transition">Hủy</button>
+                <button onclick="saveRental()" class="flex-1 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 font-semibold text-white">Lưu Lịch</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TÍCH HỢP FIREBASE REALTIME SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
+    <script>
+        // === DÁN FIREBASE CONFIG CỦA BẠN VÀO ĐÂY ===
+        const firebaseConfig = {
+            apiKey: "AIzaSyDHeBjqT-cW2nDJfpx3JJ9sGxR9NTBBGLE",
+            authDomain: "quanlyaccgame-2c572.firebaseapp.com",
+            databaseURL: "https://quanlyaccgame-2c572-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "quanlyaccgame-2c572",
+            storageBucket: "quanlyaccgame-2c572.firebasestorage.app",
+            messagingSenderId: "106737373410",
+            appId: "1:106737373410:web:b2c9146b955f5454098ebb"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        let accounts = [
+            { accountName: "4ss", revenue: 0, revenueStartTime: "", schedule: [] },
+            { accountName: "2ss", revenue: 0, revenueStartTime: "", schedule: [] }
+        ];
+        let notes = [];
+        let forceNextDayMode = false;
+        let activeTab = 'upcoming';
+
+        // Hàm tính số ngày trong tháng dựa vào Năm và Tháng
+        function getDaysInMonth(year, month) {
+            return new Date(year, month, 0).getDate();
+        }
+
+        // Cập nhật đồng hồ thời gian thực Việt Nam
+        function updateClock() {
+            const nowString = new Date().toLocaleString("en-US", {timeZone: "Asia/Ho_Chi_Minh"});
+            const now = new Date(nowString);
+            
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            
+            const day = String(now.getDate()).padStart(2, '0');
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const year = now.getFullYear();
+
+            const dayOfWeekNames = ["Chủ Nhật", "Thứ Hai", "Thứ Ba", "Thứ Tư", "Thứ Năm", "Thứ Sáu", "Thứ Bảy"];
+            const dayOfWeek = dayOfWeekNames[now.getDay()];
+
+            const timeElem = document.getElementById('clock-time');
+            const dateElem = document.getElementById('clock-date');
+            
+            if (timeElem) timeElem.innerText = `${hours}:${minutes}:${seconds}`;
+            if (dateElem) dateElem.innerText = `${dayOfWeek}, ${day}/${month}/${year}`;
+        }
+
+        setInterval(updateClock, 1000);
+
+        function getSystemDate() {
+            const nowString = new Date().toLocaleString("en-US", {timeZone: "Asia/Ho_Chi_Minh"});
+            const now = new Date(nowString);
+            return {
+                day: now.getDate(),
+                month: now.getMonth() + 1,
+                year: now.getFullYear(),
+                hour: now.getHours()
+            };
+        }
+
+        // Thay đổi sang Epoch Hours để xử lý chuẩn mọi logic qua tháng/năm/nhuận
+        function getEpochHours(y, m, d, h) {
+            return Math.floor(Date.UTC(y, m - 1, d, h, 0, 0) / 3600000);
+        }
+
+        function fromEpochHours(abs) {
+            let dt = new Date(abs * 3600000);
+            return { y: dt.getUTCFullYear(), m: dt.getUTCMonth() + 1, d: dt.getUTCDate(), h: dt.getUTCHours() };
+        }
+
+        function calculatePrice(accountName, hours) {
+            const price24 = (accountName === "4ss") ? 59000 : 69000;
+            const price1 = (accountName === "4ss") ? 5000 : 6000;
+            const days = Math.floor(hours / 24);
+            const remHours = hours % 24;
+            return (days * price24) + (remHours * price1);
+        }
+
+        // Logic tăng giảm input số
+        function stepInput(id, delta) {
+            const input = document.getElementById(id);
+            if (!input) return;
+
+            let min = parseInt(input.min) || 0;
+            let max = parseInt(input.max) || 999;
+            const prefix = id.startsWith('check-') ? 'check-' : (id.startsWith('form-') ? 'form-' : 'calc-');
+            
+            if (id.includes('day')) {
+                const mInput = document.getElementById(prefix + (id.includes('sday') ? 'smonth' : 'emonth'));
+                const yInput = document.getElementById(prefix + (id.includes('sday') ? 'syear' : 'eyear'));
+                const m = mInput && parseInt(mInput.value) ? parseInt(mInput.value) : getSystemDate().month;
+                const y = yInput && parseInt(yInput.value) ? parseInt(yInput.value) : getSystemDate().year;
+                max = getDaysInMonth(y, m);
+                input.max = max;
+            }
+
+            let val = parseInt(input.value);
+            const today = getSystemDate();
+
+            if (isNaN(val)) {
+                if (id.includes('ehour')) {
+                    const shourVal = parseInt(document.getElementById(prefix + 'shour')?.value);
+                    if (!isNaN(shourVal)) {
+                        val = delta > 0 ? (shourVal + 1) % 24 : (shourVal - 1 + 24) % 24;
+                    } else {
+                        val = today.hour;
+                    }
+                } else if (id.includes('eday')) {
+                    const sdayVal = parseInt(document.getElementById(prefix + 'sday')?.value);
+                    if (!isNaN(sdayVal)) {
+                        val = sdayVal;
+                    } else {
+                        val = today.day;
+                    }
+                } else if (id.includes('smonth') || id.includes('emonth')) {
+                    val = today.month;
+                } else if (id.includes('syear') || id.includes('eyear')) {
+                    val = today.year;
+                } else if (id.includes('day')) {
+                    val = today.day;
+                } else if (id.includes('hour')) {
+                    val = today.hour;
+                } else {
+                    val = min;
+                }
+            } else {
+                val += delta;
+            }
+
+            if (val < min) val = max;
+            if (val > max) val = min;
+
+            input.value = val;
+        }
+
+        // Lấy danh sách Schedule sau khi thêm 1 giờ ảo (Nếu start trùng hiện tại)
+        function getEffectiveSchedule(acc, activeDayObj) {
+            let currentAbs = getEpochHours(activeDayObj.year, activeDayObj.month, activeDayObj.day, activeDayObj.hour);
+            return acc.schedule.map(r => {
+                let s = getEpochHours(r.start.year, r.start.month, r.start.day, r.start.hour);
+                let e = getEpochHours(r.end.year, r.end.month, r.end.day, r.end.hour);
+                if (s === currentAbs) {
+                    e += 1;
+                }
+                return { ...r, startAbs: s, endAbs: e };
+            });
+        }
+
+        // Logic tạo danh sách các Slot Trống chính xác
+        function generateFreeSlots(acc, activeDayObj) {
+            let currentAbs = getEpochHours(activeDayObj.year, activeDayObj.month, activeDayObj.day, activeDayObj.hour);
+            let startTimelineAbs = currentAbs; 
+            
+            let slots = [];
+            let effSched = getEffectiveSchedule(acc, activeDayObj);
+            
+            effSched.sort((a,b) => a.startAbs - b.startAbs);
+            
+            let lastEndAbs = -1;
+            for (let r of effSched) {
+                if (r.endAbs <= startTimelineAbs) {
+                    lastEndAbs = Math.max(lastEndAbs, r.endAbs);
+                    continue;
+                }
+                
+                let gapStart = (lastEndAbs === -1) ? 0 : (lastEndAbs + 1);
+                let gapEnd = r.startAbs - 1;
+                
+                let potStart = Math.max(gapStart, startTimelineAbs);
+                let potEnd = gapEnd;
+                
+                if (potEnd > potStart) {
+                    slots.push({ s: potStart, e: potEnd });
+                } else if (potEnd === potStart) {
+                    if (potStart === currentAbs) {
+                        // Bỏ qua hiển thị nếu chỉ trống 1 tiếng tính từ hiện tại và liền kề sau đó không trống
+                    } else {
+                        slots.push({ s: potStart, e: potEnd });
+                    }
+                }
+                lastEndAbs = Math.max(lastEndAbs, r.endAbs);
+            }
+            
+            let finalGapStart = (lastEndAbs === -1) ? 0 : (lastEndAbs + 1);
+            let finalPotStart = Math.max(finalGapStart, startTimelineAbs);
+            slots.push({ s: finalPotStart, e: -1 });
+
+            return slots;
+        }
+
+        // Định dạng từng mốc thời gian chuẩn theo các quy tắc ràng buộc
+        function formatPoint(targetAbs, pairAbs, isStart, currentAbs) {
+            if (targetAbs === currentAbs && isStart) {
+                return "bây giờ";
+            }
+
+            const t = fromEpochHours(targetAbs);
+            const c = fromEpochHours(currentAbs);
+            const p = (pairAbs !== null && pairAbs !== undefined && pairAbs !== -1) ? fromEpochHours(pairAbs) : null;
+
+            // Khác Năm (so với Hiện tại hoặc giữa Start và End) -> "Yh ngày Z/Tháng/Năm"
+            const diffYearWithCurrent = (t.y !== c.y);
+            const diffYearWithPair = (p !== null && t.y !== p.y);
+            if (diffYearWithCurrent || diffYearWithPair) {
+                return `${t.h}h ngày ${t.d}/${t.m}/${t.y}`;
+            }
+
+            // Khác Tháng (so với Hiện tại hoặc giữa Start và End) -> "Yh ngày Z/Tháng"
+            // (Đồng thời đáp ứng ràng buộc: Nếu Start vs End khác tháng thì Start bắt buộc hiển thị Tháng)
+            const diffMonthWithCurrent = (t.m !== c.m);
+            const diffMonthWithPair = (p !== null && t.m !== p.m);
+            if (diffMonthWithCurrent || diffMonthWithPair) {
+                return `${t.h}h ngày ${t.d}/${t.m}`;
+            }
+
+            // Cùng Tháng, Năm với Hiện tại (và cặp nếu có)
+            if (t.d === c.d) {
+                return `${t.h}h hôm nay`;
+            }
+
+            return `${t.h}h ngày ${t.d}`;
+        }
+
+        function formatTimeT(absTime, currentAbs) {
+            return formatPoint(absTime, null, true, currentAbs);
+        }
+
+        function formatSlotT(s, e, currentAbs) {
+            // Khi mốc bắt đầu và mốc kết thúc trùng nhau 100% giờ ngày tháng năm thì không hiện
+            if (s === e) return "";
+            if (e === -1) {
+                return `Từ ${formatPoint(s, null, true, currentAbs)} trở đi`;
+            }
+            return `Từ ${formatPoint(s, e, true, currentAbs)} ➔ ${formatPoint(e, s, false, currentAbs)}`;
+        }
+
+        function formatCardTime(sAbs, eAbs, currentAbs) {
+            let s = fromEpochHours(sAbs);
+            let e = fromEpochHours(eAbs);
+            let c = fromEpochHours(currentAbs);
+            
+            if (s.y === e.y && s.m === e.m && s.d === e.d) {
+                let dateStr = "";
+                if (s.y === c.y && s.m === c.m && s.d === c.d) dateStr = "Hôm nay";
+                else if (s.y === c.y && s.m === c.m) dateStr = `Ngày ${s.d}`;
+                else if (s.y === c.y) dateStr = `Ngày ${s.d}/${s.m}`;
+                else dateStr = `Ngày ${s.d}/${s.m}/${s.y}`;
+                
+                return `${dateStr} [${s.h}h ➔ ${e.h}h]`;
+            }
+            return `Từ ${formatPoint(sAbs, eAbs, true, currentAbs)} ➔ ${formatPoint(eAbs, sAbs, false, currentAbs)}`;
+        }
+
+        function cleanOldData(acc, activeDayObj) {
+            const limitAbs = getEpochHours(activeDayObj.year, activeDayObj.month, activeDayObj.day - 4, activeDayObj.hour);
+            acc.schedule = acc.schedule.filter(r => {
+                let e = getEpochHours(r.end.year, r.end.month, r.end.day, r.end.hour);
+                return e >= limitAbs;
+            });
+        }
+
+        function sortSchedule(acc, activeDayObj) {
+            acc.schedule.sort((a, b) => {
+                return getEpochHours(b.start.year, b.start.month, b.start.day, b.start.hour) - getEpochHours(a.start.year, a.start.month, a.start.day, a.start.hour);
+            });
+        }
+
+        function listenToFirebase() {
+            db.ref('rental_data').on('value', (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    if (data.accounts) accounts = data.accounts;
+                    if (data.notes) notes = data.notes;
+                    if (data.forceNextDayMode !== undefined) forceNextDayMode = data.forceNextDayMode;
+
+                    accounts.forEach(acc => { if (!acc.schedule) acc.schedule = []; });
+                    renderUI();
+                }
+            });
+        }
+
+        function saveData() {
+            db.ref('rental_data').set({
+                accounts: accounts,
+                notes: notes,
+                forceNextDayMode: forceNextDayMode
+            });
+        }
+
+        function initApp() {
+            updateClock();
+            const today = getSystemDate();
+            accounts.forEach(acc => {
+                if (!acc.revenueStartTime) {
+                    acc.revenueStartTime = `0h ngày ${today.day}/${today.month}/${today.year}`;
+                }
+            });
+            listenToFirebase();
+        }
+
+        function switchTab(tabName) {
+            activeTab = tabName;
+            ['upcoming', 'all', 'notes'].forEach(t => {
+                const btn = document.getElementById(`tab-btn-${t}`);
+                const content = document.getElementById(`tab-${t}`);
+                if (t === tabName) {
+                    btn.className = "flex-1 py-3.5 text-center border-b-2 border-indigo-600 text-indigo-600 font-bold transition";
+                    content.classList.remove('hidden');
+                } else {
+                    btn.className = "flex-1 py-3.5 text-center text-gray-500 hover:text-indigo-600 transition font-bold";
+                    content.classList.add('hidden');
+                }
+            });
+        }
+
+        function createRentalCardHtml(r, accIdx, rIdx, timeStr) {
+            return `
+                <div class="bg-gradient-to-r from-slate-50 via-indigo-50/40 to-slate-50 p-3.5 rounded-xl flex justify-between items-center border border-indigo-100/80 shadow-sm hover:shadow transition">
+                    <div class="space-y-1">
+                        <div class="flex items-center gap-2">
+                            <span class="font-bold text-slate-800 text-sm tracking-wide">${r.tenantName}</span>
+                            <span class="text-[10px] font-bold bg-indigo-600 text-white px-2 py-0.5 rounded-md shadow-sm uppercase">${r.deviceType}</span>
+                        </div>
+                        <div class="text-xs font-medium text-slate-600 flex items-center gap-1.5">
+                            <i class="fa-regular fa-clock text-indigo-500"></i>
+                            <span>${timeStr}</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                        <button onclick="openEditModal(${accIdx}, ${rIdx})" class="bg-white hover:bg-indigo-50 text-indigo-600 border border-indigo-200 px-3 py-1.5 rounded-lg text-xs font-bold transition shadow-sm flex items-center gap-1">
+                            <i class="fa-solid fa-pen-to-square"></i> Sửa
+                        </button>
+                        <button onclick="deleteRental(${accIdx}, ${rIdx})" class="bg-white hover:bg-rose-50 text-rose-600 border border-rose-200 px-3 py-1.5 rounded-lg text-xs font-bold transition shadow-sm flex items-center gap-1">
+                            <i class="fa-solid fa-trash"></i> Xóa
+                        </button>
+                    </div>
+                </div>`;
+        }
+
+        function renderUI() {
+            const today = getSystemDate();
+            let activeDayObj = {...today};
+            
+            // Xử lý Force Day (nếu ON => coi như qua 1 ngày)
+            if (forceNextDayMode) {
+                let dt = new Date(today.year, today.month - 1, today.day + 1, today.hour);
+                activeDayObj = { y: dt.getFullYear(), month: dt.getMonth() + 1, day: dt.getDate(), hour: dt.getHours() };
+            }
+
+            const currentAbs = getEpochHours(activeDayObj.year, activeDayObj.month, activeDayObj.day, activeDayObj.hour);
+
+            document.getElementById('system-date').innerText = `Ngày hệ thống: ${today.day}/${today.month}/${today.year}`;
+            document.getElementById('btn-force-day').innerText = `Ép xóa hôm nay: ${forceNextDayMode ? 'ON' : 'OFF'}`;
+
+            accounts.forEach(acc => {
+                cleanOldData(acc, activeDayObj);
+                sortSchedule(acc, activeDayObj);
+            });
+
+            let totalRevenue = accounts[0].revenue + accounts[1].revenue;
+            document.getElementById('total-revenue').innerText = totalRevenue.toLocaleString('vi-VN') + ' VNĐ';
+            
+            document.getElementById('rev-4ss').innerText = accounts[0].revenue.toLocaleString('vi-VN') + ' VNĐ';
+            document.getElementById('rev-2ss').innerText = accounts[1].revenue.toLocaleString('vi-VN') + ' VNĐ';
+            document.getElementById('rev-start-4ss').innerText = `Từ ${accounts[0].revenueStartTime}`;
+            document.getElementById('rev-start-2ss').innerText = `Từ ${accounts[1].revenueStartTime}`;
+
+            ['4ss', '2ss'].forEach((accName, idx) => {
+                const acc = accounts[idx];
+                const effSched = getEffectiveSchedule(acc, activeDayObj);
+                
+                // Upcoming
+                const upContainer = document.getElementById(`list-upcoming-${accName}`);
+                let upHtml = "";
+                let count = 0;
+                effSched.forEach((r, rIdx) => {
+                    if (r.startAbs > currentAbs) {
+                        count++;
+                        upHtml += createRentalCardHtml(r, idx, rIdx, formatCardTime(r.startAbs, r.endAbs, currentAbs));
+                    }
+                });
+                upContainer.innerHTML = count > 0 ? upHtml : `<p class="text-gray-400 text-sm italic">(Không có lịch sắp lên ca)</p>`;
+
+                // All
+                const allContainer = document.getElementById(`list-all-${accName}`);
+                if (effSched.length === 0) {
+                    allContainer.innerHTML = `<p class="text-gray-400 text-sm italic">(Chưa có lịch thuê)</p>`;
+                } else {
+                    let allHtml = "";
+                    effSched.forEach((r, rIdx) => {
+                        allHtml += createRentalCardHtml(r, idx, rIdx, formatCardTime(r.startAbs, r.endAbs, currentAbs));
+                    });
+                    allContainer.innerHTML = allHtml;
+                }
+            });
+            renderNotesTab();
+        }
+
+        function renderNotesTab() {
+            const container = document.getElementById('list-notes');
+            if (notes.length === 0) {
+                container.innerHTML = `<p class="text-gray-400 text-sm italic">Chưa có ghi chú hệ thống.</p>`;
+                return;
+            }
+            let html = "";
+            notes.forEach((note, idx) => {
+                html += `
+                    <div class="flex justify-between items-center bg-gray-50 p-3 rounded-xl border border-gray-100 text-sm">
+                        <span>• ${note}</span>
+                        <div class="flex gap-2">
+                            <button onclick="editNote(${idx})" class="text-indigo-600 hover:text-indigo-800"><i class="fa-solid fa-pen text-xs"></i></button>
+                            <button onclick="deleteNote(${idx})" class="text-rose-500 hover:text-rose-700"><i class="fa-solid fa-xmark text-xs"></i></button>
+                        </div>
+                    </div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        // --- CÁC HÀM XỬ LÝ MODAL TÙY CHỈNH ---
+        let currentAlertMessage = "";
+        let onAlertBack = null;
+
+        function showCustomAlert(message, showCopy = false, onBack = null) {
+            currentAlertMessage = message;
+            document.getElementById('custom-alert-message').innerText = message;
+            
+            const copyBtn = document.getElementById('btn-copy-alert');
+            const backBtn = document.getElementById('btn-back-alert');
+            onAlertBack = onBack;
+
+            if (showCopy) copyBtn.classList.remove('hidden');
+            else copyBtn.classList.add('hidden');
+
+            if (onBack) backBtn.classList.remove('hidden');
+            else backBtn.classList.add('hidden');
+
+            document.getElementById('modal-custom-alert').classList.remove('hidden');
+            document.getElementById('modal-custom-alert').classList.add('flex');
+        }
+
+        function closeCustomAlert() {
+            document.getElementById('modal-custom-alert').classList.add('hidden');
+            document.getElementById('modal-custom-alert').classList.remove('flex');
+        }
+
+        function backFromAlert() {
+            closeCustomAlert();
+            if (onAlertBack) onAlertBack();
+        }
+
+        function copyToClip(text, btnId) {
+            navigator.clipboard.writeText(text).then(() => {
+                const btn = document.getElementById(btnId);
+                const originalHTML = btn.innerHTML;
+                btn.innerHTML = '<i class="fa-solid fa-check mr-1"></i> Đã Copy';
+                btn.classList.add('scale-105', 'opacity-90');
+                
+                setTimeout(() => {
+                    btn.innerHTML = originalHTML;
+                    btn.classList.remove('scale-105', 'opacity-90');
+                }, 800);
+            });
+        }
+
+        function copyAlertMessage() {
+            copyToClip(currentAlertMessage, 'btn-copy-alert');
+        }
+
+        function copyCalcResult() {
+            const text = document.getElementById('calc-result-text').innerText;
+            copyToClip(text, 'btn-copy-calc');
+        }
+
+        let confirmCallback = null;
+        let confirmBackCallback = null;
+        function showCustomConfirm(message, onOk, onBack = null) {
+            document.getElementById('custom-confirm-message').innerText = message;
+            confirmCallback = onOk;
+            confirmBackCallback = onBack;
+            
+            const backBtn = document.getElementById('btn-confirm-back');
+            if (onBack) backBtn.classList.remove('hidden');
+            else backBtn.classList.add('hidden');
+
+            const modal = document.getElementById('modal-custom-confirm');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        document.getElementById('btn-confirm-ok').onclick = () => {
+            document.getElementById('modal-custom-confirm').classList.add('hidden');
+            document.getElementById('modal-custom-confirm').classList.remove('flex');
+            if (confirmCallback) confirmCallback();
+        };
+        document.getElementById('btn-confirm-cancel').onclick = () => {
+            document.getElementById('modal-custom-confirm').classList.add('hidden');
+            document.getElementById('modal-custom-confirm').classList.remove('flex');
+        };
+        document.getElementById('btn-confirm-back').onclick = () => {
+            document.getElementById('modal-custom-confirm').classList.add('hidden');
+            document.getElementById('modal-custom-confirm').classList.remove('flex');
+            if (confirmBackCallback) confirmBackCallback();
+        };
+
+        let promptCallback = null;
+        function showCustomPrompt(title, defaultValue = "", onOk) {
+            document.getElementById('custom-prompt-title').innerText = title;
+            const input = document.getElementById('custom-prompt-input');
+            const optContainer = document.getElementById('custom-prompt-options');
+            const buttons = document.getElementById('custom-prompt-buttons');
+            const btnOk = document.getElementById('btn-prompt-ok');
+            
+            input.value = defaultValue;
+            input.classList.remove('hidden');
+            btnOk.classList.remove('hidden');
+            buttons.classList.remove('hidden');
+            optContainer.classList.add('hidden');
+            
+            promptCallback = onOk;
+            
+            const modal = document.getElementById('modal-custom-prompt');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            input.focus();
+        }
+
+        function showCustomOptionsModal(title, options, onSelect) {
+            document.getElementById('custom-prompt-title').innerText = title;
+            const input = document.getElementById('custom-prompt-input');
+            const optContainer = document.getElementById('custom-prompt-options');
+            const buttons = document.getElementById('custom-prompt-buttons');
+            const btnOk = document.getElementById('btn-prompt-ok');
+
+            input.classList.add('hidden');
+            btnOk.classList.add('hidden');
+            buttons.classList.remove('hidden');
+            optContainer.classList.remove('hidden');
+            optContainer.innerHTML = "";
+            
+            options.forEach((opt, index) => {
+                const btn = document.createElement('button');
+                let colorClasses = "";
+                if (index === 0) colorClasses = "bg-blue-50 hover:bg-blue-100 text-blue-700 border-blue-200";
+                else if (index === 1) colorClasses = "bg-amber-50 hover:bg-amber-100 text-amber-700 border-amber-200";
+                else colorClasses = "bg-purple-50 hover:bg-purple-100 text-purple-700 border-purple-200";
+
+                btn.className = `w-full text-left px-4 py-3 rounded-xl font-medium text-sm border transition flex items-center justify-between ${colorClasses}`;
+                btn.innerHTML = `<span>${opt.label}</span> <i class="fa-solid fa-chevron-right text-xs opacity-60"></i>`;
+                btn.onclick = () => {
+                    closeCustomPrompt();
+                    onSelect(opt.value);
+                };
+                optContainer.appendChild(btn);
+            });
+            
+            const modal = document.getElementById('modal-custom-prompt');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+        
+        function closeCustomPrompt() {
+            document.getElementById('modal-custom-prompt').classList.add('hidden');
+            document.getElementById('modal-custom-prompt').classList.remove('flex');
+        }
+
+        // --- CÁC HÀM LỊCH TRỐNG & KIỂM TRA TRỐNG ---
+        function openFreeScheduleModal() {
+            showCustomOptionsModal("Chọn tài khoản xem lịch trống:", [
+                { label: "Acc 4ss", value: "0" },
+                { label: "Acc 2ss", value: "1" },
+                { label: "CẢ 2 ACC", value: "2" }
+            ], (choice) => {
+                showFreeScheduleResult(parseInt(choice));
+            });
+        }
+
+        function showFreeScheduleResult(choice) {
+            const today = getSystemDate();
+            let currentAbs = getEpochHours(today.year, today.month, today.day, today.hour);
+            let msg = "";
+
+            if (choice === 0 || choice === 1) {
+                let slots = generateFreeSlots(accounts[choice], today);
+                let validSlots = slots.map(s => formatSlotT(s.s, s.e, currentAbs)).filter(txt => txt !== "");
+                let plural = validSlots.length > 1 ? "các " : "";
+                msg += `Dạ acc ${accounts[choice].accountName} trống ${plural}khung giờ sau ạ:\n`;
+                validSlots.forEach(txt => { msg += `+ ${txt}\n`; });
+            } else if (choice === 2) {
+                let slots4ss = generateFreeSlots(accounts[0], today);
+                let valid4 = slots4ss.map(s => formatSlotT(s.s, s.e, currentAbs)).filter(txt => txt !== "");
+                let pl4 = valid4.length > 1 ? "các " : "";
+                msg += `Dạ acc 4ss trống ${pl4}khung giờ sau ạ:\n`;
+                valid4.forEach(txt => { msg += `+ ${txt}\n`; });
+                msg += `\n`;
+                let slots2ss = generateFreeSlots(accounts[1], today);
+                let valid2 = slots2ss.map(s => formatSlotT(s.s, s.e, currentAbs)).filter(txt => txt !== "");
+                let pl2 = valid2.length > 1 ? "các " : "";
+                msg += `Và acc 2ss thì trống ${pl2}khung giờ sau ạ:\n`;
+                valid2.forEach(txt => { msg += `+ ${txt}\n`; });
+            }
+            showCustomAlert(msg.trim(), true, openFreeScheduleModal);
+        }
+
+        function openCheckModal() {
+            const today = getSystemDate();
+            document.getElementById('check-acc').value = "";
+            document.getElementById('check-sday').value = "";
+            document.getElementById('check-shour').value = "";
+            document.getElementById('check-eday').value = "";
+            document.getElementById('check-ehour').value = "";
+            
+            document.getElementById('check-smonth').value = today.month;
+            document.getElementById('check-emonth').value = today.month;
+            document.getElementById('check-syear').value = today.year;
+            document.getElementById('check-eyear').value = today.year;
+
+            document.getElementById('modal-check').classList.remove('hidden');
+            document.getElementById('modal-check').classList.add('flex');
+        }
+
+        function closeCheckModal() {
+            document.getElementById('modal-check').classList.add('hidden');
+            document.getElementById('modal-check').classList.remove('flex');
+        }
+
+        function executeCheck() {
+            const accVal = document.getElementById('check-acc').value;
+            const today = getSystemDate();
+            
+            const sDay = parseInt(document.getElementById('check-sday').value);
+            const sHour = parseInt(document.getElementById('check-shour').value);
+            const eDay = parseInt(document.getElementById('check-eday').value);
+            const eHour = parseInt(document.getElementById('check-ehour').value);
+
+            const sMonth = parseInt(document.getElementById('check-smonth').value) || today.month;
+            const eMonth = parseInt(document.getElementById('check-emonth').value) || today.month;
+            const sYear = parseInt(document.getElementById('check-syear').value) || today.year;
+            const eYear = parseInt(document.getElementById('check-eyear').value) || today.year;
+
+            if (accVal === "" || accVal === null) { showCustomAlert("Vui lòng chọn Tài khoản!"); return; }
+            if (isNaN(sDay) || isNaN(sHour) || isNaN(eDay) || isNaN(eHour)) { showCustomAlert("Vui lòng nhập đầy đủ ngày và giờ!"); return; }
+
+            const inS = getEpochHours(sYear, sMonth, sDay, sHour);
+            const inE = getEpochHours(eYear, eMonth, eDay, eHour);
+            const currentAbs = getEpochHours(today.year, today.month, today.day, today.hour);
+
+            if (inS >= inE) { showCustomAlert("Thời gian bắt đầu phải nhỏ hơn kết thúc!"); return; }
+
+            let checkS = inS;
+            let checkE = (inS === currentAbs) ? inE + 1 : inE; // Ngoại lệ W áp dụng + 1 ảo
+            let durationCheck = checkE - checkS;
+            let timeStrS = formatTimeT(inS, currentAbs);
+            
+            // Xử lý Check function
+            let msg = "";
+            if (accVal === "0" || accVal === "1") {
+                msg = runCheckSingle(parseInt(accVal), checkS, checkE, durationCheck, inS, inE, currentAbs, timeStrS);
+            } else {
+                msg = runCheckBoth(checkS, checkE, durationCheck, inS, inE, currentAbs, timeStrS);
+            }
+            
+            closeCheckModal();
+            showCustomAlert(msg, true, () => {
+                document.getElementById('modal-check').classList.remove('hidden');
+                document.getElementById('modal-check').classList.add('flex');
+            });
+        }
+        
+        function getCoverage(accIdx, checkS, checkE, currentAbs) {
+            const today = getSystemDate();
+            let freeSlots = generateFreeSlots(accounts[accIdx], today);
+            
+            let covered = 0;
+            let nonFreeRanges = [];
+            
+            let h = checkS;
+            while(h < checkE) {
+                let isHourFree = false;
+                for (let s of freeSlots) {
+                    if (h >= s.s && (s.e === -1 || h < s.e)) { // Note: s.e is end boundary, free [s, e] covers h if h < e
+                        isHourFree = true; break;
+                    }
+                }
+                if (isHourFree) { covered++; h++; }
+                else {
+                    let blockS = h;
+                    while(h < checkE) {
+                        let isStillFree = false;
+                        for (let s of freeSlots) {
+                            if (h >= s.s && (s.e === -1 || h < s.e)) { isStillFree = true; break; }
+                        }
+                        if (isStillFree) break;
+                        h++;
+                    }
+                    nonFreeRanges.push({s: blockS, e: h});
+                }
+            }
+            return { covered, nonFreeRanges };
+        }
+
+        function runCheckSingle(accIdx, checkS, checkE, durationCheck, inS, inE, currentAbs, timeStrS) {
+            const accName = accounts[accIdx].accountName;
+            const res = getCoverage(accIdx, checkS, checkE, currentAbs);
+            const timeDesc = (inS === currentAbs) ? "hiện tại" : "lúc đó";
+
+            if (res.covered === durationCheck) {
+                return `Dạ acc ${accName} ${timeDesc} có trống ạ.`;
+            }
+            
+            // Logic kiểm tra giờ liền kề trống cho khung 1 tiếng (Chạy trước khi chặn hoàn toàn res.covered === 0)
+            if (inE - inS === 1) {
+                const today = getSystemDate();
+                let freeSlots = generateFreeSlots(accounts[accIdx], today);
+                let nextHourFree = false;
+                let nextHour = inS + 1; // Lấy chính xác mốc bắt đầu + 1
+                for (let s of freeSlots) {
+                    if (nextHour >= s.s && (s.e === -1 || nextHour < s.e)) { nextHourFree = true; break; }
+                }
+                if (nextHourFree) {
+                    return `Dạ acc ${accName} lúc ${formatTimeT(nextHour, currentAbs)} thì mới trống ạ.`;
+                }
+            }
+
+            if (res.covered === 0) {
+                return `Dạ acc ${accName} ${timeDesc} không trống mất rồi ạ.`;
+            }
+            
+            // Xử lý các điều kiện Ngoại lệ (Partially free)
+            if (inE - inS === 2) {
+                let qStr = "";
+                if (res.nonFreeRanges.length === 1) {
+                    qStr = `không trống từ ${formatTimeT(res.nonFreeRanges[0].s, currentAbs)} ➔ ${formatTimeT(res.nonFreeRanges[0].e, currentAbs)}`;
+                } else {
+                    let ranges = res.nonFreeRanges.map(r => `+ Không trống từ ${formatTimeT(r.s, currentAbs)} ➔ ${formatTimeT(r.e, currentAbs)}`).join('\n');
+                    qStr = `không trống các khung giờ sau mất rồi ạ:\n${ranges}`;
+                }
+                return `Dạ acc ${accName} với khung giờ mà bạn đặt thì ${qStr} mất rồi ạ.`;
+            }
+
+            // Rule Q (Duration >= 3, partially free)
+            if (durationCheck >= 3) {
+                if (res.nonFreeRanges.length === 1) {
+                    return `Dạ acc ${accName} với khung giờ mà bạn đặt thì không trống từ ${formatTimeT(res.nonFreeRanges[0].s, currentAbs)} ➔ ${formatTimeT(res.nonFreeRanges[0].e, currentAbs)} mất rồi ạ.`;
+                } else {
+                    let ranges = res.nonFreeRanges.map(r => `+ Không trống từ ${formatTimeT(r.s, currentAbs)} ➔ ${formatTimeT(r.e, currentAbs)}`).join('\n');
+                    return `Dạ acc ${accName} với khung giờ mà bạn đặt thì không trống các khung giờ sau mất rồi ạ:\n${ranges}`;
+                }
+            }
+            return `Dạ acc ${accName} ${timeDesc} không trống mất rồi ạ.`;
+        }
+
+        function runCheckBoth(checkS, checkE, durationCheck, inS, inE, currentAbs, timeStrS) {
+            const timeDesc = (inS === currentAbs) ? "hiện tại" : "lúc đó";
+            const res4 = getCoverage(0, checkS, checkE, currentAbs);
+            const res2 = getCoverage(1, checkS, checkE, currentAbs);
+            
+            const isFull4 = (res4.covered === durationCheck);
+            const isFull2 = (res2.covered === durationCheck);
+            
+            if (isFull4 && isFull2) {
+                return `Dạ cả 2 acc ${timeDesc} đều có trống ạ.`;
+            }
+            if (res4.covered === 0 && res2.covered === 0) {
+                return `Dạ cả 2 acc ${timeDesc} đều không trống mất rồi ạ.`;
+            }
+            
+	    // Rule B
+            if (inE - inS === 1 && !isFull4 && !isFull2) {
+                const today = getSystemDate();
+                let f4 = generateFreeSlots(accounts[0], today);
+                let f2 = generateFreeSlots(accounts[1], today);
+                let nextHour = inS + 1; // Lấy chính xác mốc bắt đầu + 1
+                
+                let nh4 = false, nh2 = false;
+                for (let s of f4) if (nextHour >= s.s && (s.e === -1 || nextHour < s.e)) { nh4 = true; break; }
+                for (let s of f2) if (nextHour >= s.s && (s.e === -1 || nextHour < s.e)) { nh2 = true; break; }
+                
+                if (nh4 && nh2) return `Dạ cả 2 acc lúc ${formatTimeT(nextHour, currentAbs)} thì mới đều trống ạ.`;
+                if (nh4) return `Dạ acc 4ss lúc ${formatTimeT(nextHour, currentAbs)} thì mới trống ạ.`;
+                if (nh2) return `Dạ acc 2ss lúc ${formatTimeT(nextHour, currentAbs)} thì mới trống ạ.`;
+            }
+            
+            let msg = "";
+            if (isFull4) msg += `Dạ acc 4ss ${timeDesc} có trống, còn acc 2ss thì ${timeDesc} không trống ạ.\n`;
+	    if (isFull2) msg += `Dạ acc 2ss ${timeDesc} có trống, còn acc 4ss thì ${timeDesc} không trống ạ.\n`;
+            
+            return msg;
+        }
+
+        // --- XÓA SẠCH LỊCH & RESET DOANH THU ---
+        function openClearAllDataModal() {
+            showCustomOptionsModal("Chọn tài khoản xóa sạch lịch:", [
+                { label: "Acc 4ss", value: "0" },
+                { label: "Acc 2ss", value: "1" },
+                { label: "CẢ 2 ACC", value: "2" }
+            ], (choice) => {
+                let target = choice === "2" ? "CẢ 2 ACC" : `Acc ${choice === "0" ? '4ss' : '2ss'}`;
+                showCustomConfirm(`Xóa sạch lịch của ${target}?`, () => {
+                    if (choice === "0" || choice === "1") accounts[parseInt(choice)].schedule = [];
+                    else if (choice === "2") { accounts[0].schedule = []; accounts[1].schedule = []; }
+                    saveData();
+                }, openClearAllDataModal);
+            });
+        }
+
+        function openResetRevenueModal() {
+            showCustomOptionsModal("Chọn tài khoản reset doanh thu:", [
+                { label: "Acc 4ss", value: "0" },
+                { label: "Acc 2ss", value: "1" },
+                { label: "CẢ 2 ACC", value: "2" }
+            ], (choice) => {
+                let target = choice === "2" ? "CẢ 2 ACC" : `Acc ${choice === "0" ? '4ss' : '2ss'}`;
+                showCustomConfirm(`Reset doanh thu của ${target}?`, () => {
+                    const today = getSystemDate();
+                    const resetStartAbs = getEpochHours(today.year, today.month, today.day, 0);
+                    const newRevStart = `0h ngày ${today.day}/${today.month}/${today.year}`;
+                    
+                    const resetAccRevenue = (accIdx) => {
+                        let acc = accounts[accIdx];
+                        let newRev = 0;
+                        acc.schedule.forEach(r => {
+                            let s = getEpochHours(r.start.year, r.start.month, r.start.day, r.start.hour);
+                            let e = getEpochHours(r.end.year, r.end.month, r.end.day, r.end.hour);
+                            if (e > resetStartAbs) {
+                                let hours = e - s;
+                                newRev += calculatePrice(acc.accountName, hours);
+                            }
+                        });
+                        acc.revenue = newRev;
+                        acc.revenueStartTime = newRevStart;
+                    };
+
+                    if (choice === "0" || choice === "1") {
+                        resetAccRevenue(parseInt(choice));
+                    } else if (choice === "2") {
+                        resetAccRevenue(0);
+                        resetAccRevenue(1);
+                    }
+                    saveData();
+                }, openResetRevenueModal);
+            });
+        }
+
+        // --- TÍNH TIỀN LOGIC ---
+        let calcAccChoice = "";
+        let calcLoginChoice = "";
+        let calcTimingChoice = "";
+
+        function openCalcModal() {
+            showCustomOptionsModal("Chọn tài khoản Tính tiền:", [
+                { label: "Acc 4ss", value: "0" },
+                { label: "Acc 2ss", value: "1" },
+                { label: "CẢ 2 ACC", value: "2" }
+            ], (choice) => {
+                calcAccChoice = choice;
+                document.getElementById('modal-calculate').classList.remove('hidden');
+                document.getElementById('modal-calculate').classList.add('flex');
+                
+                document.getElementById('calc-page-2').classList.remove('hidden');
+                document.getElementById('calc-page-3').classList.add('hidden');
+                
+                setCalcLogin('LINE');
+                buildCalcHoursInput();
+            });
+        }
+
+        function closeCalcModal() {
+            document.getElementById('modal-calculate').classList.add('hidden');
+            document.getElementById('modal-calculate').classList.remove('flex');
+        }
+
+        function backToCalcPage1() {
+            closeCalcModal();
+            openCalcModal();
+        }
+
+        function backToCalcPage2() {
+            document.getElementById('calc-page-3').classList.add('hidden');
+            document.getElementById('calc-page-2').classList.remove('hidden');
+        }
+
+        function setCalcLogin(type) {
+            calcLoginChoice = type;
+            ['LINE', 'Google', 'Scan'].forEach(t => {
+                const btn = document.getElementById(`calc-login-${t}`);
+                if (t === type || (type === 'Scan PC' && t === 'Scan')) {
+                    btn.className = "py-2.5 px-3 rounded-xl border font-bold text-xs transition bg-indigo-50 border-indigo-500 text-indigo-700";
+                } else {
+                    btn.className = "py-2.5 px-3 rounded-xl border font-bold text-xs transition bg-gray-50 border-gray-200 text-gray-700";
+                }
+            });
+
+            const scanOpts = document.getElementById('calc-scan-options');
+            if (type === 'Scan PC') {
+                scanOpts.classList.remove('hidden');
+                setCalcTiming('Thuê ngay');
+            } else {
+                scanOpts.classList.add('hidden');
+                calcTimingChoice = "";
+            }
+        }
+
+        function setCalcTiming(type) {
+            calcTimingChoice = type;
+            const nowBtn = document.getElementById('calc-timing-now');
+            const latBtn = document.getElementById('calc-timing-later');
+            
+            if (type === 'Thuê ngay') {
+                nowBtn.className = "py-2.5 px-3 rounded-xl border font-bold text-xs transition bg-indigo-50 border-indigo-500 text-indigo-700";
+                latBtn.className = "py-2.5 px-3 rounded-xl border font-bold text-xs transition bg-gray-50 border-gray-200 text-gray-700";
+            } else {
+                latBtn.className = "py-2.5 px-3 rounded-xl border font-bold text-xs transition bg-indigo-50 border-indigo-500 text-indigo-700";
+                nowBtn.className = "py-2.5 px-3 rounded-xl border font-bold text-xs transition bg-gray-50 border-gray-200 text-gray-700";
+            }
+        }
+
+        function buildCalcHoursInput() {
+            const container = document.getElementById('calc-hours-container');
+            if (calcAccChoice === "0" || calcAccChoice === "1") {
+                const accName = calcAccChoice === "0" ? "4ss" : "2ss";
+                container.innerHTML = `
+                    <div>
+                        <label class="block font-medium mb-1 text-sm">Số giờ thuê (${accName})</label>
+                        <div class="flex items-center bg-white border border-gray-300 rounded-xl overflow-hidden focus-within:border-indigo-500 focus-within:ring-2 focus-within:ring-indigo-200 transition shadow-sm">
+                            <button type="button" onclick="stepInput('calc-hours-single', -1)" class="px-4 py-2.5 bg-gray-50 hover:bg-gray-100 text-gray-600 font-bold border-r border-gray-200 transition active:bg-gray-200"><i class="fa-solid fa-minus text-xs"></i></button>
+                            <input type="number" id="calc-hours-single" min="1" max="999" value="1" class="w-full py-2.5 bg-transparent outline-none text-center font-bold text-gray-800">
+                            <button type="button" onclick="stepInput('calc-hours-single', 1)" class="px-4 py-2.5 bg-gray-50 hover:bg-gray-100 text-gray-600 font-bold border-l border-gray-200 transition active:bg-gray-200"><i class="fa-solid fa-plus text-xs"></i></button>
+                        </div>
+                    </div>`;
+            } else {
+                container.innerHTML = `
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block font-medium mb-1 text-sm">Số giờ Acc 4ss</label>
+                            <div class="flex items-center bg-white border border-gray-300 rounded-xl overflow-hidden focus-within:border-indigo-500 focus-within:ring-2 focus-within:ring-indigo-200 transition shadow-sm">
+                                <button type="button" onclick="stepInput('calc-hours-4ss', -1)" class="px-3 py-2.5 bg-gray-50 hover:bg-gray-100 text-gray-600 font-bold border-r border-gray-200 transition active:bg-gray-200"><i class="fa-solid fa-minus text-xs"></i></button>
+                                <input type="number" id="calc-hours-4ss" min="1" max="999" value="1" class="w-full py-2.5 bg-transparent outline-none text-center font-bold text-gray-800">
+                                <button type="button" onclick="stepInput('calc-hours-4ss', 1)" class="px-3 py-2.5 bg-gray-50 hover:bg-gray-100 text-gray-600 font-bold border-l border-gray-200 transition active:bg-gray-200"><i class="fa-solid fa-plus text-xs"></i></button>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block font-medium mb-1 text-sm">Số giờ Acc 2ss</label>
+                            <div class="flex items-center bg-white border border-gray-300 rounded-xl overflow-hidden focus-within:border-indigo-500 focus-within:ring-2 focus-within:ring-indigo-200 transition shadow-sm">
+                                <button type="button" onclick="stepInput('calc-hours-2ss', -1)" class="px-3 py-2.5 bg-gray-50 hover:bg-gray-100 text-gray-600 font-bold border-r border-gray-200 transition active:bg-gray-200"><i class="fa-solid fa-minus text-xs"></i></button>
+                                <input type="number" id="calc-hours-2ss" min="1" max="999" value="1" class="w-full py-2.5 bg-transparent outline-none text-center font-bold text-gray-800">
+                                <button type="button" onclick="stepInput('calc-hours-2ss', 1)" class="px-3 py-2.5 bg-gray-50 hover:bg-gray-100 text-gray-600 font-bold border-l border-gray-200 transition active:bg-gray-200"><i class="fa-solid fa-plus text-xs"></i></button>
+                            </div>
+                        </div>
+                    </div>`;
+            }
+        }
+
+        function finishCalculation() {
+            let total = 0;
+            if (calcAccChoice === "0" || calcAccChoice === "1") {
+                const hInput = document.getElementById('calc-hours-single');
+                const hours = parseInt(hInput ? hInput.value : 1) || 1;
+                const accName = calcAccChoice === "0" ? "4ss" : "2ss";
+                total = calculatePrice(accName, hours);
+            } else {
+                const h4Input = document.getElementById('calc-hours-4ss');
+                const h2Input = document.getElementById('calc-hours-2ss');
+                const hours4 = parseInt(h4Input ? h4Input.value : 1) || 1;
+                const hours2 = parseInt(h2Input ? h2Input.value : 1) || 1;
+                total = calculatePrice("4ss", hours4) + calculatePrice("2ss", hours2);
+            }
+
+            const x = (total / 1000).toLocaleString('vi-VN');
+            let msg = "";
+
+            if (calcLoginChoice === 'LINE' || (calcLoginChoice === 'Scan PC' && calcTimingChoice === 'Đặt trước')) {
+                msg = `Dạ của bạn là ${x}k STK cũ ạ! ✨\n\nXác nhận thanh toán: Chuyển khoản xong bạn nhớ nhắn báo mình biết liền nghen. Nếu bạn không báo mình biết thì mình sẽ không biết và coi như là bạn chưa chuyển khoản á bạn nghen 🥲💔\n\nLưu ý giữ slot: Bên mình ưu tiên giữ slot cho bạn nào chuyển khoản sớm nhất thôi nghen!\n\nCảm ơn bạn nhiều ạ ❤️❤️❤️`;
+            } else if (calcLoginChoice === 'Google') {
+                msg = `Dạ của bạn là ${x}k STK cũ ạ! ✨\n\nLiên kết acc: Bạn gửi lại cho mình acc Gmail cùng đầy đủ mật khẩu để mình hỗ trợ liên kết vào acc cho bạn nghen.\n\nThanh toán & Giữ slot:\n\nChuyển khoản xong bạn nhớ nhắn báo mình biết liền nha. Nếu bạn không báo mình biết thì mình sẽ không biết và coi như là bạn chưa chuyển khoản á bạn nghen 🥲💔\n\nBạn lưu ý là bên mình ưu tiên giữ slot cho bạn nào chuyển khoản sớm nhất nghen!\n\nCảm ơn bạn nhiều ạ ❤️❤️❤️`;
+            } else if (calcLoginChoice === 'Scan PC' && calcTimingChoice === 'Thuê ngay') {
+                msg = `Dạ của bạn là ${x}k STK cũ ạ! ✨\n\nĐăng nhập: Bạn gửi giúp mình mã QR để mình hỗ trợ scan cho bạn nghen.\n\nThanh toán & Giữ slot:\n\nChuyển khoản xong bạn nhớ nhắn báo mình biết liền nha. Nếu bạn không báo mình biết thì mình sẽ không biết và coi như là bạn chưa chuyển khoản á bạn nghen 🥲💔\n\nBạn lưu ý là bên mình ưu tiên giữ slot cho bạn nào chuyển khoản sớm nhất nghen!\n\nCảm ơn bạn nhiều ạ ❤️❤️❤️`;
+            }
+
+            document.getElementById('calc-result-text').innerText = msg;
+            document.getElementById('calc-page-2').classList.add('hidden');
+            document.getElementById('calc-page-3').classList.remove('hidden');
+        }
+
+        function toggleForceNextDay() {
+            forceNextDayMode = !forceNextDayMode;
+            saveData();
+            renderUI();
+        }
+
+        function openAddModal() {
+            const today = getSystemDate();
+            document.getElementById('modal-title').innerText = "Nhập Lịch Thuê Mới";
+            document.getElementById('edit-acc-idx').value = "-1";
+            document.getElementById('edit-rental-idx').value = "-1";
+            
+            document.getElementById('form-acc').value = "";
+            document.getElementById('form-device').value = "";
+            document.getElementById('form-tenant').value = "";
+	    document.getElementById('form-sday').value = "";
+	    document.getElementById('form-shour').value = "";
+	    document.getElementById('form-eday').value = "";
+	    document.getElementById('form-ehour').value = "";
+            
+            document.getElementById('form-smonth').value = today.month;
+            document.getElementById('form-emonth').value = today.month;
+            document.getElementById('form-syear').value = today.year;
+            document.getElementById('form-eyear').value = today.year;
+
+            document.getElementById('modal-rental').classList.remove('hidden');
+            document.getElementById('modal-rental').classList.add('flex');
+        }
+
+        function openEditModal(accIdx, rentalIdx) {
+            const r = accounts[accIdx].schedule[rentalIdx];
+            if (!r) return;
+            document.getElementById('modal-title').innerText = "Sửa Lịch Thuê";
+            document.getElementById('edit-acc-idx').value = accIdx;
+            document.getElementById('edit-rental-idx').value = rentalIdx;
+
+            document.getElementById('form-acc').value = accIdx;
+            document.getElementById('form-device').value = r.deviceType;
+            document.getElementById('form-tenant').value = r.tenantName;
+            
+            document.getElementById('form-sday').value = r.start.day;
+            document.getElementById('form-shour').value = r.start.hour;
+            document.getElementById('form-eday').value = r.end.day;
+            document.getElementById('form-ehour').value = r.end.hour;
+
+            document.getElementById('form-smonth').value = r.start.month;
+            document.getElementById('form-emonth').value = r.end.month;
+            document.getElementById('form-syear').value = r.start.year;
+            document.getElementById('form-eyear').value = r.end.year;
+
+            document.getElementById('modal-rental').classList.remove('hidden');
+            document.getElementById('modal-rental').classList.add('flex');
+        }
+
+        function closeModal() {
+            document.getElementById('modal-rental').classList.add('hidden');
+            document.getElementById('modal-rental').classList.remove('flex');
+        }
+
+	// Quy đổi thời gian để saveRental so sánh
+function toAbsoluteHours(y, m, d, h) {
+    return getEpochHours(y, m, d, h);
+}
+
+// Bóc tách thời gian bắt đầu tính doanh thu
+function parseRevenueStartTime(revStr, today) {
+    if (!revStr) return getEpochHours(today.year, today.month, today.day, 0);
+    let parts = revStr.match(/(\d+)h ngày (\d+)\/(\d+)\/(\d+)/);
+    if (parts) return getEpochHours(parseInt(parts[4]), parseInt(parts[3]), parseInt(parts[2]), parseInt(parts[1]));
+    return getEpochHours(today.year, today.month, today.day, 0);
+}
+
+// Kiểm tra xem lịch có nằm hoàn toàn trong các slot trống không
+function isFullyFree(acc, startAbs, reqEndAbs, currentAbs) {
+    let d = fromEpochHours(currentAbs);
+    let dayObj = { year: d.y, month: d.m, day: d.d, hour: d.h };
+    let slots = generateFreeSlots(acc, dayObj);
+    
+    for (let s of slots) {
+        if (startAbs >= s.s && (s.e === -1 || reqEndAbs <= s.e)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+        function saveRental() {
+            const today = getSystemDate();
+            const accVal = document.getElementById('form-acc').value;
+            const devVal = document.getElementById('form-device').value;
+            const tenant = document.getElementById('form-tenant').value.trim();
+            const sDay = parseInt(document.getElementById('form-sday').value);
+            const sHour = parseInt(document.getElementById('form-shour').value);
+            const eDay = parseInt(document.getElementById('form-eday').value);
+            const eHour = parseInt(document.getElementById('form-ehour').value);
+            const sM = parseInt(document.getElementById('form-smonth').value) || today.month;
+            const eM = parseInt(document.getElementById('form-emonth').value) || today.month;
+            const sY = parseInt(document.getElementById('form-syear').value) || today.year;
+            const eY = parseInt(document.getElementById('form-eyear').value) || today.year;
+            const editAccIdx = parseInt(document.getElementById('edit-acc-idx').value);
+            const editRentalIdx = parseInt(document.getElementById('edit-rental-idx').value);
+
+            if (accVal === "") { showCustomAlert("Vui lòng chọn Tài khoản!"); return; }
+            if (devVal === "") { showCustomAlert("Vui lòng chọn Loại thiết bị!"); return; }
+            if (!tenant) { showCustomAlert("Vui lòng nhập tên khách thuê!"); return; }
+            if (isNaN(sDay) || isNaN(sHour) || isNaN(eDay) || isNaN(eHour)) { showCustomAlert("Vui lòng nhập đầy đủ ngày và giờ!"); return; }
+
+            const accIdx = parseInt(accVal);
+            const acc = accounts[accIdx];
+            const startAbs = toAbsoluteHours(sY, sM, sDay, sHour);
+            const endAbs = toAbsoluteHours(eY, eM, eDay, eHour);
+
+            if (startAbs >= endAbs) { showCustomAlert("Thời gian bắt đầu phải nhỏ hơn kết thúc!"); return; }
+
+            let currentAbs = toAbsoluteHours(today.year, today.month, today.day, today.hour);
+            if (forceNextDayMode) currentAbs += 24;
+
+            let reqEndAbs = endAbs;
+            if (startAbs === currentAbs) reqEndAbs += 1;
+
+            let tempSchedule = [];
+            const isEditingSameAcc = (editRentalIdx !== -1 && editAccIdx === accIdx);
+            if (isEditingSameAcc) {
+                tempSchedule = acc.schedule.splice(editRentalIdx, 1);
+            }
+
+            // --- BẮT ĐẦU ĐOẠN FIX ---
+        // Nếu giờ bắt đầu (startAbs) nhỏ hơn giờ hiện tại (currentAbs) -> Đang nhập lịch quá khứ
+        // Ta sẽ dùng chính startAbs làm mốc thời gian để quét khe trống thay vì currentAbs
+        let checkAbs = startAbs < currentAbs ? startAbs : currentAbs;
+        const isFree = isFullyFree(acc, startAbs, reqEndAbs, checkAbs);
+        // --- KẾT THÚC ĐOẠN FIX ---
+
+            if (isEditingSameAcc) {
+                acc.schedule.splice(editRentalIdx, 0, tempSchedule[0]);
+            }
+
+            if (!isFree) { showCustomAlert("Lỗi: Trùng lịch hoặc vi phạm khoảng cách an toàn (trống 1-3 tiếng)!"); return; }
+
+            const revStartAbs = parseRevenueStartTime(acc.revenueStartTime, today);
+
+            if (editRentalIdx !== -1 && editAccIdx !== -1) {
+                const oldAcc = accounts[editAccIdx];
+                const oldR = oldAcc.schedule[editRentalIdx];
+                const oldStartAbs = toAbsoluteHours(oldR.start.year, oldR.start.month, oldR.start.day, oldR.start.hour);
+                let oldEndAbs = toAbsoluteHours(oldR.end.year, oldR.end.month, oldR.end.day, oldR.end.hour);
+                const oldRevStartAbs = parseRevenueStartTime(oldAcc.revenueStartTime, today);
+                const oldEffectiveStart = Math.max(oldStartAbs, oldRevStartAbs);
+                const oldValidHours = (oldEndAbs > oldEffectiveStart) ? (oldEndAbs - oldEffectiveStart) : 0;
+                oldAcc.revenue -= calculatePrice(oldAcc.accountName, oldValidHours);
+                oldAcc.schedule.splice(editRentalIdx, 1);
+            }
+
+            acc.schedule.push({
+                tenantName: tenant,
+                start: { year: sY, month: sM, day: sDay, hour: sHour },
+                end: { year: eY, month: eM, day: eDay, hour: eHour },
+                deviceType: devVal
+            });
+
+            const effectiveStart = Math.max(startAbs, revStartAbs);
+            const validHours = (endAbs > effectiveStart) ? (endAbs - effectiveStart) : 0;
+            acc.revenue += calculatePrice(acc.accountName, validHours);
+
+            closeModal();
+            saveData();
+        }
+
+        function deleteRental(accIdx, rentalIdx) {
+            showCustomConfirm("Bạn có chắc chắn muốn xóa lịch này không?", () => {
+                const r = accounts[accIdx].schedule[rentalIdx];
+                if (r) {
+                    let sAbs = getEpochHours(r.start.year, r.start.month, r.start.day, r.start.hour);
+                    let eAbs = getEpochHours(r.end.year, r.end.month, r.end.day, r.end.hour);
+                    const today = getSystemDate();
+                    let revStartParts = accounts[accIdx].revenueStartTime ? accounts[accIdx].revenueStartTime.match(/(\d+)h ngày (\d+)\/(\d+)\/(\d+)/) : null;
+                    let revStartAbs = revStartParts ? getEpochHours(parseInt(revStartParts[4]), parseInt(revStartParts[3]), parseInt(revStartParts[2]), parseInt(revStartParts[1])) : getEpochHours(today.year, today.month, today.day, 0);
+
+                    if (eAbs > revStartAbs) {
+                        let hours = eAbs - sAbs;
+                        let price = calculatePrice(accounts[accIdx].accountName, hours);
+                        accounts[accIdx].revenue = Math.max(0, accounts[accIdx].revenue - price);
+                    }
+                }
+                accounts[accIdx].schedule.splice(rentalIdx, 1);
+                saveData();
+            });
+        }
+
+        function addNote() {
+            showCustomPrompt("Thêm ghi chú mới:", "", (val) => {
+                if (val && val.trim()) {
+                    notes.push(val.trim());
+                    saveData();
+                }
+            });
+        }
+
+        function editNote(idx) {
+            showCustomPrompt("Sửa ghi chú:", notes[idx] || "", (val) => {
+                if (val && val.trim()) {
+                    notes[idx] = val.trim();
+                    saveData();
+                }
+            });
+        }
+
+        function deleteNote(idx) {
+            showCustomConfirm("Xóa ghi chú này?", () => {
+                notes.splice(idx, 1);
+                saveData();
+            });
+        }
+
+        window.onload = initApp;
+    </script>
+</body>
+</html>
