@@ -183,12 +183,11 @@
             <div class="space-y-3 text-sm">
                 <div>
                     <label class="block font-medium mb-1">Tài Khoản</label>
-                    <select id="check-acc" class="w-full border rounded-lg p-2.5 bg-gray-50 focus:ring-2 focus:ring-cyan-500 outline-none font-medium">
-                        <option value="" disabled selected hidden>-- Chọn tài khoản --</option>
-                        <option value="0">Acc 4ss</option>
-                        <option value="1">Acc 2ss</option>
-                        <option value="2">Cả 2 acc</option>
-                    </select>
+                    <div class="grid grid-cols-3 gap-2">
+                        <button type="button" onclick="setCheckAcc('0')" id="check-acc-0" class="py-2.5 px-3 rounded-xl border font-bold text-xs transition bg-gray-50 border-gray-200 text-gray-700">Acc 4ss</button>
+                        <button type="button" onclick="setCheckAcc('1')" id="check-acc-1" class="py-2.5 px-3 rounded-xl border font-bold text-xs transition bg-gray-50 border-gray-200 text-gray-700">Acc 2ss</button>
+                        <button type="button" onclick="setCheckAcc('2')" id="check-acc-2" class="py-2.5 px-3 rounded-xl border font-bold text-xs transition bg-gray-50 border-gray-200 text-gray-700">Cả 2 acc</button>
+                    </div>
                 </div>
 
                 <div class="grid grid-cols-2 gap-2">
@@ -375,21 +374,19 @@
             <div class="space-y-3 text-sm">
                 <div>
                     <label class="block font-medium mb-1">Tài Khoản</label>
-                    <select id="form-acc" class="w-full border rounded-lg p-2.5 bg-gray-50 focus:ring-2 focus:ring-indigo-500 outline-none font-medium">
-                        <option value="" disabled selected hidden>-- Chọn tài khoản --</option>
-                        <option value="0">Acc 4ss</option>
-                        <option value="1">Acc 2ss</option>
-                    </select>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button type="button" onclick="setFormAcc('0')" id="form-acc-0" class="py-2.5 px-3 rounded-xl border font-bold text-xs transition bg-gray-50 border-gray-200 text-gray-700">Acc 4ss</button>
+                        <button type="button" onclick="setFormAcc('1')" id="form-acc-1" class="py-2.5 px-3 rounded-xl border font-bold text-xs transition bg-gray-50 border-gray-200 text-gray-700">Acc 2ss</button>
+                    </div>
                 </div>
 
                 <div>
-                    <label class="block font-medium mb-1">Loại Thiết Bị</label>
-                    <select id="form-device" class="w-full border rounded-lg p-2.5 bg-gray-50 focus:ring-2 focus:ring-indigo-500 outline-none font-medium">
-                        <option value="" disabled selected hidden>-- Chọn thiết bị --</option>
-                        <option value="MOBILE">MOBILE</option>
-                        <option value="Google">Google</option>
-                        <option value="Scan PC">Scan PC</option>
-                    </select>
+                    <label class="block font-medium mb-1">Cách Đăng Nhập</label>
+                    <div class="grid grid-cols-3 gap-2">
+                        <button type="button" onclick="setFormDevice('LINE')" id="form-device-LINE" class="py-2.5 px-3 rounded-xl border font-bold text-xs transition bg-indigo-50 border-indigo-500 text-indigo-700">LINE</button>
+                        <button type="button" onclick="setFormDevice('Google')" id="form-device-Google" class="py-2.5 px-3 rounded-xl border font-bold text-xs transition bg-gray-50 border-gray-200 text-gray-700">Google</button>
+                        <button type="button" onclick="setFormDevice('Scan PC')" id="form-device-Scan" class="py-2.5 px-3 rounded-xl border font-bold text-xs transition bg-gray-50 border-gray-200 text-gray-700">Scan PC</button>
+                    </div>
                 </div>
 
                 <div>
@@ -801,7 +798,7 @@
                 <div class="bg-gradient-to-r from-slate-50 via-indigo-50/40 to-slate-50 p-3.5 rounded-xl flex justify-between items-center border border-indigo-100/80 shadow-sm hover:shadow transition">
                     <div class="space-y-1">
                         <div class="flex items-center gap-2">
-                            <span class="font-bold text-slate-800 text-sm tracking-wide">${r.tenantName}</span>
+                            <span class="font-bold text-slate-800 text-sm tracking-wide">${r.tenantName || 'Khách X'}</span>
                             <span class="text-[10px] font-bold bg-indigo-600 text-white px-2 py-0.5 rounded-md shadow-sm uppercase">${r.deviceType}</span>
                         </div>
                         <div class="text-xs font-medium text-slate-600 flex items-center gap-1.5">
@@ -1044,7 +1041,7 @@
             showCustomOptionsModal("Chọn tài khoản xem lịch trống:", [
                 { label: "Acc 4ss", value: "0" },
                 { label: "Acc 2ss", value: "1" },
-                { label: "CẢ 2 ACC", value: "2" }
+                { label: "Cả 2 acc", value: "2" }
             ], (choice) => {
                 showFreeScheduleResult(parseInt(choice));
             });
@@ -1079,7 +1076,7 @@
 
         function openCheckModal() {
             const today = getSystemDate();
-            document.getElementById('check-acc').value = "";
+            setCheckAcc("");
             document.getElementById('check-sday').value = "";
             document.getElementById('check-shour').value = "";
             document.getElementById('check-eday').value = "";
@@ -1100,7 +1097,7 @@
         }
 
         function executeCheck() {
-            const accVal = document.getElementById('check-acc').value;
+            const accVal = checkAccChoice;
             const today = getSystemDate();
             
             const sDay = parseInt(document.getElementById('check-sday').value);
@@ -1269,9 +1266,9 @@
             showCustomOptionsModal("Chọn tài khoản xóa sạch lịch:", [
                 { label: "Acc 4ss", value: "0" },
                 { label: "Acc 2ss", value: "1" },
-                { label: "CẢ 2 ACC", value: "2" }
+                { label: "Cả 2 acc", value: "2" }
             ], (choice) => {
-                let target = choice === "2" ? "CẢ 2 ACC" : `Acc ${choice === "0" ? '4ss' : '2ss'}`;
+                let target = choice === "2" ? "CẢ 2 ACC" : `ACC ${choice === "0" ? '4-SS' : '2-SS'}`;
                 showCustomConfirm(`Xóa sạch lịch của ${target}?`, () => {
                     if (choice === "0" || choice === "1") accounts[parseInt(choice)].schedule = [];
                     else if (choice === "2") { accounts[0].schedule = []; accounts[1].schedule = []; }
@@ -1284,9 +1281,9 @@
             showCustomOptionsModal("Chọn tài khoản reset doanh thu:", [
                 { label: "Acc 4ss", value: "0" },
                 { label: "Acc 2ss", value: "1" },
-                { label: "CẢ 2 ACC", value: "2" }
+                { label: "Cả 2 acc", value: "2" }
             ], (choice) => {
-                let target = choice === "2" ? "CẢ 2 ACC" : `Acc ${choice === "0" ? '4ss' : '2ss'}`;
+                let target = choice === "2" ? "CẢ 2 ACC" : `ACC ${choice === "0" ? '4-SS' : '2-SS'}`;
                 showCustomConfirm(`Reset doanh thu của ${target}?`, () => {
                     const today = getSystemDate();
                     const resetStartAbs = getEpochHours(today.year, today.month, today.day, 0);
@@ -1327,7 +1324,7 @@
             showCustomOptionsModal("Chọn tài khoản Tính tiền:", [
                 { label: "Acc 4ss", value: "0" },
                 { label: "Acc 2ss", value: "1" },
-                { label: "CẢ 2 ACC", value: "2" }
+                { label: "Cả 2 acc", value: "2" }
             ], (choice) => {
                 calcAccChoice = choice;
                 document.getElementById('modal-calculate').classList.remove('hidden');
@@ -1376,6 +1373,48 @@
                 calcTimingChoice = "";
             }
         }
+
+// --- Chọn Tài khoản cho Kiểm Tra ---
+let checkAccChoice = "";
+function setCheckAcc(value) {
+    checkAccChoice = value;
+    ['0', '1', '2'].forEach(v => {
+        const btn = document.getElementById(`check-acc-${v}`);
+        if (v === value) {
+            btn.className = "py-2.5 px-3 rounded-xl border font-bold text-xs transition bg-cyan-50 border-cyan-500 text-cyan-700";
+        } else {
+            btn.className = "py-2.5 px-3 rounded-xl border font-bold text-xs transition bg-gray-50 border-gray-200 text-gray-700";
+        }
+    });
+}
+
+// --- Chọn Tài khoản cho Nhập Lịch Mới ---
+let formAccChoice = "";
+function setFormAcc(value) {
+    formAccChoice = value;
+    ['0', '1'].forEach(v => {
+        const btn = document.getElementById(`form-acc-${v}`);
+        if (v === value) {
+            btn.className = "py-2.5 px-3 rounded-xl border font-bold text-xs transition bg-indigo-50 border-indigo-500 text-indigo-700";
+        } else {
+            btn.className = "py-2.5 px-3 rounded-xl border font-bold text-xs transition bg-gray-50 border-gray-200 text-gray-700";
+        }
+    });
+}
+
+// --- Chọn Cách đăng nhập cho Nhập Lịch Mới ---
+let formDeviceChoice = "LINE";
+function setFormDevice(type) {
+    formDeviceChoice = type;
+    ['LINE', 'Google', 'Scan'].forEach(t => {
+        const btn = document.getElementById(`form-device-${t}`);
+        if (t === type || (type === 'Scan PC' && t === 'Scan')) {
+            btn.className = "py-2.5 px-3 rounded-xl border font-bold text-xs transition bg-indigo-50 border-indigo-500 text-indigo-700";
+        } else {
+            btn.className = "py-2.5 px-3 rounded-xl border font-bold text-xs transition bg-gray-50 border-gray-200 text-gray-700";
+        }
+    });
+}
 
         function setCalcTiming(type) {
             calcTimingChoice = type;
@@ -1464,8 +1503,8 @@
             document.getElementById('edit-acc-idx').value = "-1";
             document.getElementById('edit-rental-idx').value = "-1";
             
-            document.getElementById('form-acc').value = "";
-            document.getElementById('form-device').value = "";
+            setFormAcc("");
+            setFormDevice("LINE");
             document.getElementById('form-tenant').value = "";
 	    document.getElementById('form-sday').value = "";
 	    document.getElementById('form-shour').value = "";
@@ -1488,8 +1527,8 @@
             document.getElementById('edit-acc-idx').value = accIdx;
             document.getElementById('edit-rental-idx').value = rentalIdx;
 
-            document.getElementById('form-acc').value = accIdx;
-            document.getElementById('form-device').value = r.deviceType;
+            setFormAcc(String(accIdx));
+            setFormDevice(r.deviceType);
             document.getElementById('form-tenant').value = r.tenantName;
             
             document.getElementById('form-sday').value = r.start.day;
@@ -1539,8 +1578,8 @@ function isFullyFree(acc, startAbs, reqEndAbs, currentAbs, realNowAbs) {
 
         function saveRental() {
             const today = getSystemDate();
-            const accVal = document.getElementById('form-acc').value;
-            const devVal = document.getElementById('form-device').value;
+            const accVal = formAccChoice;
+            const devVal = formDeviceChoice;
             const tenant = document.getElementById('form-tenant').value.trim();
             const sDay = parseInt(document.getElementById('form-sday').value);
             const sHour = parseInt(document.getElementById('form-shour').value);
@@ -1554,8 +1593,7 @@ function isFullyFree(acc, startAbs, reqEndAbs, currentAbs, realNowAbs) {
             const editRentalIdx = parseInt(document.getElementById('edit-rental-idx').value);
 
             if (accVal === "") { showCustomAlert("Vui lòng chọn Tài khoản!"); return; }
-            if (devVal === "") { showCustomAlert("Vui lòng chọn Loại thiết bị!"); return; }
-            if (!tenant) { showCustomAlert("Vui lòng nhập tên khách thuê!"); return; }
+            if (devVal === "") { showCustomAlert("Vui lòng chọn Cách đăng nhập!"); return; }
             if (isNaN(sDay) || isNaN(sHour) || isNaN(eDay) || isNaN(eHour)) { showCustomAlert("Vui lòng nhập đầy đủ ngày và giờ!"); return; }
 
             const accIdx = parseInt(accVal);
