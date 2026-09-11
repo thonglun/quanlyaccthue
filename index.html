@@ -579,6 +579,7 @@
 let val = parseInt(input.value);
 const today = getSystemDate();
 const wasEmpty = isNaN(val);
+const oldVal = val; // NEW: lưu giá trị ngày TRƯỚC khi bấm +/-
 
 if (wasEmpty) {
     if (id.includes('ehour')) {
@@ -627,6 +628,29 @@ if (!wasEmpty && (id.includes('shour') || id.includes('ehour'))) {
 
 if (val < min) val = max;
 if (val > max) val = min;
+
+// NEW: đồng bộ ngày bắt đầu/kết thúc khi 2 ngày đang trùng nhau
+if (!wasEmpty && (id === prefix + 'sday' || id === prefix + 'eday')) {
+    const isSDay = (id === prefix + 'sday');
+    if ((isSDay && delta > 0) || (!isSDay && delta < 0)) {
+        const otherId = prefix + (isSDay ? 'eday' : 'sday');
+        const otherInput = document.getElementById(otherId);
+        const otherVal = otherInput ? parseInt(otherInput.value) : NaN;
+
+        const thisMonth = parseInt(document.getElementById(prefix + (isSDay ? 'smonth' : 'emonth'))?.value) || today.month;
+        const otherMonth = parseInt(document.getElementById(prefix + (isSDay ? 'emonth' : 'smonth'))?.value) || today.month;
+        const thisYear = parseInt(document.getElementById(prefix + (isSDay ? 'syear' : 'eyear'))?.value) || today.year;
+        const otherYear = parseInt(document.getElementById(prefix + (isSDay ? 'eyear' : 'syear'))?.value) || today.year;
+
+        const sameDate = !isNaN(otherVal) && otherVal === oldVal && thisMonth === otherMonth && thisYear === otherYear;
+
+        if (sameDate) {
+            input.value = val;       // gán giá trị mới cho ô đang bấm trước
+            stepInput(otherId, delta); // rồi mới đẩy ô còn lại theo cùng chiều
+            return;
+        }
+    }
+}
 
 input.value = val;
         }
