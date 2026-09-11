@@ -576,43 +576,59 @@
                 input.max = max;
             }
 
-            let val = parseInt(input.value);
-            const today = getSystemDate();
+let val = parseInt(input.value);
+const today = getSystemDate();
+const wasEmpty = isNaN(val);
 
-            if (isNaN(val)) {
-                if (id.includes('ehour')) {
-                    const shourVal = parseInt(document.getElementById(prefix + 'shour')?.value);
-                    if (!isNaN(shourVal)) {
-                        val = delta > 0 ? (shourVal + 1) % 24 : (shourVal - 1 + 24) % 24;
-                    } else {
-                        val = today.hour;
-                    }
-                } else if (id.includes('eday')) {
-                    const sdayVal = parseInt(document.getElementById(prefix + 'sday')?.value);
-                    if (!isNaN(sdayVal)) {
-                        val = sdayVal;
-                    } else {
-                        val = today.day;
-                    }
-                } else if (id.includes('smonth') || id.includes('emonth')) {
-                    val = today.month;
-                } else if (id.includes('syear') || id.includes('eyear')) {
-                    val = today.year;
-                } else if (id.includes('day')) {
-                    val = today.day;
-                } else if (id.includes('hour')) {
-                    val = today.hour;
-                } else {
-                    val = min;
-                }
-            } else {
-                val += delta;
-            }
+if (wasEmpty) {
+    if (id.includes('ehour')) {
+        const shourVal = parseInt(document.getElementById(prefix + 'shour')?.value);
+        if (!isNaN(shourVal)) {
+            val = delta > 0 ? (shourVal + 1) % 24 : (shourVal - 1 + 24) % 24;
+        } else {
+            val = today.hour;
+        }
+    } else if (id.includes('eday')) {
+        const sdayVal = parseInt(document.getElementById(prefix + 'sday')?.value);
+        if (!isNaN(sdayVal)) {
+            val = sdayVal;
+        } else {
+            val = today.day;
+        }
+    } else if (id.includes('smonth') || id.includes('emonth')) {
+        val = today.month;
+    } else if (id.includes('syear') || id.includes('eyear')) {
+        val = today.year;
+    } else if (id.includes('day')) {
+        val = today.day;
+    } else if (id.includes('hour')) {
+        val = today.hour;
+    } else {
+        val = min;
+    }
+} else {
+    val += delta;
+}
 
-            if (val < min) val = max;
-            if (val > max) val = min;
+// MỚI: khi ô GIỜ (shour/ehour) vượt biên 0-23 thì kéo theo ô NGÀY tương ứng +1/-1
+if (!wasEmpty && (id.includes('shour') || id.includes('ehour'))) {
+    let dayCascade = 0;
+    if (val > max) { val = min; dayCascade = 1; }
+    else if (val < min) { val = max; dayCascade = -1; }
 
-            input.value = val;
+    input.value = val;
+
+    if (dayCascade !== 0) {
+        const dayId = prefix + (id.includes('shour') ? 'sday' : 'eday');
+        stepInput(dayId, dayCascade);
+    }
+    return;
+}
+
+if (val < min) val = max;
+if (val > max) val = min;
+
+input.value = val;
         }
 
         // Lấy danh sách Schedule sau khi thêm 1 giờ ảo (Nếu start trùng hiện tại)
