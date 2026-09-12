@@ -178,7 +178,15 @@
     <!-- MODAL KIỂM TRA LỊCH TRỐNG -->
     <div id="modal-check" class="fixed inset-0 bg-black/50 hidden items-center justify-center p-4 z-50">
         <div class="bg-white rounded-2xl w-full max-w-md p-6 space-y-4 shadow-xl">
-            <h3 class="text-lg font-bold text-gray-800 border-b pb-2">Kiểm Tra Khung Giờ</h3>
+            <div class="flex items-center justify-between border-b pb-2">
+                <h3 class="text-lg font-bold text-gray-800">Kiểm Tra Khung Giờ</h3>
+                <div class="flex items-center gap-1.5" title="Cộng thêm 1 tiếng ảo (không tính doanh thu)">
+                    <span class="text-[10px] font-bold text-gray-400 uppercase">Giờ ảo</span>
+                    <button type="button" id="check-vh-toggle" onclick="toggleVH('check')" class="w-9 h-5 rounded-full bg-gray-300 relative transition-colors duration-300 flex-shrink-0">
+                        <span class="absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform duration-300"></span>
+                    </button>
+                </div>
+            </div>
             
             <div class="space-y-3 text-sm">
                 <div>
@@ -366,7 +374,15 @@
     <!-- MODAL THÊM / SỬA LỊCH THUÊ -->
     <div id="modal-rental" class="fixed inset-0 bg-black/50 hidden items-center justify-center p-4 z-50">
         <div class="bg-white rounded-2xl w-full max-w-md p-6 space-y-4 shadow-xl">
-            <h3 id="modal-title" class="text-lg font-bold text-gray-800 border-b pb-2">Nhập Lịch Thuê Mới</h3>
+            <div class="flex items-center justify-between border-b pb-2">
+                <h3 id="modal-title" class="text-lg font-bold text-gray-800">Nhập Lịch Thuê Mới</h3>
+                <div class="flex items-center gap-1.5" title="Cộng thêm 1 tiếng ảo (không tính doanh thu)">
+                    <span class="text-[10px] font-bold text-gray-400 uppercase">Giờ ảo</span>
+                    <button type="button" id="form-vh-toggle" onclick="toggleVH('form')" class="w-9 h-5 rounded-full bg-gray-300 relative transition-colors duration-300 flex-shrink-0">
+                        <span class="absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform duration-300"></span>
+                    </button>
+                </div>
+            </div>
             
             <input type="hidden" id="edit-acc-idx">
             <input type="hidden" id="edit-rental-idx">
@@ -578,41 +594,12 @@
 
 let val = parseInt(input.value);
 const today = getSystemDate();
-const wasEmpty = isNaN(val);
-const oldVal = val; // NEW: lưu giá trị ngày TRƯỚC khi bấm +/-
-
-if (wasEmpty) {
-    if (id.includes('ehour')) {
-        const shourVal = parseInt(document.getElementById(prefix + 'shour')?.value);
-        if (!isNaN(shourVal)) {
-            val = delta > 0 ? (shourVal + 1) % 24 : (shourVal - 1 + 24) % 24;
-        } else {
-            val = today.hour;
-        }
-    } else if (id.includes('eday')) {
-        const sdayVal = parseInt(document.getElementById(prefix + 'sday')?.value);
-        if (!isNaN(sdayVal)) {
-            val = sdayVal;
-        } else {
-            val = today.day;
-        }
-    } else if (id.includes('smonth') || id.includes('emonth')) {
-        val = today.month;
-    } else if (id.includes('syear') || id.includes('eyear')) {
-        val = today.year;
-    } else if (id.includes('day')) {
-        val = today.day;
-    } else if (id.includes('hour')) {
-        val = today.hour;
-    } else {
-        val = min;
-    }
-} else {
-    val += delta;
-}
+if (isNaN(val)) val = min; // dự phòng nếu ô lỡ bị trống, không còn phân biệt "lần đầu"
+const oldVal = val;
+val += delta;
 
 // MỚI: khi ô GIỜ (shour/ehour) vượt biên 0-23 thì kéo theo ô NGÀY tương ứng +1/-1
-if (!wasEmpty && (id.includes('shour') || id.includes('ehour'))) {
+if (id.includes('shour') || id.includes('ehour')) {
     let dayCascade = 0;
     if (val > max) { val = min; dayCascade = 1; }
     else if (val < min) { val = max; dayCascade = -1; }
@@ -630,7 +617,7 @@ if (val < min) val = max;
 if (val > max) val = min;
 
 // NEW: đồng bộ ngày bắt đầu/kết thúc khi 2 ngày đang trùng nhau
-if (!wasEmpty && (id === prefix + 'sday' || id === prefix + 'eday')) {
+if (id === prefix + 'sday' || id === prefix + 'eday') {
     const isSDay = (id === prefix + 'sday');
     if ((isSDay && delta > 0) || (!isSDay && delta < 0)) {
         const otherId = prefix + (isSDay ? 'eday' : 'sday');
@@ -661,7 +648,7 @@ input.value = val;
             return acc.schedule.map(r => {
                 let s = getEpochHours(r.start.year, r.start.month, r.start.day, r.start.hour);
                 let e = getEpochHours(r.end.year, r.end.month, r.end.day, r.end.hour);
-                if (s === currentAbs) {
+                if (s === currentAbs || r.virtualHour) {
                     e += 1;
                 }
                 return { ...r, startAbs: s, endAbs: e };
@@ -1123,15 +1110,29 @@ document.getElementById('btn-prompt-ok').onclick = () => {
         function openCheckModal() {
             const today = getSystemDate();
             setCheckAcc("");
-            document.getElementById('check-sday').value = "";
-            document.getElementById('check-shour').value = "";
-            document.getElementById('check-eday').value = "";
-            document.getElementById('check-ehour').value = "";
-            
-            document.getElementById('check-smonth').value = today.month;
-            document.getElementById('check-emonth').value = today.month;
-            document.getElementById('check-syear').value = today.year;
-            document.getElementById('check-eyear').value = today.year;
+            document.getElementById('check-sday').value = today.day;
+document.getElementById('check-smonth').value = today.month;
+document.getElementById('check-syear').value = today.year;
+document.getElementById('check-shour').value = today.hour;
+
+let ceHour = today.hour + 1;
+let ceDay = today.day, ceMonth = today.month, ceYear = today.year;
+if (ceHour >= 24) {
+    ceHour = 0;
+    const cDaysInMonth = getDaysInMonth(ceYear, ceMonth);
+    ceDay += 1;
+    if (ceDay > cDaysInMonth) {
+        ceDay = 1;
+        ceMonth += 1;
+        if (ceMonth > 12) { ceMonth = 1; ceYear += 1; }
+    }
+}
+document.getElementById('check-eday').value = ceDay;
+document.getElementById('check-emonth').value = ceMonth;
+document.getElementById('check-eyear').value = ceYear;
+document.getElementById('check-ehour').value = ceHour;
+
+            resetVHState('check');
 
             document.getElementById('modal-check').classList.remove('hidden');
             document.getElementById('modal-check').classList.add('flex');
@@ -1166,7 +1167,7 @@ document.getElementById('btn-prompt-ok').onclick = () => {
             if (inS >= inE) { showCustomAlert("Thời gian bắt đầu phải nhỏ hơn kết thúc!"); return; }
 
             let checkS = inS;
-            let checkE = (inS === currentAbs) ? inE + 1 : inE; // Ngoại lệ W áp dụng + 1 ảo
+            let checkE = (inS === currentAbs || vhState.check.on) ? inE + 1 : inE; // Ngoại lệ W áp dụng + 1 ảo
             let durationCheck = checkE - checkS;
             let timeStrS = formatTimeT(inS, currentAbs);
             
@@ -1462,6 +1463,94 @@ function setFormDevice(type) {
     });
 }
 
+        // ===== TÍNH NĂNG NÚT GẠT "GIỜ ẢO" =====
+        // key: 'check' (Modal Kiểm tra) hoặc 'form' (Modal Nhập lịch mới / Sửa)
+        let vhState = {
+            check: { on: false, source: null, suppressed: false, lastMatch: false },
+            form:  { on: false, source: null, suppressed: false, lastMatch: false }
+        };
+
+        // Kiểm tra xem thời gian BẮT ĐẦU đang nhập có trùng khớp hiện tại (ngày/tháng/năm/giờ) không
+        function vhFieldsMatchNow(prefix) {
+            const today = getSystemDate();
+            const sDay = parseInt(document.getElementById(prefix + 'sday')?.value);
+            const sHour = parseInt(document.getElementById(prefix + 'shour')?.value);
+            const sMonth = parseInt(document.getElementById(prefix + 'smonth')?.value) || today.month;
+            const sYear = parseInt(document.getElementById(prefix + 'syear')?.value) || today.year;
+            if (isNaN(sDay) || isNaN(sHour)) return false;
+            return sYear === today.year && sMonth === today.month && sDay === today.day && sHour === today.hour;
+        }
+
+        function renderVHToggle(key) {
+            const btn = document.getElementById(key + '-vh-toggle');
+            if (!btn) return;
+            const knob = btn.querySelector('span');
+            if (vhState[key].on) {
+                btn.classList.remove('bg-gray-300');
+                btn.classList.add('bg-emerald-500');
+                if (knob) knob.classList.add('translate-x-4');
+            } else {
+                btn.classList.add('bg-gray-300');
+                btn.classList.remove('bg-emerald-500');
+                if (knob) knob.classList.remove('translate-x-4');
+            }
+        }
+
+        function resetVHState(key) {
+            vhState[key] = { on: false, source: null, suppressed: false, lastMatch: false };
+            renderVHToggle(key);
+        }
+
+        function setVHState(key, on, source) {
+            vhState[key].on = on;
+            vhState[key].source = on ? source : null;
+            renderVHToggle(key);
+        }
+
+        // Người dùng chủ động bấm nút gạt
+        function toggleVH(key) {
+            const st = vhState[key];
+            if (st.on) {
+                // Đang bật do tự động trùng giờ mà người dùng bấm tắt -> chặn tự bật lại
+                if (st.source === 'auto') st.suppressed = true;
+                setVHState(key, false, null);
+            } else {
+                st.suppressed = false;
+                setVHState(key, true, 'manual');
+            }
+        }
+
+        // Chạy mỗi giây để tự động bật/tắt theo giờ hệ thống Việt Nam
+        function updateVHAuto(key, prefix, modalId) {
+            const modalEl = document.getElementById(modalId);
+            if (!modalEl || modalEl.classList.contains('hidden')) return;
+            const st = vhState[key];
+            const match = vhFieldsMatchNow(prefix);
+
+            if (match && !st.lastMatch) {
+                // Có sự kiện mới (giờ vừa khớp lại) -> gỡ bỏ trạng thái bị chặn
+                st.suppressed = false;
+            }
+
+            if (match) {
+                if (!st.suppressed && !st.on) {
+                    setVHState(key, true, 'auto');
+                }
+            } else {
+                if (st.on && st.source === 'auto') {
+                    setVHState(key, false, null);
+                }
+                st.suppressed = false;
+            }
+            st.lastMatch = match;
+        }
+
+        setInterval(() => {
+            updateVHAuto('check', 'check-', 'modal-check');
+            updateVHAuto('form', 'form-', 'modal-rental');
+        }, 1000);
+        // ===== KẾT THÚC TÍNH NĂNG NÚT GẠT "GIỜ ẢO" =====
+
         function setCalcTiming(type) {
             calcTimingChoice = type;
             const nowBtn = document.getElementById('calc-timing-now');
@@ -1552,15 +1641,29 @@ function setFormDevice(type) {
             setFormAcc("");
             setFormDevice("LINE");
             document.getElementById('form-tenant').value = "";
-	    document.getElementById('form-sday').value = "";
-	    document.getElementById('form-shour').value = "";
-	    document.getElementById('form-eday').value = "";
-	    document.getElementById('form-ehour').value = "";
-            
-            document.getElementById('form-smonth').value = today.month;
-            document.getElementById('form-emonth').value = today.month;
-            document.getElementById('form-syear').value = today.year;
-            document.getElementById('form-eyear').value = today.year;
+	    document.getElementById('form-sday').value = today.day;
+document.getElementById('form-smonth').value = today.month;
+document.getElementById('form-syear').value = today.year;
+document.getElementById('form-shour').value = today.hour;
+
+let eHour = today.hour + 1;
+let eDay = today.day, eMonth = today.month, eYear = today.year;
+if (eHour >= 24) {
+    eHour = 0;
+    const daysInMonth = getDaysInMonth(eYear, eMonth);
+    eDay += 1;
+    if (eDay > daysInMonth) {
+        eDay = 1;
+        eMonth += 1;
+        if (eMonth > 12) { eMonth = 1; eYear += 1; }
+    }
+}
+document.getElementById('form-eday').value = eDay;
+document.getElementById('form-emonth').value = eMonth;
+document.getElementById('form-eyear').value = eYear;
+document.getElementById('form-ehour').value = eHour;
+
+            resetVHState('form');
 
             document.getElementById('modal-rental').classList.remove('hidden');
             document.getElementById('modal-rental').classList.add('flex');
@@ -1586,6 +1689,11 @@ function setFormDevice(type) {
             document.getElementById('form-emonth').value = r.end.month;
             document.getElementById('form-syear').value = r.start.year;
             document.getElementById('form-eyear').value = r.end.year;
+
+            resetVHState('form');
+            if (r.virtualHour) {
+                setVHState('form', true, 'manual');
+            }
 
             document.getElementById('modal-rental').classList.remove('hidden');
             document.getElementById('modal-rental').classList.add('flex');
@@ -1651,8 +1759,9 @@ function isFullyFree(acc, startAbs, reqEndAbs, currentAbs, realNowAbs) {
 
             let currentAbs = toAbsoluteHours(today.year, today.month, today.day, today.hour);
 
+            const vhOn = vhState.form.on;
             let reqEndAbs = endAbs;
-            if (startAbs === currentAbs) reqEndAbs += 1;
+            if (startAbs === currentAbs || vhOn) reqEndAbs += 1;
 
             let tempSchedule = [];
             const isEditingSameAcc = (editRentalIdx !== -1 && editAccIdx === accIdx);
@@ -1691,7 +1800,8 @@ function isFullyFree(acc, startAbs, reqEndAbs, currentAbs, realNowAbs) {
                 tenantName: tenant,
                 start: { year: sY, month: sM, day: sDay, hour: sHour },
                 end: { year: eY, month: eM, day: eDay, hour: eHour },
-                deviceType: devVal
+                deviceType: devVal,
+                virtualHour: vhOn
             });
 
             const effectiveStart = Math.max(startAbs, revStartAbs);
