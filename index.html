@@ -1016,6 +1016,12 @@ input.value = val;
         };
 
         let promptCallback = null;
+document.getElementById('btn-prompt-ok').onclick = () => {
+    const val = document.getElementById('custom-prompt-input').value;
+    document.getElementById('modal-custom-prompt').classList.add('hidden');
+    document.getElementById('modal-custom-prompt').classList.remove('flex');
+    if (promptCallback) promptCallback(val);
+};
         function showCustomPrompt(title, defaultValue = "", onOk) {
             document.getElementById('custom-prompt-title').innerText = title;
             const input = document.getElementById('custom-prompt-input');
