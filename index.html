@@ -23,24 +23,6 @@
         .copy-btn-morph {
             transition: all 0.3s ease;
         }
-        /* Ép giao diện chỉ hiển thị ở chế độ dọc trên mobile */
-        #rotate-overlay { display: none; }
-
-        @media screen and (orientation: landscape) and (max-width: 926px) {
-            #rotate-overlay {
-                display: flex;
-                position: fixed;
-                inset: 0;
-                z-index: 9999;
-                background: #1e1b4b;
-                color: white;
-                flex-direction: column;
-                align-items: center;
-                justify-content: center;
-                text-align: center;
-                padding: 24px;
-            }
-        }
     </style>
 </head>
 <body class="bg-slate-100 min-h-screen text-gray-800 p-4 md:p-6">
@@ -936,7 +918,7 @@ input.value = val;
                     <div class="space-y-1">
                         <div class="flex items-center gap-2">
                             <span class="font-bold text-slate-800 text-sm tracking-wide">${r.tenantName || 'Khách X'}</span>
-                            <span class="text-[10px] font-bold bg-indigo-600 text-white px-2 py-0.5 rounded-md shadow-sm uppercase">${r.deviceType}</span>
+                    	    <span class="text-[10px] font-bold bg-indigo-600 text-white px-2 py-0.5 rounded-md shadow-sm uppercase">${r.deviceType}</span>
                     	    ${r.virtualHour ? '<i class="fa-solid fa-ghost text-violet-500 text-sm" title="Lịch có giờ ảo"></i>' : ''}
                         </div>
                         <div class="text-xs font-medium text-slate-600 flex items-center gap-1.5">
