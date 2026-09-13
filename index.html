@@ -23,6 +23,24 @@
         .copy-btn-morph {
             transition: all 0.3s ease;
         }
+        /* Ép giao diện chỉ hiển thị ở chế độ dọc trên mobile */
+        #rotate-overlay { display: none; }
+
+        @media screen and (orientation: landscape) and (max-width: 926px) {
+            #rotate-overlay {
+                display: flex;
+                position: fixed;
+                inset: 0;
+                z-index: 9999;
+                background: #1e1b4b;
+                color: white;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                text-align: center;
+                padding: 24px;
+            }
+        }
     </style>
 </head>
 <body class="bg-slate-100 min-h-screen text-gray-800 p-4 md:p-6">
@@ -36,6 +54,9 @@
                 <p id="system-date" class="text-sm text-indigo-200 mt-1">Ngày hệ thống: --</p>
             </div>
             <div class="flex flex-wrap items-center gap-3">
+                <button onclick="openResetPasswordModal()" class="bg-violet-500 hover:bg-violet-600 text-white font-bold px-4 py-2.5 rounded-xl text-sm flex items-center gap-2 shadow transition">
+                    <i class="fa-solid fa-key"></i> Reset mật khẩu
+                </button>
                 <button onclick="openFreeScheduleModal()" class="bg-teal-500 hover:bg-teal-600 text-white font-bold px-4 py-2.5 rounded-xl text-sm flex items-center gap-2 shadow transition">
                     <i class="fa-solid fa-list-check"></i> Lịch trống
                 </button>
@@ -489,6 +510,54 @@
         </div>
     </div>
 
+    <!-- MODAL LỊCH SỬ RESET MẬT KHẨU -->
+    <div id="modal-reset-history" class="fixed inset-0 bg-black/50 hidden items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-2xl w-full max-w-md p-6 space-y-4 shadow-xl">
+            <h3 class="text-lg font-bold text-gray-800 border-b pb-2">Lịch Sử Reset Mật Khẩu</h3>
+            <div id="list-reset-history" class="space-y-2 max-h-80 overflow-y-auto">
+                <p class="text-gray-400 text-sm italic">Chưa có lịch sử reset nào.</p>
+            </div>
+            <div class="flex gap-2 pt-2">
+                <button onclick="backFromResetHistory()" class="flex-1 py-2.5 rounded-xl bg-indigo-500 hover:bg-indigo-600 font-semibold text-white transition">Quay lại</button>
+                <button onclick="closeResetHistoryModal()" class="flex-1 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 font-semibold text-white transition">Đồng ý</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL RESET MẬT KHẨU - XEM LỊCH TRƯỚC KHI RESET -->
+    <div id="modal-reset-now" class="fixed inset-0 bg-black/50 hidden items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-2xl w-full max-w-md p-6 shadow-xl max-h-[90vh] flex flex-col">
+            <h3 class="text-lg font-bold text-gray-800 border-b pb-2 flex-shrink-0">Reset Mật Khẩu - Các Lịch Liên Quan</h3>
+            <div class="space-y-6 overflow-y-auto py-4">
+                <div>
+                    <div class="flex items-center justify-between mb-3">
+                        <h3 class="text-xs font-bold text-indigo-600 uppercase tracking-wider flex items-center gap-1.5">
+                            <i class="fa-solid fa-list-ul text-indigo-500 text-[10px]"></i> Acc: 4ss
+                        </h3>
+                    </div>
+                    <div id="list-reset-now-4ss" class="space-y-2">
+                        <p class="text-gray-400 text-sm italic">(Không có lịch)</p>
+                    </div>
+                </div>
+                <div class="border-t border-gray-100 pt-4">
+                    <div class="flex items-center justify-between mb-3">
+                        <h3 class="text-xs font-bold text-indigo-600 uppercase tracking-wider flex items-center gap-1.5">
+                            <i class="fa-solid fa-list-ul text-indigo-500 text-[10px]"></i> Acc: 2ss
+                        </h3>
+                    </div>
+                    <div id="list-reset-now-2ss" class="space-y-2">
+                        <p class="text-gray-400 text-sm italic">(Không có lịch)</p>
+                    </div>
+                </div>
+            </div>
+            <div class="flex gap-2 pt-2 flex-shrink-0">
+                <button onclick="closeResetNowModal()" class="flex-1 py-2.5 rounded-xl bg-rose-500 hover:bg-rose-600 font-semibold text-white transition text-sm">Hủy lưu</button>
+                <button onclick="backFromResetNow()" class="flex-1 py-2.5 rounded-xl bg-indigo-500 hover:bg-indigo-600 font-semibold text-white transition text-sm">Quay lại</button>
+                <button onclick="saveResetNow()" class="flex-1 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 font-semibold text-white transition text-sm">Lưu</button>
+            </div>
+        </div>
+    </div>
+
     <!-- TÍCH HỢP FIREBASE REALTIME SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
@@ -513,6 +582,7 @@
             { accountName: "2ss", revenue: 0, revenueStartTime: "", schedule: [] }
         ];
         let notes = [];
+        let resetPasswordHistory = [];
         let activeTab = 'upcoming';
 
         // Hàm tính số ngày trong tháng dựa vào Năm và Tháng
@@ -800,6 +870,12 @@ input.value = val;
             });
         }
 
+        // Dọn lịch sử reset mật khẩu quá hạn: dữ liệu tồn tại trong 5 ngày, sang ngày thứ 6 thì không còn
+        function pruneResetHistory(activeDayObj) {
+            const limitAbs = getEpochHours(activeDayObj.year, activeDayObj.month, activeDayObj.day - 4, activeDayObj.hour);
+            resetPasswordHistory = resetPasswordHistory.filter(item => item.ts >= limitAbs);
+        }
+
         function sortSchedule(acc, activeDayObj) {
             acc.schedule.sort((a, b) => {
                 return getEpochHours(b.start.year, b.start.month, b.start.day, b.start.hour) - getEpochHours(a.start.year, a.start.month, a.start.day, a.start.hour);
@@ -812,6 +888,7 @@ input.value = val;
                 if (data) {
                     if (data.accounts) accounts = data.accounts;
                     if (data.notes) notes = data.notes;
+                    if (data.resetPasswordHistory) resetPasswordHistory = data.resetPasswordHistory;
 
                     accounts.forEach(acc => { if (!acc.schedule) acc.schedule = []; });
                     renderUI();
@@ -822,7 +899,8 @@ input.value = val;
         function saveData() {
             db.ref('rental_data').set({
                 accounts: accounts,
-                notes: notes
+                notes: notes,
+                resetPasswordHistory: resetPasswordHistory
             });
         }
 
@@ -859,6 +937,7 @@ input.value = val;
                         <div class="flex items-center gap-2">
                             <span class="font-bold text-slate-800 text-sm tracking-wide">${r.tenantName || 'Khách X'}</span>
                             <span class="text-[10px] font-bold bg-indigo-600 text-white px-2 py-0.5 rounded-md shadow-sm uppercase">${r.deviceType}</span>
+                    	    ${r.virtualHour ? '<i class="fa-solid fa-ghost text-violet-500 text-sm" title="Lịch có giờ ảo"></i>' : ''}
                         </div>
                         <div class="text-xs font-medium text-slate-600 flex items-center gap-1.5">
                             <i class="fa-regular fa-clock text-indigo-500"></i>
@@ -876,6 +955,22 @@ input.value = val;
                 </div>`;
         }
 
+        function createRentalCardHtmlReadOnly(r, timeStr) {
+            return `
+                <div class="bg-gradient-to-r from-slate-50 via-indigo-50/40 to-slate-50 p-3.5 rounded-xl flex justify-between items-center border border-indigo-100/80 shadow-sm hover:shadow transition">
+                    <div class="space-y-1">
+                        <div class="flex items-center gap-2">
+                            <span class="font-bold text-slate-800 text-sm tracking-wide">${r.tenantName || 'Khách X'}</span>
+                            <span class="text-[10px] font-bold bg-indigo-600 text-white px-2 py-0.5 rounded-md shadow-sm uppercase">${r.deviceType}</span>
+                        </div>
+                        <div class="text-xs font-medium text-slate-600 flex items-center gap-1.5">
+                            <i class="fa-regular fa-clock text-indigo-500"></i>
+                            <span>${timeStr}</span>
+                        </div>
+                    </div>
+                </div>`;
+        }
+
         function renderUI() {
             const today = getSystemDate();
             let activeDayObj = {...today};
@@ -888,6 +983,7 @@ input.value = val;
                 cleanOldData(acc, activeDayObj);
                 sortSchedule(acc, activeDayObj);
             });
+            pruneResetHistory(activeDayObj);
 
             let totalRevenue = accounts[0].revenue + accounts[1].revenue;
             document.getElementById('total-revenue').innerText = totalRevenue.toLocaleString('vi-VN') + ' VNĐ';
@@ -1391,6 +1487,121 @@ document.getElementById('check-ehour').value = ceHour;
                     }
                     saveData();
                 }, openResetRevenueModal);
+            });
+        }
+
+        // --- RESET MẬT KHẨU ---
+        let resetNowPendingAbs = null;
+
+        function openResetPasswordModal() {
+            showCustomOptionsModal("Chọn thao tác Reset mật khẩu:", [
+                { label: "Reset bây giờ", value: "now" },
+                { label: "Lịch sử reset", value: "history" }
+            ], (choice) => {
+                if (choice === "now") openResetNowModal();
+                else if (choice === "history") openResetHistoryModal();
+            });
+        }
+
+        // Lấy danh sách lịch đang hoạt động trùng hiện tại + các lịch sau đó, không tính 1 tiếng ảo,
+        // và bỏ qua nếu hiện tại đang rơi vào đúng 1 tiếng cuối cùng của lịch đó
+        function getResetNowSchedule(acc, currentAbs) {
+            return acc.schedule
+                .map(r => {
+                    let s = getEpochHours(r.start.year, r.start.month, r.start.day, r.start.hour);
+                    let e = getEpochHours(r.end.year, r.end.month, r.end.day, r.end.hour);
+                    return { ...r, startAbs: s, endAbs: e };
+                })
+                .filter(r => r.endAbs > currentAbs && (r.endAbs - 1) !== currentAbs)
+                .sort((a, b) => a.startAbs - b.startAbs);
+        }
+
+        function renderResetNowLists(currentAbs) {
+            ['4ss', '2ss'].forEach((accName, idx) => {
+                const acc = accounts[idx];
+                const container = document.getElementById(`list-reset-now-${accName}`);
+                const list = getResetNowSchedule(acc, currentAbs);
+                if (list.length === 0) {
+                    container.innerHTML = `<p class="text-gray-400 text-sm italic">(Không có lịch)</p>`;
+                } else {
+                    let html = "";
+                    list.forEach(r => {
+                        html += createRentalCardHtmlReadOnly(r, formatCardTime(r.startAbs, r.endAbs, currentAbs));
+                    });
+                    container.innerHTML = html;
+                }
+            });
+        }
+
+        function openResetNowModal() {
+            const today = getSystemDate();
+            const currentAbs = getEpochHours(today.year, today.month, today.day, today.hour);
+            resetNowPendingAbs = currentAbs;
+            renderResetNowLists(currentAbs);
+            document.getElementById('modal-reset-now').classList.remove('hidden');
+            document.getElementById('modal-reset-now').classList.add('flex');
+        }
+
+        function closeResetNowModal() {
+            document.getElementById('modal-reset-now').classList.add('hidden');
+            document.getElementById('modal-reset-now').classList.remove('flex');
+        }
+
+        function backFromResetNow() {
+            closeResetNowModal();
+            openResetPasswordModal();
+        }
+
+        function saveResetNow() {
+            const today = getSystemDate();
+            const ts = (resetNowPendingAbs !== null) ? resetNowPendingAbs : getEpochHours(today.year, today.month, today.day, today.hour);
+            resetPasswordHistory.push({ id: Date.now(), ts: ts });
+            closeResetNowModal();
+            saveData();
+        }
+
+        function renderResetHistoryList() {
+            const today = getSystemDate();
+            const currentAbs = getEpochHours(today.year, today.month, today.day, today.hour);
+            pruneResetHistory(today);
+            const container = document.getElementById('list-reset-history');
+            if (resetPasswordHistory.length === 0) {
+                container.innerHTML = `<p class="text-gray-400 text-sm italic">Chưa có lịch sử reset nào.</p>`;
+                return;
+            }
+            const sorted = [...resetPasswordHistory].sort((a, b) => b.ts - a.ts);
+            let html = "";
+            sorted.forEach(item => {
+                html += `
+                    <div class="flex justify-between items-center bg-gray-50 p-3 rounded-xl border border-gray-100 text-sm">
+                        <span>• ${formatTimeT(item.ts, currentAbs)}</span>
+                        <button onclick="deleteResetHistoryEntry(${item.id})" class="text-rose-500 hover:text-rose-700"><i class="fa-solid fa-xmark text-xs"></i></button>
+                    </div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        function openResetHistoryModal() {
+            renderResetHistoryList();
+            document.getElementById('modal-reset-history').classList.remove('hidden');
+            document.getElementById('modal-reset-history').classList.add('flex');
+        }
+
+        function closeResetHistoryModal() {
+            document.getElementById('modal-reset-history').classList.add('hidden');
+            document.getElementById('modal-reset-history').classList.remove('flex');
+        }
+
+        function backFromResetHistory() {
+            closeResetHistoryModal();
+            openResetPasswordModal();
+        }
+
+        function deleteResetHistoryEntry(id) {
+            showCustomConfirm("Xóa mốc thời gian này khỏi lịch sử reset?", () => {
+                resetPasswordHistory = resetPasswordHistory.filter(item => item.id !== id);
+                saveData();
+                renderResetHistoryList();
             });
         }
 
