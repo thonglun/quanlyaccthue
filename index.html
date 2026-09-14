@@ -533,9 +533,8 @@
                 </div>
             </div>
             <div class="flex gap-2 pt-2 flex-shrink-0">
-                <button onclick="closeResetNowModal()" class="flex-1 py-2.5 rounded-xl bg-rose-500 hover:bg-rose-600 font-semibold text-white transition text-sm">Hủy lưu</button>
                 <button onclick="backFromResetNow()" class="flex-1 py-2.5 rounded-xl bg-indigo-500 hover:bg-indigo-600 font-semibold text-white transition text-sm">Quay lại</button>
-                <button onclick="saveResetNow()" class="flex-1 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 font-semibold text-white transition text-sm">Lưu</button>
+                <button onclick="saveResetNow()" class="flex-1 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 font-semibold text-white transition text-sm">Đồng ý</button>
             </div>
         </div>
     </div>
@@ -1515,6 +1514,11 @@ document.getElementById('check-ehour').value = ceHour;
             });
         }
 
+        // Cờ đánh dấu modal "Reset Mật Khẩu - Các Lịch Liên Quan" đang mở hay không.
+        // true  = đang mở, CHƯA quyết định gì  -> nếu rời trang thì TỰ ĐỘNG LƯU
+        // false = đã bấm "Quay lại" (không lưu) hoặc đã "Đồng ý" (đã lưu rồi)
+        let resetNowModalOpen = false;
+
         function openResetNowModal() {
             const today = getSystemDate();
             const currentAbs = getEpochHours(today.year, today.month, today.day, today.hour);
@@ -1522,25 +1526,43 @@ document.getElementById('check-ehour').value = ceHour;
             renderResetNowLists(currentAbs);
             document.getElementById('modal-reset-now').classList.remove('hidden');
             document.getElementById('modal-reset-now').classList.add('flex');
+            resetNowModalOpen = true;
         }
 
         function closeResetNowModal() {
             document.getElementById('modal-reset-now').classList.add('hidden');
             document.getElementById('modal-reset-now').classList.remove('flex');
+            resetNowModalOpen = false;
         }
 
         function backFromResetNow() {
+            // Bấm "Quay lại" => KHÔNG lưu, chỉ đóng modal rồi về bước chọn thao tác
             closeResetNowModal();
             openResetPasswordModal();
         }
 
-        function saveResetNow() {
+        // Logic lưu thật sự, dùng chung cho cả nút "Đồng ý" lẫn trường hợp tự động lưu
+        function performResetNowSave() {
             const today = getSystemDate();
             const ts = (resetNowPendingAbs !== null) ? resetNowPendingAbs : getEpochHours(today.year, today.month, today.day, today.hour);
             resetPasswordHistory.push({ id: Date.now(), ts: ts });
-            closeResetNowModal();
             saveData();
         }
+
+        function saveResetNow() {
+            // Bấm "Đồng ý" => lưu bình thường
+            performResetNowSave();
+            closeResetNowModal();
+        }
+
+        // Nếu người dùng rời khỏi trang (đóng tab, tải lại, đóng trình duyệt...) trong khi
+        // modal đang mở mà CHƯA bấm "Đồng ý" hay "Quay lại", thì tự động lưu lại.
+        window.addEventListener('beforeunload', function () {
+            if (resetNowModalOpen) {
+                performResetNowSave();
+                resetNowModalOpen = false;
+            }
+        });
 
         function renderResetHistoryList() {
             const today = getSystemDate();
