@@ -1555,12 +1555,22 @@ document.getElementById('check-ehour').value = ceHour;
             closeResetNowModal();
         }
 
-        // Nếu người dùng rời khỏi trang (đóng tab, tải lại, đóng trình duyệt...) trong khi
-        // modal đang mở mà CHƯA bấm "Đồng ý" hay "Quay lại", thì tự động lưu lại.
-        window.addEventListener('beforeunload', function () {
-            if (resetNowModalOpen) {
-                performResetNowSave();
-                resetNowModalOpen = false;
+        // Tự động lưu khi người dùng "rời" khỏi trang dưới BẤT KỲ hình thức nào:
+        // - đóng tab / tải lại / đóng trình duyệt (beforeunload, pagehide)
+        // - bấm nút Home, chuyển sang app khác, khóa màn hình, chuyển tab (visibilitychange)
+        // Chỉ khi đã bấm "Đồng ý" hoặc "Quay lại" thì resetNowModalOpen mới về false,
+        // lúc đó hàm dưới sẽ không làm gì cả.
+        function autoSaveResetNowIfNeeded() {
+            if (!resetNowModalOpen) return;
+            performResetNowSave();
+            closeResetNowModal(); // ẩn modal + đặt resetNowModalOpen = false
+        }
+
+        window.addEventListener('beforeunload', autoSaveResetNowIfNeeded);
+        window.addEventListener('pagehide', autoSaveResetNowIfNeeded);
+        document.addEventListener('visibilitychange', function () {
+            if (document.visibilityState === 'hidden') {
+                autoSaveResetNowIfNeeded();
             }
         });
 
