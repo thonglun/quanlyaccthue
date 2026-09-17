@@ -795,7 +795,13 @@ input.value = val;
                 let potEnd = gapEnd;
                 
                 if (potEnd > potStart) {
-                    slots.push({ s: potStart, e: potEnd });
+                    // Nếu khung trống chỉ vỏn vẹn đúng 1 tiếng và bắt đầu ngay từ bây giờ
+                    // -> coi như không trống, không đẩy vào slots (không hiển thị, không cho đặt)
+                    if ((potEnd - potStart === 1) && (potStart === currentAbs)) {
+                        // Bỏ qua, không push
+                    } else {
+                        slots.push({ s: potStart, e: potEnd });
+                    }
                 } else if (potEnd === potStart) {
                     if (potStart === currentAbs) {
                         // Bỏ qua hiển thị nếu chỉ trống 1 tiếng tính từ hiện tại và liền kề sau đó không trống
