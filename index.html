@@ -764,7 +764,7 @@ input.value = val;
             return acc.schedule.map(r => {
                 let s = getEpochHours(r.start.year, r.start.month, r.start.day, r.start.hour);
                 let e = getEpochHours(r.end.year, r.end.month, r.end.day, r.end.hour);
-                if (s === currentAbs || r.virtualHour) {
+                if (r.virtualHour) {
                     e += 1;
                 }
                 return { ...r, startAbs: s, endAbs: e };
@@ -965,10 +965,10 @@ input.value = val;
                         </div>
                     </div>
                     <div class="flex items-center gap-1.5">
-                        <button onclick="openEditModal(${accIdx}, ${rIdx})" class="bg-white hover:bg-indigo-50 text-indigo-600 border border-indigo-200 px-3 py-1.5 rounded-lg text-xs font-bold transition shadow-sm flex items-center gap-1">
+                        <button onclick="editRentalByKey(${accIdx}, '${rentalKeyEnc(r)}')" class="bg-white hover:bg-indigo-50 text-indigo-600 border border-indigo-200 px-3 py-1.5 rounded-lg text-xs font-bold transition shadow-sm flex items-center gap-1">
                             <i class="fa-solid fa-pen-to-square"></i> Sửa
                         </button>
-                        <button onclick="deleteRental(${accIdx}, ${rIdx})" class="bg-white hover:bg-rose-50 text-rose-600 border border-rose-200 px-3 py-1.5 rounded-lg text-xs font-bold transition shadow-sm flex items-center gap-1">
+                        <button onclick="deleteRentalByKey(${accIdx}, '${rentalKeyEnc(r)}')" class="bg-white hover:bg-rose-50 text-rose-600 border border-rose-200 px-3 py-1.5 rounded-lg text-xs font-bold transition shadow-sm flex items-center gap-1">
                             <i class="fa-solid fa-trash"></i> Xóa
                         </button>
                     </div>
@@ -1315,7 +1315,7 @@ document.getElementById('check-ehour').value = ceHour;
             if (inS >= inE) { showCustomAlert("Thời gian bắt đầu phải nhỏ hơn kết thúc!"); return; }
 
             let checkS = inS;
-            let checkE = (inS === currentAbs || vhState.check.on) ? inE + 1 : inE; // Ngoại lệ W áp dụng + 1 ảo
+            let checkE = vhState.check.on ? inE + 1 : inE; // Ngoại lệ W áp dụng + 1 ảo
             let durationCheck = checkE - checkS;
             let timeStrS = formatTimeT(inS, currentAbs);
             
@@ -1992,6 +1992,31 @@ document.getElementById('form-ehour').value = eHour;
             document.getElementById('modal-rental').classList.add('flex');
         }
 
+// Tạo "khóa" nhận diện lịch từ nội dung (tên, thiết bị, giờ bắt đầu/kết thúc)
+function rentalKeyEnc(r) {
+    const raw = [r.tenantName, r.deviceType,
+        r.start.year, r.start.month, r.start.day, r.start.hour,
+        r.end.year, r.end.month, r.end.day, r.end.hour].join('|');
+    return encodeURIComponent(raw).replace(/'/g, '%27');
+}
+
+// Tìm đúng vị trí của lịch trong dữ liệu tại thời điểm bấm
+function findRentalIdx(accIdx, encKey) {
+    return accounts[accIdx].schedule.findIndex(x => rentalKeyEnc(x) === encKey);
+}
+
+function editRentalByKey(accIdx, encKey) {
+    const idx = findRentalIdx(accIdx, encKey);
+    if (idx === -1) { showCustomAlert("Không tìm thấy lịch này, hãy tải lại trang (F5)!"); return; }
+    openEditModal(accIdx, idx);
+}
+
+function deleteRentalByKey(accIdx, encKey) {
+    const idx = findRentalIdx(accIdx, encKey);
+    if (idx === -1) { showCustomAlert("Không tìm thấy lịch này, hãy tải lại trang (F5)!"); return; }
+    deleteRental(accIdx, idx);
+}
+
         function openEditModal(accIdx, rentalIdx) {
             const r = accounts[accIdx].schedule[rentalIdx];
             if (!r) return;
@@ -2084,7 +2109,7 @@ function isFullyFree(acc, startAbs, reqEndAbs, currentAbs, realNowAbs) {
 
             const vhOn = vhState.form.on;
             let reqEndAbs = endAbs;
-            if (startAbs === currentAbs || vhOn) reqEndAbs += 1;
+            if (vhOn) reqEndAbs += 1;
 
             let tempSchedule = [];
             const isEditingSameAcc = (editRentalIdx !== -1 && editAccIdx === accIdx);
