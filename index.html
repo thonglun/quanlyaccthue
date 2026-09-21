@@ -506,6 +506,61 @@
         </div>
     </div>
 
+    <!-- MODAL NHẬP THỜI ĐIỂM RESET MẬT KHẨU -->
+    <div id="modal-reset-input" class="fixed inset-0 bg-black/50 hidden items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-2xl w-full max-w-md p-6 space-y-4 shadow-xl">
+            <div class="flex items-center justify-between border-b pb-2">
+                <h3 class="text-lg font-bold text-gray-800">Reset Mật Khẩu</h3>
+            </div>
+
+            <div class="space-y-3 text-sm">
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block font-medium mb-1">Ngày</label>
+                        <div class="flex items-center bg-white border border-gray-300 rounded-xl overflow-hidden focus-within:border-violet-500 focus-within:ring-2 focus-within:ring-violet-200 transition shadow-sm">
+                            <button type="button" onclick="stepInput('rp-sday', -1)" class="px-4 py-2.5 bg-gray-50 hover:bg-gray-100 text-gray-600 font-bold border-r border-gray-200 transition active:bg-gray-200"><i class="fa-solid fa-minus text-xs"></i></button>
+                            <input type="number" id="rp-sday" min="1" max="31" placeholder="Ngày" class="w-full py-2.5 bg-transparent outline-none text-center font-bold text-gray-800">
+                            <button type="button" onclick="stepInput('rp-sday', 1)" class="px-4 py-2.5 bg-gray-50 hover:bg-gray-100 text-gray-600 font-bold border-l border-gray-200 transition active:bg-gray-200"><i class="fa-solid fa-plus text-xs"></i></button>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block font-medium mb-1">Giờ (0-23)</label>
+                        <div class="flex items-center bg-white border border-gray-300 rounded-xl overflow-hidden focus-within:border-violet-500 focus-within:ring-2 focus-within:ring-violet-200 transition shadow-sm">
+                            <button type="button" onclick="stepInput('rp-shour', -1)" class="px-4 py-2.5 bg-gray-50 hover:bg-gray-100 text-gray-600 font-bold border-r border-gray-200 transition active:bg-gray-200"><i class="fa-solid fa-minus text-xs"></i></button>
+                            <input type="number" id="rp-shour" min="0" max="23" placeholder="Giờ" class="w-full py-2.5 bg-transparent outline-none text-center font-bold text-gray-800">
+                            <button type="button" onclick="stepInput('rp-shour', 1)" class="px-4 py-2.5 bg-gray-50 hover:bg-gray-100 text-gray-600 font-bold border-l border-gray-200 transition active:bg-gray-200"><i class="fa-solid fa-plus text-xs"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+                                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block font-medium mb-1">Tháng</label>
+                        <div class="flex items-center bg-white border border-gray-300 rounded-xl overflow-hidden focus-within:border-violet-500 focus-within:ring-2 focus-within:ring-violet-200 transition shadow-sm">
+                            <button type="button" onclick="stepInput('rp-smonth', -1)" class="px-4 py-2.5 bg-gray-50 hover:bg-gray-100 text-gray-600 font-bold border-r border-gray-200 transition active:bg-gray-200"><i class="fa-solid fa-minus text-xs"></i></button>
+                            <input type="number" id="rp-smonth" min="1" max="12" placeholder="Tháng" class="w-full py-2.5 bg-transparent outline-none text-center font-bold text-gray-800">
+                            <button type="button" onclick="stepInput('rp-smonth', 1)" class="px-4 py-2.5 bg-gray-50 hover:bg-gray-100 text-gray-600 font-bold border-l border-gray-200 transition active:bg-gray-200"><i class="fa-solid fa-plus text-xs"></i></button>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block font-medium mb-1">Năm</label>
+                        <div class="flex items-center bg-white border border-gray-300 rounded-xl overflow-hidden focus-within:border-violet-500 focus-within:ring-2 focus-within:ring-violet-200 transition shadow-sm">
+                            <button type="button" onclick="stepInput('rp-syear', -1)" class="px-4 py-2.5 bg-gray-50 hover:bg-gray-100 text-gray-600 font-bold border-r border-gray-200 transition active:bg-gray-200"><i class="fa-solid fa-minus text-xs"></i></button>
+                            <input type="number" id="rp-syear" min="2020" max="2099" placeholder="Năm" class="w-full py-2.5 bg-transparent outline-none text-center font-bold text-gray-800">
+                            <button type="button" onclick="stepInput('rp-syear', 1)" class="px-4 py-2.5 bg-gray-50 hover:bg-gray-100 text-gray-600 font-bold border-l border-gray-200 transition active:bg-gray-200"><i class="fa-solid fa-plus text-xs"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex gap-2 pt-2">
+                <button onclick="closeResetInputModal()" class="flex-1 py-2.5 rounded-xl bg-rose-500 hover:bg-rose-600 font-semibold text-white transition">Hủy</button>
+                <button onclick="backFromResetInput()" class="flex-1 py-2.5 rounded-xl bg-indigo-500 hover:bg-indigo-600 font-semibold text-white transition">Quay lại</button>
+                <button onclick="executeResetPassword()" class="flex-1 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 font-semibold text-white transition">Reset</button>
+            </div>
+        </div>
+    </div>
+
     <!-- MODAL RESET MẬT KHẨU - XEM LỊCH TRƯỚC KHI RESET -->
     <div id="modal-reset-now" class="fixed inset-0 bg-black/50 hidden items-center justify-center p-4 z-50">
         <div class="bg-white rounded-2xl w-full max-w-md p-6 shadow-xl max-h-[90vh] flex flex-col">
@@ -665,97 +720,123 @@
 
             let min = parseInt(input.min) || 0;
             let max = parseInt(input.max) || 999;
-            const prefix = id.startsWith('check-') ? 'check-' : (id.startsWith('form-') ? 'form-' : 'calc-');
-            
+            const prefix = id.startsWith('check-') ? 'check-' : (id.startsWith('form-') ? 'form-' : (id.startsWith('rp-') ? 'rp-' : 'calc-'));
+
+            // MỚI: nhớ tháng/năm hiện tại của ô NGÀY để còn tính số ngày của tháng trước khi lùi ngày
+            let curMonth = null, curYear = null;
+
             if (id.includes('day')) {
                 const mInput = document.getElementById(prefix + (id.includes('sday') ? 'smonth' : 'emonth'));
                 const yInput = document.getElementById(prefix + (id.includes('sday') ? 'syear' : 'eyear'));
                 const m = mInput && parseInt(mInput.value) ? parseInt(mInput.value) : getSystemDate().month;
                 const y = yInput && parseInt(yInput.value) ? parseInt(yInput.value) : getSystemDate().year;
+                curMonth = m;
+                curYear = y;
                 max = getDaysInMonth(y, m);
                 input.max = max;
             }
 
-let val = parseInt(input.value);
-const today = getSystemDate();
-if (isNaN(val)) val = min; // dự phòng nếu ô lỡ bị trống, không còn phân biệt "lần đầu"
-const oldVal = val;
-val += delta;
-
-// MỚI: khi ô GIỜ (shour/ehour) vượt biên 0-23 thì kéo theo ô NGÀY tương ứng +1/-1
-// + đồng bộ giờ bắt đầu/kết thúc khi đang cách nhau đúng 1 tiếng
-if (id.includes('shour') || id.includes('ehour')) {
-    const isSHour = id.includes('shour');
-    const otherId = prefix + (isSHour ? 'ehour' : 'shour');
-
-    // Lấy đầy đủ ngày/tháng/năm/giờ của CẢ 2 mốc (trước khi thay đổi) để tính khoảng cách thật (qua epoch hours)
-    const sDay   = parseInt(document.getElementById(prefix + 'sday')?.value)   || today.day;
-    const sMonth = parseInt(document.getElementById(prefix + 'smonth')?.value) || today.month;
-    const sYear  = parseInt(document.getElementById(prefix + 'syear')?.value)  || today.year;
-    const eDay   = parseInt(document.getElementById(prefix + 'eday')?.value)   || today.day;
-    const eMonth = parseInt(document.getElementById(prefix + 'emonth')?.value) || today.month;
-    const eYear  = parseInt(document.getElementById(prefix + 'eyear')?.value)  || today.year;
-
-    const sHourVal = isSHour ? oldVal : parseInt(document.getElementById(prefix + 'shour')?.value);
-    const eHourVal = isSHour ? parseInt(document.getElementById(prefix + 'ehour')?.value) : oldVal;
-
-    let shouldSyncOther = false;
-    if (!isNaN(sHourVal) && !isNaN(eHourVal)) {
-        const startAbs = getEpochHours(sYear, sMonth, sDay, sHourVal);
-        const endAbs   = getEpochHours(eYear, eMonth, eDay, eHourVal);
-
-        // Chỉ đồng bộ khi đang cách nhau đúng 1 tiếng, và đang kéo dãn "về sau"/"về trước" đúng chiều
-        if (endAbs - startAbs === 1) {
-            if ((isSHour && delta > 0) || (!isSHour && delta < 0)) {
-                shouldSyncOther = true;
+            // MỚI: khi ô NGÀY tràn biên thì đẩy sang ô THÁNG, khi ô THÁNG tràn biên thì đẩy sang ô NĂM
+            function cascadeToParent(overflow) {
+                if (overflow === 0) return;
+                if (id.includes('day')) {
+                    stepInput(prefix + (id.includes('sday') ? 'smonth' : 'emonth'), overflow);
+                } else if (id.includes('month')) {
+                    stepInput(prefix + (id.includes('smonth') ? 'syear' : 'eyear'), overflow);
+                }
             }
-        }
-    }
 
-    let dayCascade = 0;
-    if (val > max) { val = min; dayCascade = 1; }
-    else if (val < min) { val = max; dayCascade = -1; }
+            let val = parseInt(input.value);
+            const today = getSystemDate();
+            if (isNaN(val)) val = min; // dự phòng nếu ô lỡ bị trống, không còn phân biệt "lần đầu"
+            const oldVal = val;
+            val += delta;
 
-    input.value = val;
+            // Khi ô GIỜ (shour/ehour) vượt biên 0-23 thì kéo theo ô NGÀY tương ứng +1/-1
+            // + đồng bộ giờ bắt đầu/kết thúc khi đang cách nhau đúng 1 tiếng
+            if (id.includes('shour') || id.includes('ehour')) {
+                const isSHour = id.includes('shour');
+                const otherId = prefix + (isSHour ? 'ehour' : 'shour');
 
-    if (dayCascade !== 0) {
-        const dayId = prefix + (isSHour ? 'sday' : 'eday');
-        stepInput(dayId, dayCascade);
-    }
+                // Lấy đầy đủ ngày/tháng/năm/giờ của CẢ 2 mốc (trước khi thay đổi) để tính khoảng cách thật (qua epoch hours)
+                const sDay   = parseInt(document.getElementById(prefix + 'sday')?.value)   || today.day;
+                const sMonth = parseInt(document.getElementById(prefix + 'smonth')?.value) || today.month;
+                const sYear  = parseInt(document.getElementById(prefix + 'syear')?.value)  || today.year;
+                const eDay   = parseInt(document.getElementById(prefix + 'eday')?.value)   || today.day;
+                const eMonth = parseInt(document.getElementById(prefix + 'emonth')?.value) || today.month;
+                const eYear  = parseInt(document.getElementById(prefix + 'eyear')?.value)  || today.year;
 
-    if (shouldSyncOther) {
-        stepInput(otherId, delta);
-    }
-    return;
-}
+                const sHourVal = isSHour ? oldVal : parseInt(document.getElementById(prefix + 'shour')?.value);
+                const eHourVal = isSHour ? parseInt(document.getElementById(prefix + 'ehour')?.value) : oldVal;
 
-if (val < min) val = max;
-if (val > max) val = min;
+                let shouldSyncOther = false;
+                if (!isNaN(sHourVal) && !isNaN(eHourVal)) {
+                    const startAbs = getEpochHours(sYear, sMonth, sDay, sHourVal);
+                    const endAbs   = getEpochHours(eYear, eMonth, eDay, eHourVal);
 
-// NEW: đồng bộ ngày bắt đầu/kết thúc khi 2 ngày đang trùng nhau
-if (id === prefix + 'sday' || id === prefix + 'eday') {
-    const isSDay = (id === prefix + 'sday');
-    if ((isSDay && delta > 0) || (!isSDay && delta < 0)) {
-        const otherId = prefix + (isSDay ? 'eday' : 'sday');
-        const otherInput = document.getElementById(otherId);
-        const otherVal = otherInput ? parseInt(otherInput.value) : NaN;
+                    // Chỉ đồng bộ khi đang cách nhau đúng 1 tiếng, và đang kéo dãn "về sau"/"về trước" đúng chiều
+                    if (endAbs - startAbs === 1) {
+                        if ((isSHour && delta > 0) || (!isSHour && delta < 0)) {
+                            shouldSyncOther = true;
+                        }
+                    }
+                }
 
-        const thisMonth = parseInt(document.getElementById(prefix + (isSDay ? 'smonth' : 'emonth'))?.value) || today.month;
-        const otherMonth = parseInt(document.getElementById(prefix + (isSDay ? 'emonth' : 'smonth'))?.value) || today.month;
-        const thisYear = parseInt(document.getElementById(prefix + (isSDay ? 'syear' : 'eyear'))?.value) || today.year;
-        const otherYear = parseInt(document.getElementById(prefix + (isSDay ? 'eyear' : 'syear'))?.value) || today.year;
+                let dayCascade = 0;
+                if (val > max) { val = min; dayCascade = 1; }
+                else if (val < min) { val = max; dayCascade = -1; }
 
-        const sameDate = !isNaN(otherVal) && otherVal === oldVal && thisMonth === otherMonth && thisYear === otherYear;
+                input.value = val;
 
-        if (sameDate) {
-            input.value = val;       // gán giá trị mới cho ô đang bấm trước
-            stepInput(otherId, delta); // rồi mới đẩy ô còn lại theo cùng chiều
-            return;
-        }
-    }
-}
+                if (dayCascade !== 0) {
+                    const dayId = prefix + (isSHour ? 'sday' : 'eday');
+                    stepInput(dayId, dayCascade);
+                }
 
-input.value = val;
+                if (shouldSyncOther) {
+                    stepInput(otherId, delta);
+                }
+                return;
+            }
+
+            // MỚI: ghi nhận việc tràn biên (thay cho 2 dòng if cũ) để còn kéo theo ô cấp trên
+            let overflow = 0;
+            if (val > max) { val = min; overflow = 1; }
+            else if (val < min) { val = max; overflow = -1; }
+
+            // MỚI: lùi từ ngày 1 phải nhảy về NGÀY CUỐI CỦA THÁNG TRƯỚC (28/29/30/31 tùy tháng)
+            if (overflow === -1 && id.includes('day')) {
+                let pm = curMonth - 1, py = curYear;
+                if (pm < 1) { pm = 12; py -= 1; }
+                val = getDaysInMonth(py, pm);
+            }
+
+            // Đồng bộ ngày bắt đầu/kết thúc khi 2 ngày đang trùng nhau
+            if (id === prefix + 'sday' || id === prefix + 'eday') {
+                const isSDay = (id === prefix + 'sday');
+                if ((isSDay && delta > 0) || (!isSDay && delta < 0)) {
+                    const otherId = prefix + (isSDay ? 'eday' : 'sday');
+                    const otherInput = document.getElementById(otherId);
+                    const otherVal = otherInput ? parseInt(otherInput.value) : NaN;
+
+                    const thisMonth = parseInt(document.getElementById(prefix + (isSDay ? 'smonth' : 'emonth'))?.value) || today.month;
+                    const otherMonth = parseInt(document.getElementById(prefix + (isSDay ? 'emonth' : 'smonth'))?.value) || today.month;
+                    const thisYear = parseInt(document.getElementById(prefix + (isSDay ? 'syear' : 'eyear'))?.value) || today.year;
+                    const otherYear = parseInt(document.getElementById(prefix + (isSDay ? 'eyear' : 'syear'))?.value) || today.year;
+
+                    const sameDate = !isNaN(otherVal) && otherVal === oldVal && thisMonth === otherMonth && thisYear === otherYear;
+
+                    if (sameDate) {
+                        input.value = val;         // gán giá trị mới cho ô đang bấm trước
+                        cascadeToParent(overflow); // MỚI: kéo theo tháng/năm của ô này
+                        stepInput(otherId, delta); // rồi mới đẩy ô còn lại theo cùng chiều
+                        return;
+                    }
+                }
+            }
+
+            input.value = val;
+            cascadeToParent(overflow); // MỚI: ngày tràn -> tháng đổi; tháng tràn -> năm đổi
         }
 
         // Lấy danh sách Schedule sau khi thêm 1 giờ ảo (Nếu start trùng hiện tại)
@@ -891,10 +972,10 @@ input.value = val;
         }
 
         // Dọn lịch sử reset mật khẩu quá hạn: dữ liệu tồn tại trong 5 ngày, sang ngày thứ 6 thì không còn
-        function pruneResetHistory(activeDayObj) {
-            const limitAbs = getEpochHours(activeDayObj.year, activeDayObj.month, activeDayObj.day - 4, activeDayObj.hour);
-            resetPasswordHistory = resetPasswordHistory.filter(item => item.ts >= limitAbs);
-        }
+function pruneResetHistory(activeDayObj) {
+    const limitAbs = getEpochHours(activeDayObj.year, activeDayObj.month, activeDayObj.day - 4, 0);
+    resetPasswordHistory = resetPasswordHistory.filter(item => item.ts >= limitAbs);
+}
 
         function sortSchedule(acc, activeDayObj) {
             acc.schedule.sort((a, b) => {
@@ -1515,12 +1596,51 @@ document.getElementById('check-ehour').value = ceHour;
 
         function openResetPasswordModal() {
             showCustomOptionsModal("Chọn thao tác Reset mật khẩu:", [
-                { label: "Reset bây giờ", value: "now" },
+                { label: "Reset mật khẩu", value: "now" },
                 { label: "Lịch sử reset", value: "history" }
             ], (choice) => {
-                if (choice === "now") openResetNowModal();
+                if (choice === "now") openResetInputModal();
                 else if (choice === "history") openResetHistoryModal();
             });
+        }
+
+        // --- MODAL NHẬP THỜI ĐIỂM RESET MẬT KHẨU ---
+        function openResetInputModal() {
+            const today = getSystemDate();
+            document.getElementById('rp-sday').value = today.day;
+            document.getElementById('rp-smonth').value = today.month;
+            document.getElementById('rp-syear').value = today.year;
+            document.getElementById('rp-shour').value = today.hour;
+            document.getElementById('modal-reset-input').classList.remove('hidden');
+            document.getElementById('modal-reset-input').classList.add('flex');
+        }
+
+        function closeResetInputModal() {
+            document.getElementById('modal-reset-input').classList.add('hidden');
+            document.getElementById('modal-reset-input').classList.remove('flex');
+        }
+
+        function backFromResetInput() {
+            closeResetInputModal();
+            openResetPasswordModal();
+        }
+
+        function executeResetPassword() {
+            const day = parseInt(document.getElementById('rp-sday').value);
+            const month = parseInt(document.getElementById('rp-smonth').value);
+            const year = parseInt(document.getElementById('rp-syear').value);
+            const hour = parseInt(document.getElementById('rp-shour').value);
+
+            if (isNaN(day) || isNaN(month) || isNaN(year) || isNaN(hour)) {
+                showCustomAlert("Vui lòng nhập đầy đủ ngày, tháng, năm và giờ!"); return;
+            }
+            if (month < 1 || month > 12 || hour < 0 || hour > 23 || day < 1 || day > getDaysInMonth(year, month)) {
+                showCustomAlert("Ngày, tháng hoặc giờ không hợp lệ!"); return;
+            }
+
+            const chosenAbs = getEpochHours(year, month, day, hour);
+            closeResetInputModal();
+            openResetNowModal(chosenAbs);
         }
 
         // Lấy danh sách lịch đang hoạt động trùng hiện tại + các lịch sau đó, không tính 1 tiếng ảo,
@@ -1558,9 +1678,9 @@ document.getElementById('check-ehour').value = ceHour;
         // false = đã bấm "Quay lại" (không lưu) hoặc đã "Đồng ý" (đã lưu rồi)
         let resetNowModalOpen = false;
 
-        function openResetNowModal() {
-            const today = getSystemDate();
-            const currentAbs = getEpochHours(today.year, today.month, today.day, today.hour);
+        function openResetNowModal(customAbs) {
+    const today = getSystemDate();
+    const currentAbs = (customAbs !== undefined) ? customAbs : getEpochHours(today.year, today.month, today.day, today.hour);
             resetNowPendingAbs = currentAbs;
             renderResetNowLists(currentAbs);
             document.getElementById('modal-reset-now').classList.remove('hidden');
