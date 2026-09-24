@@ -87,7 +87,7 @@
                 <!-- TABS ĐIỀU HƯỚNG QUẢN LÝ -->
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                     <div class="flex border-b text-sm font-bold bg-gray-50/50">
-                        <button onclick="switchTab('upcoming')" id="tab-btn-upcoming" class="flex-1 py-3.5 text-center border-b-2 border-indigo-600 text-indigo-600 transition">Sắp lên ca</button>
+                        <button onclick="switchTab('upcoming')" id="tab-btn-upcoming" class="flex-1 py-3.5 text-center border-b-2 border-indigo-600 text-indigo-600 transition">Đang trong ca</button>
                         <button onclick="switchTab('all')" id="tab-btn-all" class="flex-1 py-3.5 text-center text-gray-500 hover:text-indigo-600 transition">Tất cả lịch</button>
                         <button onclick="switchTab('notes')" id="tab-btn-notes" class="flex-1 py-3.5 text-center text-gray-500 hover:text-indigo-600 transition">Ghi chú</button>
                     </div>
@@ -102,7 +102,7 @@
                                     </h3>
                                 </div>
                                 <div id="list-upcoming-4ss" class="space-y-2">
-                                    <p class="text-gray-400 text-sm italic">(Không có lịch sắp lên ca)</p>
+                                    <p class="text-gray-400 text-sm italic">(Không có lịch đang trong ca)</p>
                                 </div>
                             </div>
                             <div class="border-t border-gray-100 pt-4">
@@ -112,7 +112,7 @@
                                     </h3>
                                 </div>
                                 <div id="list-upcoming-2ss" class="space-y-2">
-                                    <p class="text-gray-400 text-sm italic">(Không có lịch sắp lên ca)</p>
+                                    <p class="text-gray-400 text-sm italic">(Không có lịch đang trong ca)</p>
                                 </div>
                             </div>
                         </div>
@@ -1098,17 +1098,17 @@ function pruneResetHistory(activeDayObj) {
                 const acc = accounts[idx];
                 const effSched = getEffectiveSchedule(acc, activeDayObj);
                 
-                // Upcoming
-                const upContainer = document.getElementById(`list-upcoming-${accName}`);
-                let upHtml = "";
-                let count = 0;
-                effSched.forEach((r, rIdx) => {
-                    if (r.startAbs > currentAbs && r.startAbs <= currentAbs + 24) {
-                        count++;
-                        upHtml += createRentalCardHtml(r, idx, rIdx, formatCardTime(r.startAbs, r.endAbs, currentAbs));
-                    }
-                });
-                upContainer.innerHTML = count > 0 ? upHtml : `<p class="text-gray-400 text-sm italic">(Không có lịch sắp lên ca)</p>`;
+                // Đang thuê
+const upContainer = document.getElementById(`list-upcoming-${accName}`);
+let upHtml = "";
+let count = 0;
+effSched.forEach((r, rIdx) => {
+    if (r.startAbs <= currentAbs && r.endAbs > currentAbs) {
+        count++;
+        upHtml += createRentalCardHtml(r, idx, rIdx, formatCardTime(r.startAbs, r.endAbs, currentAbs));
+    }
+});
+upContainer.innerHTML = count > 0 ? upHtml : `<p class="text-gray-400 text-sm italic">(Không có lịch đang trong ca)</p>`;
 
                 // All
                 const allContainer = document.getElementById(`list-all-${accName}`);
@@ -2280,7 +2280,7 @@ function isFullyFree(acc, startAbs, reqEndAbs, currentAbs, realNowAbs) {
                         closeModal();
             saveData();
 
-            if (devVal !== "Scan PC") {
+            if (devVal !== "Scan PC" && editRentalIdx === -1) {
                 const accName = acc.accountName; // "4ss" hoặc "2ss"
                 let email = "";
                 if (accName === "4ss" && devVal === "LINE") email = "yendanghai23@gmail.com";
