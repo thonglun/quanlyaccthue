@@ -654,11 +654,6 @@
         let resetPasswordHistory = [];
         let activeTab = 'upcoming';
 
-        function getElVal(id) {
-    var el = document.getElementById(id);
-    return el ? el.value : undefined;
-    }   
-
         // Hàm tính số ngày trong tháng dựa vào Năm và Tháng
         function getDaysInMonth(year, month) {
             return new Date(year, month, 0).getDate();
@@ -764,15 +759,15 @@
                 const otherId = prefix + (isSHour ? 'ehour' : 'shour');
 
                 // Lấy đầy đủ ngày/tháng/năm/giờ của CẢ 2 mốc (trước khi thay đổi) để tính khoảng cách thật (qua epoch hours)
-                const sDay   = parseInt(getElVal(prefix + 'sday'))   || today.day;
-                const sMonth = parseInt(getElVal(prefix + 'smonth')) || today.month;
-                const sYear  = parseInt(getElVal(prefix + 'syear'))  || today.year;
-                const eDay   = parseInt(getElVal(prefix + 'eday'))   || today.day;
-                const eMonth = parseInt(getElVal(prefix + 'emonth')) || today.month;
-                const eYear  = parseInt(getElVal(prefix + 'eyear'))  || today.year;
+                const sDay   = parseInt(document.getElementById(prefix + 'sday')?.value)   || today.day;
+                const sMonth = parseInt(document.getElementById(prefix + 'smonth')?.value) || today.month;
+                const sYear  = parseInt(document.getElementById(prefix + 'syear')?.value)  || today.year;
+                const eDay   = parseInt(document.getElementById(prefix + 'eday')?.value)   || today.day;
+                const eMonth = parseInt(document.getElementById(prefix + 'emonth')?.value) || today.month;
+                const eYear  = parseInt(document.getElementById(prefix + 'eyear')?.value)  || today.year;
 
-                const sHourVal = isSHour ? oldVal : parseInt(getElVal(prefix + 'shour'));
-                const eHourVal = isSHour ? parseInt(getElVal(prefix + 'ehour')) : oldVal;
+                const sHourVal = isSHour ? oldVal : parseInt(document.getElementById(prefix + 'shour')?.value);
+                const eHourVal = isSHour ? parseInt(document.getElementById(prefix + 'ehour')?.value) : oldVal;
 
                 let shouldSyncOther = false;
                 if (!isNaN(sHourVal) && !isNaN(eHourVal)) {
@@ -824,10 +819,10 @@
                     const otherInput = document.getElementById(otherId);
                     const otherVal = otherInput ? parseInt(otherInput.value) : NaN;
 
-                    const thisMonth = parseInt(getElVal(prefix + (isSDay ? 'smonth' : 'emonth'))) || today.month;
-                    const otherMonth = parseInt(getElVal(prefix + (isSDay ? 'emonth' : 'smonth'))) || today.month;
-                    const thisYear = parseInt(getElVal(prefix + (isSDay ? 'syear' : 'eyear'))) || today.year;
-                    const otherYear = parseInt(getElVal(prefix + (isSDay ? 'eyear' : 'syear'))) || today.year;
+                    const thisMonth = parseInt(document.getElementById(prefix + (isSDay ? 'smonth' : 'emonth'))?.value) || today.month;
+                    const otherMonth = parseInt(document.getElementById(prefix + (isSDay ? 'emonth' : 'smonth'))?.value) || today.month;
+                    const thisYear = parseInt(document.getElementById(prefix + (isSDay ? 'syear' : 'eyear'))?.value) || today.year;
+                    const otherYear = parseInt(document.getElementById(prefix + (isSDay ? 'eyear' : 'syear'))?.value) || today.year;
 
                     const sameDate = !isNaN(otherVal) && otherVal === oldVal && thisMonth === otherMonth && thisYear === otherYear;
 
@@ -1921,10 +1916,10 @@ function setFormDevice(type) {
         // Kiểm tra xem thời gian BẮT ĐẦU đang nhập có trùng khớp hiện tại (ngày/tháng/năm/giờ) không
         function vhFieldsMatchNow(prefix) {
             const today = getSystemDate();
-            const sDay = parseInt(getElVal(prefix + 'sday'));
-            const sHour = parseInt(getElVal(prefix + 'shour'));
-            const sMonth = parseInt(getElVal(prefix + 'smonth')) || today.month;
-            const sYear = parseInt(getElVal(prefix + 'syear')) || today.year;
+            const sDay = parseInt(document.getElementById(prefix + 'sday')?.value);
+            const sHour = parseInt(document.getElementById(prefix + 'shour')?.value);
+            const sMonth = parseInt(document.getElementById(prefix + 'smonth')?.value) || today.month;
+            const sYear = parseInt(document.getElementById(prefix + 'syear')?.value) || today.year;
             if (isNaN(sDay) || isNaN(sHour)) return false;
             return sYear === today.year && sMonth === today.month && sDay === today.day && sHour === today.hour;
         }
