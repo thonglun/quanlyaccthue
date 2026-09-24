@@ -283,7 +283,7 @@
     <!-- MODAL CUSTOM ALERT (HIỂN THỊ KẾT QUẢ / THÔNG BÁO CHUNG) -->
     <div id="modal-custom-alert" class="fixed inset-0 bg-black/50 hidden items-center justify-center p-4 z-[60]">
         <div class="bg-white rounded-2xl w-full max-w-md p-6 space-y-4 shadow-xl text-center">
-            <h3 class="text-lg font-bold text-gray-800 border-b pb-2">Thông báo</h3>
+            <h3 id="custom-alert-title" class="text-lg font-bold text-gray-800 border-b pb-2">Thông báo</h3>
             <p id="custom-alert-message" class="text-gray-700 text-sm font-medium whitespace-pre-wrap text-left"></p>
             <div class="flex gap-2 pt-4">
                 <button onclick="closeCustomAlert()" class="flex-1 py-2.5 rounded-xl bg-rose-500 hover:bg-rose-600 font-semibold text-white transition">Đóng</button>
@@ -1149,9 +1149,10 @@ function pruneResetHistory(activeDayObj) {
         let currentAlertMessage = "";
         let onAlertBack = null;
 
-        function showCustomAlert(message, showCopy = false, onBack = null) {
-            currentAlertMessage = message;
-            document.getElementById('custom-alert-message').innerText = message;
+        function showCustomAlert(message, showCopy = false, onBack = null, title = "Thông báo") {
+    currentAlertMessage = message;
+    document.getElementById('custom-alert-message').innerText = message;
+    document.getElementById('custom-alert-title').innerText = title;
             
             const copyBtn = document.getElementById('btn-copy-alert');
             const backBtn = document.getElementById('btn-back-alert');
@@ -2276,8 +2277,19 @@ function isFullyFree(acc, startAbs, reqEndAbs, currentAbs, realNowAbs) {
             const validHours = (endAbs > effectiveStart) ? (endAbs - effectiveStart) : 0;
             acc.revenue += calculatePrice(acc.accountName, validHours);
 
-            closeModal();
+                        closeModal();
             saveData();
+
+            if (devVal !== "Scan PC") {
+                const accName = acc.accountName; // "4ss" hoặc "2ss"
+                let email = "";
+                if (accName === "4ss" && devVal === "LINE") email = "yendanghai23@gmail.com";
+                else if (accName === "2ss" && devVal === "LINE") email = "nguyenlamtrucanh09@gmail.com";
+                else if (accName === "4ss" && devVal === "Google") email = "buip54028@gmail.com";
+                else if (accName === "2ss" && devVal === "Google") email = "2ssthueacc@gmail.com";
+
+                showCustomAlert(email, true, null, `${accName} - ${devVal}`);
+            }
         }
 
         function deleteRental(accIdx, rentalIdx) {
