@@ -139,15 +139,9 @@
                 id="tab-btn-upcoming"
                 class="flex-1 py-3.5 text-center border-b-2 border-indigo-600 text-indigo-600 transition"
               >
-                Đang trong ca
+                Tình trạng
               </button>
-              <button
-                onclick="switchTab('soon')"
-                id="tab-btn-soon"
-                class="flex-1 py-3.5 text-center text-gray-500 hover:text-indigo-600 transition"
-              >
-                Sắp lên ca
-              </button>
+              
               <button
                 onclick="switchTab('all')"
                 id="tab-btn-all"
@@ -165,8 +159,14 @@
             </div>
 
             <div class="p-5">
-              <!-- TAB 1: SẮP LÊN CA -->
+                                          <!-- TAB 1: ĐANG TRONG CA (đã gộp thêm SẮP LÊN CA bên dưới) -->
               <div id="tab-upcoming" class="space-y-6">
+                <div class="flex items-center gap-1.5 mb-3">
+                  <i class="fa-solid fa-circle-play text-emerald-500 text-xs"></i>
+                  <span class="text-xs font-bold text-emerald-600 uppercase tracking-wider">
+                    Đang trong ca
+                  </span>
+                </div>
                 <div>
                   <div class="flex items-center justify-between mb-3">
                     <h3
@@ -201,42 +201,49 @@
                     </p>
                   </div>
                 </div>
-              </div>
 
-              <!-- TAB MỚI: SẮP LÊN CA -->
-              <div id="tab-soon" class="hidden space-y-6">
-                <div>
-                  <div class="flex items-center justify-between mb-3">
-                    <h3
-                      class="text-xs font-bold text-indigo-600 uppercase tracking-wider flex items-center gap-1.5"
-                    >
-                      <i
-                        class="fa-solid fa-hourglass-half text-amber-500 text-[10px]"
-                      ></i>
-                      Acc: 4ss
-                    </h3>
+                <!-- Ranh giới phân cách rõ ràng với khu SẮP LÊN CA -->
+                <div class="border-t-2 border-dashed border-amber-200 pt-4 mt-2">
+                  <div class="flex items-center gap-1.5 mb-3">
+                    <i class="fa-solid fa-hourglass-half text-amber-500 text-xs"></i>
+                    <span class="text-xs font-bold text-amber-600 uppercase tracking-wider">
+                      Sắp lên ca
+                    </span>
                   </div>
-                  <div id="list-soon-4ss" class="space-y-2">
-                    <p class="text-gray-400 text-sm italic">
-                      (Không có lịch sắp lên ca)
-                    </p>
+
+                  <div>
+                    <div class="flex items-center justify-between mb-3">
+                      <h3
+                        class="text-xs font-bold text-indigo-600 uppercase tracking-wider flex items-center gap-1.5"
+                      >
+                        <i
+                          class="fa-solid fa-hourglass-half text-amber-500 text-[10px]"
+                        ></i>
+                        Acc: 4ss
+                      </h3>
+                    </div>
+                    <div id="list-soon-4ss" class="space-y-2">
+                      <p class="text-gray-400 text-sm italic">
+                        (Không có lịch sắp lên ca)
+                      </p>
+                    </div>
                   </div>
-                </div>
-                <div class="border-t border-gray-100 pt-4">
-                  <div class="flex items-center justify-between mb-3">
-                    <h3
-                      class="text-xs font-bold text-indigo-600 uppercase tracking-wider flex items-center gap-1.5"
-                    >
-                      <i
-                        class="fa-solid fa-hourglass-half text-amber-500 text-[10px]"
-                      ></i>
-                      Acc: 2ss
-                    </h3>
-                  </div>
-                  <div id="list-soon-2ss" class="space-y-2">
-                    <p class="text-gray-400 text-sm italic">
-                      (Không có lịch sắp lên ca)
-                    </p>
+                  <div class="border-t border-gray-100 pt-4 mt-4">
+                    <div class="flex items-center justify-between mb-3">
+                      <h3
+                        class="text-xs font-bold text-indigo-600 uppercase tracking-wider flex items-center gap-1.5"
+                      >
+                        <i
+                          class="fa-solid fa-hourglass-half text-amber-500 text-[10px]"
+                        ></i>
+                        Acc: 2ss
+                      </h3>
+                    </div>
+                    <div id="list-soon-2ss" class="space-y-2">
+                      <p class="text-gray-400 text-sm italic">
+                        (Không có lịch sắp lên ca)
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -2092,7 +2099,7 @@
 
       function switchTab(tabName) {
         activeTab = tabName;
-        ["upcoming", "soon", "all", "notes"].forEach((t) => {
+        ["upcoming", "all", "notes"].forEach((t) => {
           const btn = document.getElementById(`tab-btn-${t}`);
           const content = document.getElementById(`tab-${t}`);
           if (t === tabName) {
