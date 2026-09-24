@@ -682,7 +682,8 @@
           class="text-gray-700 text-sm font-medium whitespace-pre-wrap text-left"
         ></p>
         <div class="flex gap-2 pt-4">
-          <button
+                    <button
+            id="btn-close-alert"
             onclick="closeCustomAlert()"
             class="flex-1 py-2.5 rounded-xl bg-rose-500 hover:bg-rose-600 font-semibold text-white transition"
           >
@@ -725,32 +726,14 @@
             <label class="block font-medium mb-1 text-sm"
               >Cách thức đăng nhập</label
             >
-            <div class="grid grid-cols-3 gap-2">
-              <button
-                type="button"
-                onclick="setCalcLogin('LINE')"
-                id="calc-login-LINE"
-                class="py-2.5 px-3 rounded-xl border font-bold text-xs transition bg-indigo-50 border-indigo-500 text-indigo-700"
-              >
-                LINE
-              </button>
-              <button
-                type="button"
-                onclick="setCalcLogin('Google')"
-                id="calc-login-Google"
-                class="py-2.5 px-3 rounded-xl border font-bold text-xs transition bg-gray-50 border-gray-200 text-gray-700"
-              >
-                Google
-              </button>
-              <button
-                type="button"
-                onclick="setCalcLogin('Scan PC')"
-                id="calc-login-Scan"
-                class="py-2.5 px-3 rounded-xl border font-bold text-xs transition bg-gray-50 border-gray-200 text-gray-700"
-              >
-                Scan PC
-              </button>
-            </div>
+<div class="grid grid-cols-2 gap-2">
+  <button type="button" onclick="setCalcLogin('LINE')" id="calc-login-LINE" class="...">
+    LINE
+  </button>
+  <button type="button" onclick="setCalcLogin('Google')" id="calc-login-Google" class="...">
+    Google
+  </button>
+</div>
           </div>
 
           <div id="calc-scan-options" class="hidden space-y-2">
@@ -966,7 +949,7 @@
 
           <div>
             <label class="block font-medium mb-1">Cách Đăng Nhập</label>
-            <div class="grid grid-cols-3 gap-2">
+            <div class="grid grid-cols-2 gap-2">
               <button
                 type="button"
                 onclick="setFormDevice('LINE')"
@@ -982,14 +965,6 @@
                 class="py-2.5 px-3 rounded-xl border font-bold text-xs transition bg-gray-50 border-gray-200 text-gray-700"
               >
                 Google
-              </button>
-              <button
-                type="button"
-                onclick="setFormDevice('Scan PC')"
-                id="form-device-Scan"
-                class="py-2.5 px-3 rounded-xl border font-bold text-xs transition bg-gray-50 border-gray-200 text-gray-700"
-              >
-                Scan PC
               </button>
             </div>
           </div>
@@ -2282,12 +2257,14 @@
       // --- CÁC HÀM XỬ LÝ MODAL TÙY CHỈNH ---
       let currentAlertMessage = "";
       let onAlertBack = null;
+      let alertAutoCloseOnCopy = false;
 
       function showCustomAlert(
         message,
         showCopy = false,
         onBack = null,
         title = "Thông báo",
+        autoCloseOnCopy = false,
       ) {
         currentAlertMessage = message;
         document.getElementById("custom-alert-message").innerText = message;
@@ -2295,13 +2272,18 @@
 
         const copyBtn = document.getElementById("btn-copy-alert");
         const backBtn = document.getElementById("btn-back-alert");
+        const closeBtn = document.getElementById("btn-close-alert");
         onAlertBack = onBack;
+        alertAutoCloseOnCopy = autoCloseOnCopy;
 
         if (showCopy) copyBtn.classList.remove("hidden");
         else copyBtn.classList.add("hidden");
 
         if (onBack) backBtn.classList.remove("hidden");
         else backBtn.classList.add("hidden");
+
+        if (autoCloseOnCopy) closeBtn.classList.add("hidden");
+        else closeBtn.classList.remove("hidden");
 
         document
           .getElementById("modal-custom-alert")
@@ -2335,6 +2317,11 @@
 
       function copyAlertMessage() {
         copyToClip(currentAlertMessage, "btn-copy-alert");
+        if (alertAutoCloseOnCopy) {
+          setTimeout(() => {
+            closeCustomAlert();
+          }, 800);
+        }
       }
 
       function copyCalcResult() {
@@ -3226,11 +3213,11 @@
         document.getElementById("calc-page-2").classList.remove("hidden");
       }
 
-      function setCalcLogin(type) {
-        calcLoginChoice = type;
-        ["LINE", "Google", "Scan"].forEach((t) => {
-          const btn = document.getElementById(`calc-login-${t}`);
-          if (t === type || (type === "Scan PC" && t === "Scan")) {
+function setCalcLogin(type) {
+  calcLoginChoice = type;
+  ["LINE", "Google"].forEach((t) => {
+    const btn = document.getElementById(`calc-login-${t}`);
+    if (t === type) {
             btn.className =
               "py-2.5 px-3 rounded-xl border font-bold text-xs transition bg-indigo-50 border-indigo-500 text-indigo-700";
           } else {
@@ -3283,11 +3270,11 @@
 
       // --- Chọn Cách đăng nhập cho Nhập Lịch Mới ---
       let formDeviceChoice = "LINE";
-      function setFormDevice(type) {
-        formDeviceChoice = type;
-        ["LINE", "Google", "Scan"].forEach((t) => {
-          const btn = document.getElementById(`form-device-${t}`);
-          if (t === type || (type === "Scan PC" && t === "Scan")) {
+function setFormDevice(type) {
+  formDeviceChoice = type;
+  ["LINE", "Google"].forEach((t) => {
+    const btn = document.getElementById(`form-device-${t}`);
+    if (t === type) {
             btn.className =
               "py-2.5 px-3 rounded-xl border font-bold text-xs transition bg-indigo-50 border-indigo-500 text-indigo-700";
           } else {
@@ -3473,19 +3460,11 @@
         const x = (total / 1000).toLocaleString("vi-VN");
         let msg = "";
 
-        if (
-          calcLoginChoice === "LINE" ||
-          (calcLoginChoice === "Scan PC" && calcTimingChoice === "Đặt trước")
-        ) {
-          msg = `Dạ của bạn là ${x}k STK cũ ạ! ✨\n\nXác nhận thanh toán: Chuyển khoản xong bạn nhớ nhắn báo mình biết liền nghen. Nếu bạn không báo mình biết thì mình sẽ không biết và coi như là bạn chưa chuyển khoản á bạn nghen 🥲💔\n\nLưu ý giữ slot: Bên mình ưu tiên giữ slot cho bạn nào chuyển khoản sớm nhất thôi nghen!\n\nCảm ơn bạn nhiều ạ ❤️❤️❤️`;
-        } else if (calcLoginChoice === "Google") {
-          msg = `Dạ của bạn là ${x}k STK cũ ạ! ✨\n\nLiên kết acc: Bạn gửi lại cho mình acc Gmail cùng đầy đủ mật khẩu để mình hỗ trợ liên kết vào acc cho bạn nghen.\n\nThanh toán & Giữ slot:\n\nChuyển khoản xong bạn nhớ nhắn báo mình biết liền nha. Nếu bạn không báo mình biết thì mình sẽ không biết và coi như là bạn chưa chuyển khoản á bạn nghen 🥲💔\n\nBạn lưu ý là bên mình ưu tiên giữ slot cho bạn nào chuyển khoản sớm nhất nghen!\n\nCảm ơn bạn nhiều ạ ❤️❤️❤️`;
-        } else if (
-          calcLoginChoice === "Scan PC" &&
-          calcTimingChoice === "Thuê ngay"
-        ) {
-          msg = `Dạ của bạn là ${x}k STK cũ ạ! ✨\n\nĐăng nhập: Bạn gửi giúp mình mã QR để mình hỗ trợ scan cho bạn nghen.\n\nThanh toán & Giữ slot:\n\nChuyển khoản xong bạn nhớ nhắn báo mình biết liền nha. Nếu bạn không báo mình biết thì mình sẽ không biết và coi như là bạn chưa chuyển khoản á bạn nghen 🥲💔\n\nBạn lưu ý là bên mình ưu tiên giữ slot cho bạn nào chuyển khoản sớm nhất nghen!\n\nCảm ơn bạn nhiều ạ ❤️❤️❤️`;
-        }
+if (calcLoginChoice === "LINE") {
+  msg = `Dạ của bạn là ${x}k STK cũ ạ!...`;
+} else if (calcLoginChoice === "Google") {
+  msg = `Dạ của bạn là ${x}k STK cũ ạ!...(liên kết acc)`;
+}
 
         document.getElementById("calc-result-text").innerText = msg;
         document.getElementById("calc-page-2").classList.add("hidden");
@@ -3780,7 +3759,7 @@
         closeModal();
         saveData();
 
-        if (devVal !== "Scan PC" && editRentalIdx === -1) {
+        if (editRentalIdx === -1) {
           const accName = acc.accountName; // "4ss" hoặc "2ss"
           let email = "";
           if (accName === "4ss" && devVal === "LINE")
@@ -3792,7 +3771,7 @@
           else if (accName === "2ss" && devVal === "Google")
             email = "2ssthueacc@gmail.com";
 
-          showCustomAlert(email, true, null, `${accName} - ${devVal}`);
+                    showCustomAlert(email, true, null, `${accName} - ${devVal}`, true);
         }
       }
 
