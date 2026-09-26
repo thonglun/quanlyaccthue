@@ -1926,40 +1926,51 @@
       }
 
       // Định dạng từng mốc thời gian chuẩn theo các quy tắc ràng buộc
-      function formatPoint(targetAbs, pairAbs, isStart, currentAbs) {
-        if (targetAbs === currentAbs && isStart) {
-          return "bây giờ";
-        }
+function formatPoint(targetAbs, pairAbs, isStart, currentAbs) {
+  if (targetAbs === currentAbs && isStart) {
+    return "bây giờ";
+  }
 
-        const t = fromEpochHours(targetAbs);
-        const c = fromEpochHours(currentAbs);
-        const p =
-          pairAbs !== null && pairAbs !== undefined && pairAbs !== -1
-            ? fromEpochHours(pairAbs)
-            : null;
+  const t = fromEpochHours(targetAbs);
+  const c = fromEpochHours(currentAbs);
+  const p =
+    pairAbs !== null && pairAbs !== undefined && pairAbs !== -1
+      ? fromEpochHours(pairAbs)
+      : null;
 
-        // Khác Năm (so với Hiện tại hoặc giữa Start và End) -> "Yh ngày Z/Tháng/Năm"
-        const diffYearWithCurrent = t.y !== c.y;
-        const diffYearWithPair = p !== null && t.y !== p.y;
-        if (diffYearWithCurrent || diffYearWithPair) {
-          return `${t.h}h ngày ${t.d}/${t.m}/${t.y}`;
-        }
+  // MỚI: Xác định ngày liền kề ngay sau ngày hiện tại (ngày mai) theo giờ VN
+  const tm = fromEpochHours(currentAbs + 24);
+  const isTomorrow = t.y === tm.y && t.m === tm.m && t.d === tm.d;
 
-        // Khác Tháng (so với Hiện tại hoặc giữa Start và End) -> "Yh ngày Z/Tháng"
-        // (Đồng thời đáp ứng ràng buộc: Nếu Start vs End khác tháng thì Start bắt buộc hiển thị Tháng)
-        const diffMonthWithCurrent = t.m !== c.m;
-        const diffMonthWithPair = p !== null && t.m !== p.m;
-        if (diffMonthWithCurrent || diffMonthWithPair) {
-          return `${t.h}h ngày ${t.d}/${t.m}`;
-        }
+  // Khác Năm (so với Hiện tại hoặc giữa Start và End) -> "Yh ngày Z/Tháng/Năm"
+  const diffYearWithCurrent = t.y !== c.y;
+  const diffYearWithPair = p !== null && t.y !== p.y;
+  if (diffYearWithCurrent || diffYearWithPair) {
+    if (isTomorrow) return `${t.h}h ngày mai`;
+    return `${t.h}h ngày ${t.d}/${t.m}/${t.y}`;
+  }
 
-        // Cùng Tháng, Năm với Hiện tại (và cặp nếu có)
-        if (t.d === c.d) {
-          return `${t.h}h hôm nay`;
-        }
+  // Khác Tháng (so với Hiện tại hoặc giữa Start và End) -> "Yh ngày Z/Tháng"
+  // (Đồng thời đáp ứng ràng buộc: Nếu Start vs End khác tháng thì Start bắt buộc hiển thị Tháng)
+  const diffMonthWithCurrent = t.m !== c.m;
+  const diffMonthWithPair = p !== null && t.m !== p.m;
+  if (diffMonthWithCurrent || diffMonthWithPair) {
+    if (isTomorrow) return `${t.h}h ngày mai`;
+    return `${t.h}h ngày ${t.d}/${t.m}`;
+  }
 
-        return `${t.h}h ngày ${t.d}`;
-      }
+  // Cùng Tháng, Năm với Hiện tại (và cặp nếu có)
+  if (t.d === c.d) {
+    return `${t.h}h hôm nay`;
+  }
+
+  // MỚI: Ngày liền kề sau hôm nay -> hiển thị "ngày mai"
+  if (isTomorrow) {
+    return `${t.h}h ngày mai`;
+  }
+
+  return `${t.h}h ngày ${t.d}`;
+}
 
       function formatTimeT(absTime, currentAbs) {
         return formatPoint(absTime, null, true, currentAbs);
@@ -1974,22 +1985,24 @@
         return `Từ ${formatPoint(s, e, true, currentAbs)} ➔ ${formatPoint(e, s, false, currentAbs)}`;
       }
 
-      function formatCardTime(sAbs, eAbs, currentAbs) {
-        let s = fromEpochHours(sAbs);
-        let e = fromEpochHours(eAbs);
-        let c = fromEpochHours(currentAbs);
+function formatCardTime(sAbs, eAbs, currentAbs) {
+  let s = fromEpochHours(sAbs);
+  let e = fromEpochHours(eAbs);
+  let c = fromEpochHours(currentAbs);
+  let tm = fromEpochHours(currentAbs + 24); // MỚI: ngày mai
 
-        if (s.y === e.y && s.m === e.m && s.d === e.d) {
-          let dateStr = "";
-          if (s.y === c.y && s.m === c.m && s.d === c.d) dateStr = "Hôm nay";
-          else if (s.y === c.y && s.m === c.m) dateStr = `Ngày ${s.d}`;
-          else if (s.y === c.y) dateStr = `Ngày ${s.d}/${s.m}`;
-          else dateStr = `Ngày ${s.d}/${s.m}/${s.y}`;
+  if (s.y === e.y && s.m === e.m && s.d === e.d) {
+    let dateStr = "";
+    if (s.y === c.y && s.m === c.m && s.d === c.d) dateStr = "Hôm nay";
+    else if (s.y === tm.y && s.m === tm.m && s.d === tm.d) dateStr = "Ngày mai"; // MỚI
+    else if (s.y === c.y && s.m === c.m) dateStr = `Ngày ${s.d}`;
+    else if (s.y === c.y) dateStr = `Ngày ${s.d}/${s.m}`;
+    else dateStr = `Ngày ${s.d}/${s.m}/${s.y}`;
 
-          return `${dateStr} [${s.h}h ➔ ${e.h}h]`;
-        }
-        return `Từ ${formatPoint(sAbs, eAbs, true, currentAbs)} ➔ ${formatPoint(eAbs, sAbs, false, currentAbs)}`;
-      }
+    return `${dateStr} [${s.h}h ➔ ${e.h}h]`;
+  }
+  return `Từ ${formatPoint(sAbs, eAbs, true, currentAbs)} ➔ ${formatPoint(eAbs, sAbs, false, currentAbs)}`;
+}
 
       function cleanOldData(acc, activeDayObj) {
         const limitAbs = getEpochHours(
