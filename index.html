@@ -2011,11 +2011,11 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
   return `Từ ${formatPoint(sAbs, eAbs, true, currentAbs)} ➔ ${formatPoint(eAbs, sAbs, false, currentAbs)}`;
 }
 
-      function cleanOldData(acc, activeDayObj) {
+            function cleanOldData(acc, activeDayObj) {
         const limitAbs = getEpochHours(
           activeDayObj.year,
           activeDayObj.month,
-          activeDayObj.day - 4,
+          activeDayObj.day - 15,
           activeDayObj.hour,
         );
         acc.schedule = acc.schedule.filter((r) => {
@@ -2024,12 +2024,12 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
         });
       }
 
-      // Dọn lịch sử reset mật khẩu quá hạn: dữ liệu tồn tại trong 5 ngày, sang ngày thứ 6 thì không còn
+            // Dọn lịch sử reset mật khẩu quá hạn: giữ dữ liệu 15 ngày, cách hiện tại từ 16 ngày trở lên thì xóa
       function pruneResetHistory(activeDayObj) {
         const limitAbs = getEpochHours(
           activeDayObj.year,
           activeDayObj.month,
-          activeDayObj.day - 4,
+          activeDayObj.day - 15,
           0,
         );
         resetPasswordHistory = resetPasswordHistory.filter(
