@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Hệ Thống Quản Lý Thuê Acc Game</title>
+    <title>Nguyễn Trung Thông</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
@@ -1434,9 +1434,18 @@
       <div
         class="bg-white rounded-2xl w-full max-w-md p-6 shadow-xl max-h-[90vh] flex flex-col"
       >
-        <h3 class="text-lg font-bold text-gray-800 border-b pb-2 flex-shrink-0">
-          Reset Mật Khẩu - Các Lịch Liên Quan
-        </h3>
+                <div class="flex items-center justify-between gap-3 border-b pb-2 flex-shrink-0">
+          <h3 class="text-lg font-bold text-gray-800 min-w-0">
+            Reset Mật Khẩu - Các Lịch Liên Quan
+          </h3>
+          <button
+            onclick="openKichBan()"
+            class="flex-shrink-0 inline-flex items-center gap-1.5 px-3.5 h-10 rounded-xl bg-amber-500 hover:bg-amber-600 active:scale-95 text-white text-sm font-semibold shadow-sm transition"
+            title="Xem kịch bản"
+          >
+            <i class="fa-solid fa-scroll"></i> Kịch bản
+          </button>
+        </div>
         <div class="space-y-6 overflow-y-auto py-4">
           <div>
             <div class="flex items-center justify-between mb-3">
@@ -1491,12 +1500,21 @@
       <div
         class="bg-white rounded-2xl w-full max-w-md p-6 shadow-xl max-h-[90vh] flex flex-col"
       >
-        <h3
-          id="reset-history-detail-title"
-          class="text-lg font-bold text-gray-800 border-b pb-2 flex-shrink-0"
-        >
-          Các Lịch Liên Quan
-        </h3>
+                <div class="flex items-center justify-between gap-3 border-b pb-2 flex-shrink-0">
+          <h3
+            id="reset-history-detail-title"
+            class="text-lg font-bold text-gray-800 min-w-0"
+          >
+            Các Lịch Liên Quan
+          </h3>
+          <button
+            onclick="openKichBan()"
+            class="flex-shrink-0 inline-flex items-center gap-1.5 px-3.5 h-10 rounded-xl bg-amber-500 hover:bg-amber-600 active:scale-95 text-white text-sm font-semibold shadow-sm transition"
+            title="Xem kịch bản"
+          >
+            <i class="fa-solid fa-scroll"></i> Kịch bản
+          </button>
+        </div>
         <div class="space-y-6 overflow-y-auto py-4">
           <div>
             <div class="flex items-center justify-between mb-3">
@@ -2345,6 +2363,15 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
             closeCustomAlert();
           }, 800);
         }
+      }
+
+      // Mở trang "Kịch bản" (dùng lại modal thông báo z-60 nên nằm đè lên trang cũ, không tắt trang cũ)
+      function openKichBan() {
+        const text =
+          "Mình gửi mật khẩu mới nghen, bạn đừng rep hoặc thả tym tin nhắn này nha.\n\n" +
+          "Đổi mật khẩu là để các khách cũ không thể vào acc được nữa.";
+        // (nội dung, hiện nút Copy, không có nút Quay lại, tiêu đề, copy xong tự đóng)
+        showCustomAlert(text, true, null, "Kịch bản", true);
       }
 
       function copyCalcResult() {
