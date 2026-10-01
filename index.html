@@ -706,7 +706,45 @@
         </div>
       </div>
     </div>
+    <!-- MODAL EMAIL + MẬT KHẨU (KẾT QUẢ SAU KHI NHẬP LỊCH / NÚT EMAIL) -->
+    <div
+      id="modal-email-result"
+      class="fixed inset-0 bg-black/50 hidden items-center justify-center p-4 z-[60]"
+    >
+      <div class="bg-white rounded-2xl w-full max-w-md p-6 space-y-4 shadow-xl">
+        <h3
+          id="email-result-title"
+          class="text-lg font-bold text-gray-800 border-b pb-2 text-center"
+        >
+          Thông báo
+        </h3>
 
+        <div>
+          <p class="text-xs font-bold text-indigo-600 uppercase tracking-wider mb-1.5">Email</p>
+          <div class="flex items-center gap-2 bg-slate-50 border border-indigo-100 rounded-xl p-2 pl-3">
+            <span id="email-result-email" class="flex-1 font-mono text-sm font-bold text-slate-800 tracking-wider break-all select-all">—</span>
+            <button id="email-result-btn-email" onclick="copyEmailField('email')" class="w-12 h-12 flex-shrink-0 flex items-center justify-center rounded-xl bg-indigo-500 hover:bg-indigo-600 active:scale-95 text-white transition shadow-sm" title="Copy email"><i class="fa-regular fa-copy text-lg"></i></button>
+          </div>
+        </div>
+
+        <div>
+          <p class="text-xs font-bold text-indigo-600 uppercase tracking-wider mb-1.5">Mật khẩu</p>
+          <div class="flex items-center gap-2 bg-slate-50 border border-indigo-100 rounded-xl p-2 pl-3">
+            <span id="email-result-password" class="flex-1 font-mono text-sm font-bold text-slate-800 tracking-wider break-all select-all">—</span>
+            <button id="email-result-btn-password" onclick="copyEmailField('password')" class="w-12 h-12 flex-shrink-0 flex items-center justify-center rounded-xl bg-indigo-500 hover:bg-indigo-600 active:scale-95 text-white transition shadow-sm" title="Copy mật khẩu"><i class="fa-regular fa-copy text-lg"></i></button>
+          </div>
+        </div>
+
+        <div class="flex gap-2 pt-2">
+          <button
+            onclick="closeEmailResult()"
+            class="flex-1 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 font-semibold text-white transition text-sm"
+          >
+            Đồng ý
+          </button>
+        </div>
+      </div>
+    </div>
     <!-- MODAL TÍNH TIỀN (TRANG 2 & TRANG 3) -->
     <div
       id="modal-calculate"
@@ -2364,7 +2402,58 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
           }, 800);
         }
       }
+      // ====== TRANG EMAIL + MẬT KHẨU ======
+      // Lấy mật khẩu của lần reset gần nhất (4ss -> pw4, 2ss -> pw2)
+      function getLatestResetPassword(accName) {
+        if (!resetPasswordHistory || resetPasswordHistory.length === 0) return "";
+        const last = resetPasswordHistory.reduce((a, b) =>
+          (b.id || 0) > (a.id || 0) ? b : a,
+        );
+        return (accName === "4ss" ? last.pw4 : last.pw2) || "";
+      }
 
+      function showEmailResult(accName, devVal) {
+        const email = getRentalEmail(accName, devVal);
+        const pw = getLatestResetPassword(accName);
+        document.getElementById("email-result-title").innerText =
+          `${accName} - ${devVal}`;
+        document.getElementById("email-result-email").innerText =
+          email || "(Không có email)";
+        document.getElementById("email-result-password").innerText =
+          pw || "(Chưa có mật khẩu)";
+        const m = document.getElementById("modal-email-result");
+        m.classList.remove("hidden");
+        m.classList.add("flex");
+      }
+
+      function closeEmailResult() {
+        const m = document.getElementById("modal-email-result");
+        m.classList.add("hidden");
+        m.classList.remove("flex");
+      }
+
+      function copyEmailField(field) {
+        const text = document.getElementById(`email-result-${field}`).innerText;
+        if (!text || text.startsWith("(")) return;
+        const btn = document.getElementById(`email-result-btn-${field}`);
+        const old = btn.innerHTML;
+        const done = () => {
+          btn.innerHTML = '<i class="fa-solid fa-check text-lg"></i>';
+          setTimeout(() => (btn.innerHTML = old), 800);
+        };
+        const fallback = () => {
+          const ta = document.createElement("textarea");
+          ta.value = text;
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand("copy");
+          ta.remove();
+          done();
+        };
+        if (navigator.clipboard)
+          navigator.clipboard.writeText(text).then(done).catch(fallback);
+        else fallback();
+      }
       // Mở trang "Kịch bản" (dùng lại modal thông báo z-60 nên nằm đè lên trang cũ, không tắt trang cũ)
       function openKichBan() {
         const text =
@@ -3155,7 +3244,9 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
           container.innerHTML = `<p class="text-gray-400 text-sm italic">Chưa có lịch sử reset nào.</p>`;
           return;
         }
-        const sorted = [...resetPasswordHistory].sort((a, b) => b.ts - a.ts);
+        const sorted = [...resetPasswordHistory].sort(
+          (a, b) => (b.id || 0) - (a.id || 0) || b.ts - a.ts,
+        );
         let html = "";
         sorted.forEach((item) => {
           html += `
@@ -3640,10 +3731,9 @@ if (calcLoginChoice === "LINE") {
           showCustomAlert("Không tìm thấy lịch này, hãy tải lại trang (F5)!");
           return;
         }
-        const r = accounts[accIdx].schedule[idx];
+                const r = accounts[accIdx].schedule[idx];
         const accName = accounts[accIdx].accountName;
-        const email = getRentalEmail(accName, r.deviceType);
-        showCustomAlert(email, true, null, `${accName} - ${r.deviceType}`, true);
+        showEmailResult(accName, r.deviceType);
       }
 
       function editRentalByKey(accIdx, encKey) {
@@ -3868,10 +3958,9 @@ if (calcLoginChoice === "LINE") {
         closeModal();
         saveData();
 
-                if (editRentalIdx === -1) {
+        if (editRentalIdx === -1) {
           const accName = acc.accountName; // "4ss" hoặc "2ss"
-          const email = getRentalEmail(accName, devVal);
-          showCustomAlert(email, true, null, `${accName} - ${devVal}`, true);
+          showEmailResult(accName, devVal);
         }
       }
 
