@@ -2117,6 +2117,9 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
                         </div>
                     </div>
                     <div class="flex items-center gap-1.5">
+                        <button onclick="showRentalResultByKey(${accIdx}, '${rentalKeyEnc(r)}')" class="bg-white hover:bg-sky-50 text-sky-600 border border-sky-200 px-3 py-1.5 rounded-lg text-xs font-bold transition shadow-sm flex items-center gap-1">
+                            <i class="fa-regular fa-envelope"></i> Email
+                        </button>
                         <button onclick="editRentalByKey(${accIdx}, '${rentalKeyEnc(r)}')" class="bg-white hover:bg-indigo-50 text-indigo-600 border border-indigo-200 px-3 py-1.5 rounded-lg text-xs font-bold transition shadow-sm flex items-center gap-1">
                             <i class="fa-solid fa-pen-to-square"></i> Sửa
                         </button>
@@ -3550,6 +3553,32 @@ if (calcLoginChoice === "LINE") {
         );
       }
 
+      // Trả về email tương ứng với tài khoản + cách đăng nhập
+      function getRentalEmail(accName, devVal) {
+        if (accName === "4ss" && devVal === "LINE")
+          return "yendanghai23@gmail.com";
+        if (accName === "2ss" && devVal === "LINE")
+          return "nguyenlamtrucanh09@gmail.com";
+        if (accName === "4ss" && devVal === "Google")
+          return "buip54028@gmail.com";
+        if (accName === "2ss" && devVal === "Google")
+          return "2ssthueacc@gmail.com";
+        return "";
+      }
+
+      // Hiện lại kết quả y hệt sau khi nhập lịch mới
+      function showRentalResultByKey(accIdx, encKey) {
+        const idx = findRentalIdx(accIdx, encKey);
+        if (idx === -1) {
+          showCustomAlert("Không tìm thấy lịch này, hãy tải lại trang (F5)!");
+          return;
+        }
+        const r = accounts[accIdx].schedule[idx];
+        const accName = accounts[accIdx].accountName;
+        const email = getRentalEmail(accName, r.deviceType);
+        showCustomAlert(email, true, null, `${accName} - ${r.deviceType}`, true);
+      }
+
       function editRentalByKey(accIdx, encKey) {
         const idx = findRentalIdx(accIdx, encKey);
         if (idx === -1) {
@@ -3772,19 +3801,10 @@ if (calcLoginChoice === "LINE") {
         closeModal();
         saveData();
 
-        if (editRentalIdx === -1) {
+                if (editRentalIdx === -1) {
           const accName = acc.accountName; // "4ss" hoặc "2ss"
-          let email = "";
-          if (accName === "4ss" && devVal === "LINE")
-            email = "yendanghai23@gmail.com";
-          else if (accName === "2ss" && devVal === "LINE")
-            email = "nguyenlamtrucanh09@gmail.com";
-          else if (accName === "4ss" && devVal === "Google")
-            email = "4ssthueacc@gmail.com";
-          else if (accName === "2ss" && devVal === "Google")
-            email = "2ssthueacc@gmail.com";
-
-                    showCustomAlert(email, true, null, `${accName} - ${devVal}`, true);
+          const email = getRentalEmail(accName, devVal);
+          showCustomAlert(email, true, null, `${accName} - ${devVal}`, true);
         }
       }
 
