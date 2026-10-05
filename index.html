@@ -709,15 +709,24 @@
     <!-- MODAL EMAIL + MẬT KHẨU (KẾT QUẢ SAU KHI NHẬP LỊCH / NÚT EMAIL) -->
     <div
       id="modal-email-result"
-      class="fixed inset-0 bg-black/50 hidden items-center justify-center p-4 z-[60]"
+      class="fixed inset-0 bg-black/50 hidden items-center justify-center p-4 z-[55]"
     >
       <div class="bg-white rounded-2xl w-full max-w-md p-6 space-y-4 shadow-xl">
-        <h3
-          id="email-result-title"
-          class="text-lg font-bold text-gray-800 border-b pb-2 text-center"
-        >
-          Thông báo
-        </h3>
+        <div class="flex items-center justify-between gap-3 border-b pb-2 flex-shrink-0">
+          <h3
+            id="email-result-title"
+            class="text-lg font-bold text-gray-800 min-w-0"
+          >
+            Thông báo
+          </h3>
+          <button
+            onclick="openKichBanEmail()"
+            class="flex-shrink-0 inline-flex items-center gap-1.5 px-3.5 h-10 rounded-xl bg-amber-500 hover:bg-amber-600 active:scale-95 text-white text-sm font-semibold shadow-sm transition"
+            title="Xem kịch bản"
+          >
+            <i class="fa-solid fa-scroll"></i> Kịch bản
+          </button>
+        </div>
 
         <div>
           <p class="text-xs font-bold text-indigo-600 uppercase tracking-wider mb-1.5">Email</p>
@@ -2412,7 +2421,11 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
         return (accName === "4ss" ? last.pw4 : last.pw2) || "";
       }
 
-      function showEmailResult(accName, devVal) {
+      // Lưu lại thông tin lịch đang xem để nút "Kịch bản" dùng
+      let emailResultCtx = null;
+
+      function showEmailResult(accName, devVal, startObj) {
+        emailResultCtx = { devVal: devVal, start: startObj || null };
         const email = getRentalEmail(accName, devVal);
         const pw = getLatestResetPassword(accName);
         document.getElementById("email-result-title").innerText =
@@ -2460,6 +2473,42 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
           "Mình gửi mật khẩu mới nghen, bạn đừng rep hoặc thả tym tin nhắn này nha.\n\n" +
 	  "👉 Mình gửi là để đề phòng khi bạn offline thì vẫn có thể vào lại acc được khi vẫn còn trong thời gian thuê.\n\n" +
           "Mình không thể giải đáp thắc mắc vì sao lại đổi mật khẩu được nên bạn thông cảm giúp mình nha.";
+        // (nội dung, hiện nút Copy, không có nút Quay lại, tiêu đề, copy xong tự đóng)
+        showCustomAlert(text, true, null, "Kịch bản", true);
+      }
+
+      // Kịch bản của trang Email (nhập lịch mới / nút Email ở Tình trạng & Tất cả lịch)
+      function openKichBanEmail() {
+        const ctx = emailResultCtx;
+        if (!ctx || !ctx.start) return;
+
+        const now = getSystemDate(); // giờ hiện tại Việt Nam
+        const s = ctx.start;
+        const isNow =
+          s.year === now.year &&
+          s.month === now.month &&
+          s.day === now.day &&
+          s.hour === now.hour;
+        const isGoogle = ctx.devVal === "Google";
+        const isLine = ctx.devVal === "LINE";
+
+        let text = "";
+        if (isLine && isNow) {
+          text = "Dạ cách đăng nhập như cũ bạn nghen.";
+        } else if (isLine && !isNow) {
+          text = "Dạ đúng giờ bạn tự vào nghen, cách đăng nhập như cũ ạ.";
+        } else if (isGoogle && isNow) {
+          text =
+            "Dạ đây là Google ạ, ở trên tài khoản và ở dưới là mật khẩu. Nếu bạn vào Google bây giờ được thì bạn nên vào ngay luôn để mình hỗ trợ nghen. Tại vì nó có thêm 1 bước bắt xác thực trên máy cũ nữa ạ.\n\n" +
+            "Còn nếu nó không bắt xác thực mà nó cho phép bạn vào luôn thì thôi bạn khỏi cần mình hỗ trợ nha.";
+        } else if (isGoogle && !isNow) {
+          text =
+            "Dạ đây là Google ạ, ở trên là tài khoản và ở dưới là mật khẩu, đúng giờ bạn tự vào nghen. Nếu bạn vào Google bây giờ được thì bạn nên vào ngay luôn để mình hỗ trợ nha. Tại vì nó có thêm 1 bước bắt xác thực trên máy cũ nữa ạ. Ý mình nói là Google thôi, chứ còn acc game thuê thì khi nào tới giờ đặt thì bạn mới được vào nghen.\n\n" +
+            "Còn nếu nó không bắt xác thực mà nó cho phép bạn vào luôn thì thôi bạn khỏi cần mình hỗ trợ nha.";
+        } else {
+          return;
+        }
+
         // (nội dung, hiện nút Copy, không có nút Quay lại, tiêu đề, copy xong tự đóng)
         showCustomAlert(text, true, null, "Kịch bản", true);
       }
@@ -3734,7 +3783,7 @@ if (calcLoginChoice === "LINE") {
         }
                 const r = accounts[accIdx].schedule[idx];
         const accName = accounts[accIdx].accountName;
-        showEmailResult(accName, r.deviceType);
+        showEmailResult(accName, r.deviceType, r.start);
       }
 
       function editRentalByKey(accIdx, encKey) {
@@ -3961,7 +4010,12 @@ if (calcLoginChoice === "LINE") {
 
         if (editRentalIdx === -1) {
           const accName = acc.accountName; // "4ss" hoặc "2ss"
-          showEmailResult(accName, devVal);
+          showEmailResult(accName, devVal, {
+            year: sY,
+            month: sM,
+            day: sDay,
+            hour: sHour,
+          });
         }
       }
 
