@@ -2680,11 +2680,12 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
             .filter((txt) => txt !== "");
           let pl2 = valid2.length > 1 ? "các " : "";
           msg += `Và acc 2ss thì trống ${pl2}khung giờ sau ạ:\n`;
-          valid2.forEach((txt) => {
+                    valid2.forEach((txt) => {
             msg += `+ ${txt}\n`;
           });
         }
-        showCustomAlert(msg.trim(), true, openFreeScheduleModal);
+        msg = msg.trim() + "\n\nNếu bạn khó hiểu thì hỏi mình nghen.";
+        showCustomAlert(msg, true, openFreeScheduleModal);
       }
 
       function openCheckModal() {
