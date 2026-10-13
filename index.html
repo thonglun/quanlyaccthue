@@ -2496,15 +2496,15 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
         if (isLine && isNow) {
           text = "Dạ cách đăng nhập như cũ bạn nghen.";
         } else if (isLine && !isNow) {
-          text = "Dạ đúng giờ bạn tự vào nghen, cách đăng nhập như cũ ạ.";
+          text = "Dạ đúng giờ bạn tự vào chơi mà không cần nói gì hết nghen, cách đăng nhập như cũ ạ.";
         } else if (isGoogle && isNow) {
           text =
-            "Dạ đây là Google ạ, ở trên là tài khoản và ở dưới là mật khẩu. Nếu bạn vào Google bây giờ được thì bạn nên vào ngay luôn để mình hỗ trợ nghen. Tại vì nó có thêm 1 bước bắt xác thực trên máy cũ nữa ạ.\n\n" +
-            "Còn nếu nó không bắt xác thực mà nó cho phép bạn vào luôn thì thôi bạn khỏi cần mình hỗ trợ nha.";
+            "Dạ nếu bạn vẫn chơi PC chứ không phải Android thì bạn làm theo cách cũ mà mình đã hướng dẫn lúc trước rồi gửi mình ảnh QR đó nghen.\n\n" +
+            "Sau khi ảnh QR biến mất trên màn hình PC của bạn rồi thì bạn tự vào chơi mà không cần nói gì hết nghen.";
         } else if (isGoogle && !isNow) {
           text =
-            "Dạ đây là Google ạ, ở trên là tài khoản và ở dưới là mật khẩu, đúng giờ bạn tự vào nghen. Nếu bạn vào Google bây giờ được thì bạn nên vào ngay luôn để mình hỗ trợ nha. Tại vì nó có thêm 1 bước bắt xác thực trên máy cũ nữa ạ. Ý mình nói là Google thôi, chứ còn acc game thuê thì khi nào tới giờ đặt thì bạn mới được vào nghen.\n\n" +
-            "Còn nếu nó không bắt xác thực mà nó cho phép bạn vào luôn thì thôi bạn khỏi cần mình hỗ trợ nha.";
+            "Dạ nếu bạn vẫn chơi PC chứ không phải Android thì bạn làm theo cách cũ mà mình đã hướng dẫn lúc trước rồi gửi mình ảnh QR đó nghen.\n\n" +
+            "Sau khi ảnh QR biến mất trên màn hình PC của bạn rồi thì đúng giờ bạn tự vào chơi mà không cần nói gì hết nghen.";
         } else {
           return;
         }
@@ -3769,9 +3769,9 @@ if (calcLoginChoice === "LINE") {
         if (accName === "2ss" && devVal === "LINE")
           return "nguyenlamtrucanh09@gmail.com";
         if (accName === "4ss" && devVal === "Google")
-          return "thueacclamchananh@gmail.com";
+          return "4ssthueacc@gmail.com";
         if (accName === "2ss" && devVal === "Google")
-          return "thueacclamchananh@gmail.com";
+          return "2ssthueacc@gmail.com";
         return "";
       }
 
