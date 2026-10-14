@@ -5,6 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Hệ Thống Quản Lý Thuê Acc Game - Nguyễn Trung Thông</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = { darkMode: "class" };
+    </script>
+    <script>
+      // Áp dụng chế độ sáng/tối đã lưu ở lần thao tác gần nhất (chạy sớm để không bị nháy màn hình)
+      try {
+        if (localStorage.getItem("themeMode") === "dark")
+          document.documentElement.classList.add("dark");
+      } catch (e) {}
+    </script>
     <link
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
       rel="stylesheet"
@@ -29,6 +39,35 @@
       .copy-btn-morph {
         transition: all 0.3s ease;
       }
+
+      /* ===== CHẾ ĐỘ TỐI ===== */
+      html.dark { color-scheme: dark; }
+      .dark body { background-color: #0b1120 !important; color: #e5e7eb; }
+      .dark .bg-slate-100 { background-color: #0b1120 !important; }
+      .dark .bg-white { background-color: #111827 !important; }
+      .dark .bg-gray-50, .dark .bg-slate-50, .dark .bg-gray-50\/50 { background-color: #1f2937 !important; }
+      .dark .bg-gray-100, .dark .hover\:bg-gray-100:hover { background-color: #374151 !important; }
+      .dark .bg-gray-200, .dark .active\:bg-gray-200:active, .dark .bg-gray-300 { background-color: #4b5563 !important; }
+      .dark .text-gray-800, .dark .text-slate-800, .dark .text-gray-700 { color: #f3f4f6 !important; }
+      .dark .text-gray-600, .dark .text-slate-600 { color: #d1d5db !important; }
+      .dark .text-gray-500, .dark .text-gray-400 { color: #9ca3af !important; }
+      .dark .border-gray-100, .dark .border-gray-200, .dark .border-gray-300,
+      .dark .border-indigo-100, .dark .border-indigo-100\/80, .dark .border-indigo-200 { border-color: #374151 !important; }
+      .dark .border-b, .dark .border-t { border-color: #374151; }
+      .dark .bg-indigo-50, .dark .bg-blue-50, .dark .bg-amber-50, .dark .bg-purple-50,
+      .dark .bg-teal-50, .dark .bg-cyan-50, .dark .bg-sky-50, .dark .bg-rose-50,
+      .dark .bg-emerald-50, .dark .bg-violet-50 { background-color: #1e1b4b !important; }
+      .dark .text-indigo-700, .dark .text-blue-700, .dark .text-amber-700, .dark .text-purple-700 { color: #e0e7ff !important; }
+      .dark .text-indigo-600 { color: #a5b4fc !important; }
+      .dark [class*="hover:bg-indigo-50"]:hover, .dark [class*="hover:bg-sky-50"]:hover,
+      .dark [class*="hover:bg-rose-50"]:hover, .dark [class*="hover:bg-amber-50"]:hover,
+      .dark [class*="hover:bg-cyan-50"]:hover, .dark [class*="hover:bg-teal-50"]:hover,
+      .dark [class*="hover:bg-blue-100"]:hover, .dark [class*="hover:bg-purple-100"]:hover,
+      .dark [class*="hover:bg-amber-100"]:hover { background-color: #273449 !important; }
+      .dark [class*="from-slate-50"] { background-image: none !important; background-color: #1f2937 !important; }
+      .dark .ring-cyan-200, .dark .ring-teal-200, .dark .ring-indigo-200 { --tw-ring-color: rgba(165, 180, 252, 0.4) !important; }
+      .dark input, .dark textarea { color: #f3f4f6; }
+      .dark input::placeholder { color: #6b7280; }
     </style>
   </head>
   <body class="bg-slate-100 min-h-screen text-gray-800 p-4 md:p-6">
@@ -82,26 +121,44 @@
           >
             <i class="fa-solid fa-trash-can"></i> Xóa sạch lịch
           </button>
+          <button
+            type="button"
+            id="theme-toggle"
+            onclick="toggleTheme()"
+            title="Chuyển chế độ sáng / tối"
+            class="relative w-[68px] h-10 rounded-full bg-indigo-400/50 border border-indigo-300/60 shadow-inner flex items-center justify-between px-2.5 flex-shrink-0 transition-colors duration-300"
+          >
+            <i class="fa-solid fa-sun text-amber-300 text-sm"></i>
+            <i class="fa-solid fa-moon text-indigo-100 text-sm"></i>
+            <span
+              id="theme-knob"
+              class="absolute top-1 left-1 w-8 h-8 rounded-full bg-white shadow-md flex items-center justify-center transition-transform duration-300"
+            >
+              <i id="theme-knob-icon" class="fa-solid fa-sun text-amber-500 text-sm"></i>
+            </span>
+          </button>
         </div>
       </div>
 
       <!-- MAIN DASHBOARD GRID -->
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <div class="grid grid-cols-1 gap-6">
         <!-- CỘT TRÁI (7 CỘT): DOANH THU & BẢNG LỊCH CHÍNH -->
-        <div class="lg:col-span-7 space-y-6">
-          <!-- Thẻ Tổng Doanh Thu -->
+        <div class="space-y-6">
+          <!-- Thẻ Tổng Doanh Thu + Thời Gian Hệ Thống Việt Nam -->
           <div
             class="relative bg-indigo-700 text-white rounded-2xl p-6 shadow-md overflow-hidden"
           >
-            <div
-              class="text-xs font-bold uppercase tracking-wider text-indigo-200 mb-1"
-            >
-              TỔNG DOANH THU CẢ 2 ACC
-            </div>
-            <div id="total-revenue" class="text-4xl font-black mb-4">0 VNĐ</div>
-            <div
-              class="grid grid-cols-2 gap-4 border-t border-indigo-500/50 pt-3 text-sm"
-            >
+            <div class="flex flex-col lg:flex-row gap-6 lg:items-stretch">
+              <div class="flex-1 min-w-0 flex flex-col justify-center">
+                <div
+                  class="text-xs font-bold uppercase tracking-wider text-indigo-200 mb-1"
+                >
+                  TỔNG DOANH THU CẢ 4 ACC
+                </div>
+                <div id="total-revenue" class="text-4xl font-black mb-4">0 VNĐ</div>
+                <div
+                  class="grid grid-cols-2 gap-4 border-t border-indigo-500/50 pt-3 text-sm"
+                >
               <div>
                 <div class="font-bold text-indigo-100">
                   Acc 4ss: <span id="rev-4ss" class="text-white">0 VNĐ</span>
@@ -118,15 +175,49 @@
                   Từ 0h ngày --
                 </div>
               </div>
-            </div>
+              <div>
+                <div class="font-bold text-indigo-100">
+                  Acc Isaac: <span id="rev-Isaac" class="text-white">0 VNĐ</span>
+                </div>
+                <div id="rev-start-Isaac" class="text-xs text-indigo-200 mt-0.5">
+                  Từ 0h ngày --
+                </div>
+              </div>
+              <div>
+                <div class="font-bold text-indigo-100">
+                  Acc White: <span id="rev-White" class="text-white">0 VNĐ</span>
+                </div>
+                <div id="rev-start-White" class="text-xs text-indigo-200 mt-0.5">
+                  Từ 0h ngày --
+                </div>
+              </div>
+                </div>
+              </div>
 
-            <!-- Nút Tính tiền -->
-            <button
-              onclick="openCalcModal()"
-              class="absolute top-4 right-4 bg-indigo-500 hover:bg-indigo-600 text-white font-bold px-4 py-2 rounded-xl text-sm shadow transition flex items-center gap-1.5 border border-indigo-400"
-            >
-              <i class="fa-solid fa-calculator"></i> Tính tiền
-            </button>
+              <!-- Thời Gian Hệ Thống Việt Nam -->
+              <div
+                class="lg:w-[340px] flex-shrink-0 bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-white rounded-2xl p-5 shadow-xl border border-indigo-500/20 text-center flex flex-col justify-center items-center space-y-3"
+              >
+                <div
+                  class="flex items-center gap-2 text-indigo-300 font-bold uppercase tracking-widest text-xs"
+                >
+                  <i class="fa-solid fa-clock text-amber-400 text-sm animate-pulse"></i>
+                  <span>Thời Gian Hệ Thống Việt Nam</span>
+                </div>
+                <div
+                  id="clock-time"
+                  class="text-4xl md:text-5xl font-black tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-indigo-200 to-teal-200 font-mono drop-shadow"
+                >
+                  --:--:--
+                </div>
+                <div
+                  id="clock-date"
+                  class="text-sm font-bold text-indigo-200 bg-indigo-900/60 px-4 py-2 rounded-xl border border-indigo-700/50 shadow-inner"
+                >
+                  --/--/----
+                </div>
+              </div>
+            </div>
           </div>
 
           <!-- TABS ĐIỀU HƯỚNG QUẢN LÝ -->
@@ -159,68 +250,34 @@
             </div>
 
             <div class="p-5">
-                                          <!-- TAB 1: ĐANG TRONG CA (đã gộp thêm SẮP LÊN CA bên dưới) -->
-              <div id="tab-upcoming" class="space-y-6">
-                <div class="flex items-center gap-1.5 mb-3">
-                  <i class="fa-solid fa-circle-play text-emerald-500 text-xs"></i>
-                  <span class="text-xs font-bold text-emerald-600 uppercase tracking-wider">
-                    Đang trong ca
-                  </span>
-                </div>
-                <div>
-                  <div class="flex items-center justify-between mb-3">
-                    <h3
-                      class="text-xs font-bold text-indigo-600 uppercase tracking-wider flex items-center gap-1.5"
-                    >
-                      <i
-                        class="fa-solid fa-circle-play text-emerald-500 text-[10px]"
-                      ></i>
-                      Acc: 4ss
-                    </h3>
-                  </div>
-                  <div id="list-upcoming-4ss" class="space-y-2">
-                    <p class="text-gray-400 text-sm italic">
-                      (Không có lịch đang trong ca)
-                    </p>
-                  </div>
-                </div>
-                <div class="border-t border-gray-100 pt-4">
-                  <div class="flex items-center justify-between mb-3">
-                    <h3
-                      class="text-xs font-bold text-indigo-600 uppercase tracking-wider flex items-center gap-1.5"
-                    >
-                      <i
-                        class="fa-solid fa-circle-play text-emerald-500 text-[10px]"
-                      ></i>
-                      Acc: 2ss
-                    </h3>
-                  </div>
-                  <div id="list-upcoming-2ss" class="space-y-2">
-                    <p class="text-gray-400 text-sm italic">
-                      (Không có lịch đang trong ca)
-                    </p>
-                  </div>
-                </div>
-
-                <!-- Ranh giới phân cách rõ ràng với khu SẮP LÊN CA -->
-                <div class="border-t-2 border-dashed border-amber-200 pt-4 mt-2">
-                  <div class="flex items-center gap-1.5 mb-3">
-                    <i class="fa-solid fa-hourglass-half text-amber-500 text-xs"></i>
-                    <span class="text-xs font-bold text-amber-600 uppercase tracking-wider">
-                      Sắp lên ca
-                    </span>
-                  </div>
-
+                                          <!-- TAB 1: TÌNH TRẠNG (mỗi acc hiển thị riêng: Đang trong ca + Sắp lên ca) -->
+              <div id="tab-upcoming" class="grid grid-cols-1 lg:grid-cols-2 gap-4 items-start">
+                <div class="border border-gray-200 rounded-2xl p-4 space-y-4 bg-gray-50/50">
+                  <h3
+                    class="text-sm font-black text-indigo-600 uppercase tracking-wider flex items-center gap-1.5 border-b border-gray-200 pb-2"
+                  >
+                    <i class="fa-solid fa-gamepad text-indigo-500 text-xs"></i>
+                    Acc: 4ss
+                  </h3>
                   <div>
-                    <div class="flex items-center justify-between mb-3">
-                      <h3
-                        class="text-xs font-bold text-indigo-600 uppercase tracking-wider flex items-center gap-1.5"
-                      >
-                        <i
-                          class="fa-solid fa-hourglass-half text-amber-500 text-[10px]"
-                        ></i>
-                        Acc: 4ss
-                      </h3>
+                    <div class="flex items-center gap-1.5 mb-3">
+                      <i class="fa-solid fa-circle-play text-emerald-500 text-xs"></i>
+                      <span class="text-xs font-bold text-emerald-600 uppercase tracking-wider">
+                        Đang trong ca
+                      </span>
+                    </div>
+                    <div id="list-upcoming-4ss" class="space-y-2">
+                      <p class="text-gray-400 text-sm italic">
+                        (Không có lịch đang trong ca)
+                      </p>
+                    </div>
+                  </div>
+                  <div class="border-t-2 border-dashed border-amber-200 pt-4">
+                    <div class="flex items-center gap-1.5 mb-3">
+                      <i class="fa-solid fa-hourglass-half text-amber-500 text-xs"></i>
+                      <span class="text-xs font-bold text-amber-600 uppercase tracking-wider">
+                        Sắp lên ca
+                      </span>
                     </div>
                     <div id="list-soon-4ss" class="space-y-2">
                       <p class="text-gray-400 text-sm italic">
@@ -228,18 +285,103 @@
                       </p>
                     </div>
                   </div>
-                  <div class="border-t border-gray-100 pt-4 mt-4">
-                    <div class="flex items-center justify-between mb-3">
-                      <h3
-                        class="text-xs font-bold text-indigo-600 uppercase tracking-wider flex items-center gap-1.5"
-                      >
-                        <i
-                          class="fa-solid fa-hourglass-half text-amber-500 text-[10px]"
-                        ></i>
-                        Acc: 2ss
-                      </h3>
+                </div>
+                <div class="border border-gray-200 rounded-2xl p-4 space-y-4 bg-gray-50/50">
+                  <h3
+                    class="text-sm font-black text-indigo-600 uppercase tracking-wider flex items-center gap-1.5 border-b border-gray-200 pb-2"
+                  >
+                    <i class="fa-solid fa-gamepad text-indigo-500 text-xs"></i>
+                    Acc: 2ss
+                  </h3>
+                  <div>
+                    <div class="flex items-center gap-1.5 mb-3">
+                      <i class="fa-solid fa-circle-play text-emerald-500 text-xs"></i>
+                      <span class="text-xs font-bold text-emerald-600 uppercase tracking-wider">
+                        Đang trong ca
+                      </span>
+                    </div>
+                    <div id="list-upcoming-2ss" class="space-y-2">
+                      <p class="text-gray-400 text-sm italic">
+                        (Không có lịch đang trong ca)
+                      </p>
+                    </div>
+                  </div>
+                  <div class="border-t-2 border-dashed border-amber-200 pt-4">
+                    <div class="flex items-center gap-1.5 mb-3">
+                      <i class="fa-solid fa-hourglass-half text-amber-500 text-xs"></i>
+                      <span class="text-xs font-bold text-amber-600 uppercase tracking-wider">
+                        Sắp lên ca
+                      </span>
                     </div>
                     <div id="list-soon-2ss" class="space-y-2">
+                      <p class="text-gray-400 text-sm italic">
+                        (Không có lịch sắp lên ca)
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <div class="border border-gray-200 rounded-2xl p-4 space-y-4 bg-gray-50/50">
+                  <h3
+                    class="text-sm font-black text-indigo-600 uppercase tracking-wider flex items-center gap-1.5 border-b border-gray-200 pb-2"
+                  >
+                    <i class="fa-solid fa-gamepad text-indigo-500 text-xs"></i>
+                    Acc: Isaac
+                  </h3>
+                  <div>
+                    <div class="flex items-center gap-1.5 mb-3">
+                      <i class="fa-solid fa-circle-play text-emerald-500 text-xs"></i>
+                      <span class="text-xs font-bold text-emerald-600 uppercase tracking-wider">
+                        Đang trong ca
+                      </span>
+                    </div>
+                    <div id="list-upcoming-Isaac" class="space-y-2">
+                      <p class="text-gray-400 text-sm italic">
+                        (Không có lịch đang trong ca)
+                      </p>
+                    </div>
+                  </div>
+                  <div class="border-t-2 border-dashed border-amber-200 pt-4">
+                    <div class="flex items-center gap-1.5 mb-3">
+                      <i class="fa-solid fa-hourglass-half text-amber-500 text-xs"></i>
+                      <span class="text-xs font-bold text-amber-600 uppercase tracking-wider">
+                        Sắp lên ca
+                      </span>
+                    </div>
+                    <div id="list-soon-Isaac" class="space-y-2">
+                      <p class="text-gray-400 text-sm italic">
+                        (Không có lịch sắp lên ca)
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <div class="border border-gray-200 rounded-2xl p-4 space-y-4 bg-gray-50/50">
+                  <h3
+                    class="text-sm font-black text-indigo-600 uppercase tracking-wider flex items-center gap-1.5 border-b border-gray-200 pb-2"
+                  >
+                    <i class="fa-solid fa-gamepad text-indigo-500 text-xs"></i>
+                    Acc: White
+                  </h3>
+                  <div>
+                    <div class="flex items-center gap-1.5 mb-3">
+                      <i class="fa-solid fa-circle-play text-emerald-500 text-xs"></i>
+                      <span class="text-xs font-bold text-emerald-600 uppercase tracking-wider">
+                        Đang trong ca
+                      </span>
+                    </div>
+                    <div id="list-upcoming-White" class="space-y-2">
+                      <p class="text-gray-400 text-sm italic">
+                        (Không có lịch đang trong ca)
+                      </p>
+                    </div>
+                  </div>
+                  <div class="border-t-2 border-dashed border-amber-200 pt-4">
+                    <div class="flex items-center gap-1.5 mb-3">
+                      <i class="fa-solid fa-hourglass-half text-amber-500 text-xs"></i>
+                      <span class="text-xs font-bold text-amber-600 uppercase tracking-wider">
+                        Sắp lên ca
+                      </span>
+                    </div>
+                    <div id="list-soon-White" class="space-y-2">
                       <p class="text-gray-400 text-sm italic">
                         (Không có lịch sắp lên ca)
                       </p>
@@ -249,36 +391,126 @@
               </div>
 
               <!-- TAB 2: TẤT CẢ LỊCH -->
-              <div id="tab-all" class="hidden space-y-6">
-                <div>
-                  <div class="flex items-center justify-between mb-3">
+              <div id="tab-all" class="hidden grid grid-cols-1 lg:grid-cols-2 gap-4 items-start">
+                <div class="border border-gray-200 rounded-2xl p-4 bg-gray-50/50">
+                  <div
+                    class="flex items-center justify-between cursor-pointer select-none"
+                    onclick="toggleAllList('4ss')"
+                  >
                     <h3
-                      class="text-xs font-bold text-indigo-600 uppercase tracking-wider flex items-center gap-1.5"
+                      class="text-sm font-black text-indigo-600 uppercase tracking-wider flex items-center gap-1.5"
                     >
-                      <i
-                        class="fa-solid fa-list-ul text-indigo-500 text-[10px]"
-                      ></i>
+                      <i class="fa-solid fa-list-ul text-indigo-500 text-xs"></i>
                       Acc: 4ss
                     </h3>
+                    <button
+                      type="button"
+                      id="all-toggle-4ss"
+                      aria-expanded="false"
+                      title="Sổ xuống / thu gọn danh sách"
+                      class="w-11 h-11 flex items-center justify-center rounded-xl bg-white border-2 border-indigo-200 text-indigo-600 hover:bg-indigo-50 active:scale-95 transition shadow-sm"
+                    >
+                      <i
+                        id="all-caret-4ss"
+                        class="fa-solid fa-caret-down text-2xl transition-transform duration-200"
+                        style="transform: rotate(-90deg)"
+                      ></i>
+                    </button>
                   </div>
-                  <div id="list-all-4ss" class="space-y-2">
+                  <div id="list-all-4ss" class="hidden space-y-2 mt-3">
                     <p class="text-gray-400 text-sm italic">
                       (Chưa có lịch thuê)
                     </p>
                   </div>
                 </div>
-                <div class="border-t border-gray-100 pt-4">
-                  <div class="flex items-center justify-between mb-3">
+                <div class="border border-gray-200 rounded-2xl p-4 bg-gray-50/50">
+                  <div
+                    class="flex items-center justify-between cursor-pointer select-none"
+                    onclick="toggleAllList('2ss')"
+                  >
                     <h3
-                      class="text-xs font-bold text-indigo-600 uppercase tracking-wider flex items-center gap-1.5"
+                      class="text-sm font-black text-indigo-600 uppercase tracking-wider flex items-center gap-1.5"
                     >
-                      <i
-                        class="fa-solid fa-list-ul text-indigo-500 text-[10px]"
-                      ></i>
+                      <i class="fa-solid fa-list-ul text-indigo-500 text-xs"></i>
                       Acc: 2ss
                     </h3>
+                    <button
+                      type="button"
+                      id="all-toggle-2ss"
+                      aria-expanded="false"
+                      title="Sổ xuống / thu gọn danh sách"
+                      class="w-11 h-11 flex items-center justify-center rounded-xl bg-white border-2 border-indigo-200 text-indigo-600 hover:bg-indigo-50 active:scale-95 transition shadow-sm"
+                    >
+                      <i
+                        id="all-caret-2ss"
+                        class="fa-solid fa-caret-down text-2xl transition-transform duration-200"
+                        style="transform: rotate(-90deg)"
+                      ></i>
+                    </button>
                   </div>
-                  <div id="list-all-2ss" class="space-y-2">
+                  <div id="list-all-2ss" class="hidden space-y-2 mt-3">
+                    <p class="text-gray-400 text-sm italic">
+                      (Chưa có lịch thuê)
+                    </p>
+                  </div>
+                </div>
+                <div class="border border-gray-200 rounded-2xl p-4 bg-gray-50/50">
+                  <div
+                    class="flex items-center justify-between cursor-pointer select-none"
+                    onclick="toggleAllList('Isaac')"
+                  >
+                    <h3
+                      class="text-sm font-black text-indigo-600 uppercase tracking-wider flex items-center gap-1.5"
+                    >
+                      <i class="fa-solid fa-list-ul text-indigo-500 text-xs"></i>
+                      Acc: Isaac
+                    </h3>
+                    <button
+                      type="button"
+                      id="all-toggle-Isaac"
+                      aria-expanded="false"
+                      title="Sổ xuống / thu gọn danh sách"
+                      class="w-11 h-11 flex items-center justify-center rounded-xl bg-white border-2 border-indigo-200 text-indigo-600 hover:bg-indigo-50 active:scale-95 transition shadow-sm"
+                    >
+                      <i
+                        id="all-caret-Isaac"
+                        class="fa-solid fa-caret-down text-2xl transition-transform duration-200"
+                        style="transform: rotate(-90deg)"
+                      ></i>
+                    </button>
+                  </div>
+                  <div id="list-all-Isaac" class="hidden space-y-2 mt-3">
+                    <p class="text-gray-400 text-sm italic">
+                      (Chưa có lịch thuê)
+                    </p>
+                  </div>
+                </div>
+                <div class="border border-gray-200 rounded-2xl p-4 bg-gray-50/50">
+                  <div
+                    class="flex items-center justify-between cursor-pointer select-none"
+                    onclick="toggleAllList('White')"
+                  >
+                    <h3
+                      class="text-sm font-black text-indigo-600 uppercase tracking-wider flex items-center gap-1.5"
+                    >
+                      <i class="fa-solid fa-list-ul text-indigo-500 text-xs"></i>
+                      Acc: White
+                    </h3>
+                    <button
+                      type="button"
+                      id="all-toggle-White"
+                      aria-expanded="false"
+                      title="Sổ xuống / thu gọn danh sách"
+                      class="w-11 h-11 flex items-center justify-center rounded-xl bg-white border-2 border-indigo-200 text-indigo-600 hover:bg-indigo-50 active:scale-95 transition shadow-sm"
+                    >
+                      <i
+                        id="all-caret-White"
+                        class="fa-solid fa-caret-down text-2xl transition-transform duration-200"
+                        style="transform: rotate(-90deg)"
+                      ></i>
+                    </button>
+                  </div>
+                  <div id="list-all-White" class="hidden space-y-2 mt-3">
                     <p class="text-gray-400 text-sm italic">
                       (Chưa có lịch thuê)
                     </p>
@@ -311,34 +543,38 @@
           </div>
         </div>
 
-        <!-- CỘT PHẢI (5 CỘT): ĐỒNG HỒ HỆ THỐNG THỜI GIAN THỰC -->
-        <div class="lg:col-span-5 space-y-6 flex flex-col justify-stretch">
-          <div
-            class="bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-white rounded-2xl p-6 shadow-xl border border-indigo-500/20 text-center flex flex-col justify-center items-center min-h-[360px] h-full space-y-4"
+      </div>
+    </div>
+
+    <!-- MODAL CHỌN TÀI KHOẢN XEM LỊCH TRỐNG -->
+    <div
+      id="modal-free"
+      class="fixed inset-0 bg-black/50 hidden items-center justify-center p-4 z-50"
+    >
+      <div class="bg-white rounded-2xl w-full max-w-md p-6 space-y-4 shadow-xl">
+        <h3 class="text-lg font-bold text-gray-800 border-b pb-2">
+          Chọn tài khoản xem lịch trống
+        </h3>
+        <div class="text-sm">
+          <label class="block font-medium mb-1"
+            >Tài Khoản
+            <span class="text-xs font-normal text-gray-400">(chọn được nhiều acc)</span></label
           >
-            <div
-              class="flex items-center gap-2 text-indigo-300 font-bold uppercase tracking-widest text-xs"
-            >
-              <i
-                class="fa-solid fa-clock text-amber-400 text-sm animate-pulse"
-              ></i>
-              <span>Thời Gian Hệ Thống Việt Nam</span>
-            </div>
-
-            <div
-              id="clock-time"
-              class="text-5xl md:text-6xl font-black tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-indigo-200 to-teal-200 font-mono drop-shadow"
-            >
-              --:--:--
-            </div>
-
-            <div
-              id="clock-date"
-              class="text-sm md:text-base font-bold text-indigo-200 bg-indigo-900/60 px-5 py-2.5 rounded-xl border border-indigo-700/50 shadow-inner"
-            >
-              --/--/----
-            </div>
-          </div>
+          <div id="free-acc-picker" class="grid grid-cols-2 gap-2"></div>
+        </div>
+        <div class="flex gap-2 pt-2">
+          <button
+            onclick="closeFreeScheduleModal()"
+            class="flex-1 py-2.5 rounded-xl bg-rose-500 hover:bg-rose-600 font-semibold text-white transition"
+          >
+            Hủy
+          </button>
+          <button
+            onclick="confirmFreeSchedule()"
+            class="flex-1 py-2.5 rounded-xl bg-teal-500 hover:bg-teal-600 font-semibold text-white"
+          >
+            Xem lịch trống
+          </button>
         </div>
       </div>
     </div>
@@ -373,33 +609,11 @@
 
         <div class="space-y-3 text-sm">
           <div>
-            <label class="block font-medium mb-1">Tài Khoản</label>
-            <div class="grid grid-cols-3 gap-2">
-              <button
-                type="button"
-                onclick="setCheckAcc('0')"
-                id="check-acc-0"
-                class="py-2.5 px-3 rounded-xl border font-bold text-xs transition bg-gray-50 border-gray-200 text-gray-700"
-              >
-                Acc 4ss
-              </button>
-              <button
-                type="button"
-                onclick="setCheckAcc('1')"
-                id="check-acc-1"
-                class="py-2.5 px-3 rounded-xl border font-bold text-xs transition bg-gray-50 border-gray-200 text-gray-700"
-              >
-                Acc 2ss
-              </button>
-              <button
-                type="button"
-                onclick="setCheckAcc('2')"
-                id="check-acc-2"
-                class="py-2.5 px-3 rounded-xl border font-bold text-xs transition bg-gray-50 border-gray-200 text-gray-700"
-              >
-                Cả 2 acc
-              </button>
-            </div>
+            <label class="block font-medium mb-1"
+              >Tài Khoản
+              <span class="text-xs font-normal text-gray-400">(chọn được nhiều acc)</span></label
+            >
+            <div id="check-acc-picker" class="grid grid-cols-2 gap-2"></div>
           </div>
 
           <div class="grid grid-cols-2 gap-2">
@@ -754,114 +968,28 @@
         </div>
       </div>
     </div>
-    <!-- MODAL TÍNH TIỀN (TRANG 2 & TRANG 3) -->
+    <!-- MODAL KỊCH BẢN (CÁCH ĐĂNG NHẬP GOOGLE / FACEBOOK) -->
     <div
-      id="modal-calculate"
-      class="fixed inset-0 bg-black/50 hidden items-center justify-center p-4 z-50"
+      id="modal-script"
+      class="fixed inset-0 bg-black/50 hidden items-center justify-center p-4 z-[55]"
     >
-      <div class="bg-white rounded-2xl w-full max-w-md p-6 space-y-4 shadow-xl">
-        <!-- TRANG 2: CẤU HÌNH -->
-        <div id="calc-page-2" class="space-y-4">
-          <h3
-            id="calc-title"
-            class="text-lg font-bold text-gray-800 border-b pb-2"
-          >
-            Tính Tiền - Cấu Hình
+      <div
+        class="bg-white rounded-2xl w-full max-w-md p-6 shadow-xl max-h-[90vh] flex flex-col space-y-4"
+      >
+        <div class="flex items-center gap-2 border-b pb-2 flex-shrink-0">
+          <i class="fa-solid fa-scroll text-amber-500"></i>
+          <h3 id="script-title" class="text-lg font-bold text-gray-800 min-w-0">
+            Kịch bản
           </h3>
-
-          <div>
-            <label class="block font-medium mb-1 text-sm"
-              >Cách thức đăng nhập</label
-            >
-<div class="grid grid-cols-2 gap-2">
-  <button type="button" onclick="setCalcLogin('LINE')" id="calc-login-LINE" class="...">
-    LINE
-  </button>
-  <button type="button" onclick="setCalcLogin('Google')" id="calc-login-Google" class="...">
-    Google
-  </button>
-</div>
-          </div>
-
-          <div id="calc-scan-options" class="hidden space-y-2">
-            <label class="block font-medium mb-1 text-sm">Thời điểm thuê</label>
-            <div class="grid grid-cols-2 gap-2">
-              <button
-                type="button"
-                onclick="setCalcTiming('Thuê ngay')"
-                id="calc-timing-now"
-                class="py-2.5 px-3 rounded-xl border font-bold text-xs transition bg-indigo-50 border-indigo-500 text-indigo-700"
-              >
-                Thuê ngay
-              </button>
-              <button
-                type="button"
-                onclick="setCalcTiming('Đặt trước')"
-                id="calc-timing-later"
-                class="py-2.5 px-3 rounded-xl border font-bold text-xs transition bg-gray-50 border-gray-200 text-gray-700"
-              >
-                Đặt trước
-              </button>
-            </div>
-          </div>
-
-          <div id="calc-hours-container" class="space-y-3">
-            <!-- Dynamic hours input(s) -->
-          </div>
-
-          <div class="flex gap-2 pt-2">
-            <button
-              onclick="closeCalcModal()"
-              class="flex-1 py-2.5 rounded-xl bg-rose-500 hover:bg-rose-600 font-semibold text-white transition text-sm"
-            >
-              Hủy
-            </button>
-            <button
-              onclick="backToCalcPage1()"
-              class="flex-1 py-2.5 rounded-xl bg-indigo-500 hover:bg-indigo-600 font-semibold text-white transition text-sm"
-            >
-              Quay lại
-            </button>
-            <button
-              onclick="finishCalculation()"
-              class="flex-1 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 font-semibold text-white transition text-sm"
-            >
-              Hoàn tất
-            </button>
-          </div>
         </div>
-
-        <!-- TRANG 3: KẾT QUẢ -->
-        <div id="calc-page-3" class="space-y-4 hidden">
-          <h3 class="text-lg font-bold text-gray-800 border-b pb-2">
-            Kết Quả - Mẫu Tin Nhắn
-          </h3>
-          <div
-            id="calc-result-text"
-            class="bg-gray-50 p-4 rounded-xl border border-gray-200 text-sm font-mono whitespace-pre-wrap max-h-64 overflow-y-auto text-gray-800"
-          ></div>
-
-          <div class="flex gap-2 pt-2">
-            <button
-              onclick="closeCalcModal()"
-              class="flex-1 py-2.5 rounded-xl bg-rose-500 hover:bg-rose-600 font-semibold text-white transition text-sm"
-            >
-              Hủy
-            </button>
-            <button
-              onclick="backToCalcPage2()"
-              class="flex-1 py-2.5 rounded-xl bg-indigo-500 hover:bg-indigo-600 font-semibold text-white transition text-sm"
-            >
-              Quay lại
-            </button>
-            <button
-              id="btn-copy-calc"
-              onclick="copyCalcResult()"
-              class="flex-1 py-2.5 rounded-xl bg-sky-500 hover:bg-sky-600 font-semibold text-white transition text-sm copy-btn-morph"
-            >
-              <i class="fa-regular fa-copy mr-1"></i> Copy
-            </button>
-          </div>
+        <div id="script-lines" class="space-y-3 overflow-y-auto"></div>
+        <div class="flex gap-2 pt-2 flex-shrink-0">
+          <button
+            onclick="closeScriptModal()"
+            class="flex-1 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 font-semibold text-white transition text-sm"
+          >
+            Đồng ý
+          </button>
         </div>
       </div>
     </div>
@@ -974,29 +1102,12 @@
         <div class="space-y-3 text-sm">
           <div>
             <label class="block font-medium mb-1">Tài Khoản</label>
-            <div class="grid grid-cols-2 gap-2">
-              <button
-                type="button"
-                onclick="setFormAcc('0')"
-                id="form-acc-0"
-                class="py-2.5 px-3 rounded-xl border font-bold text-xs transition bg-gray-50 border-gray-200 text-gray-700"
-              >
-                Acc 4ss
-              </button>
-              <button
-                type="button"
-                onclick="setFormAcc('1')"
-                id="form-acc-1"
-                class="py-2.5 px-3 rounded-xl border font-bold text-xs transition bg-gray-50 border-gray-200 text-gray-700"
-              >
-                Acc 2ss
-              </button>
-            </div>
+            <div id="form-acc-picker" class="grid grid-cols-2 gap-2"></div>
           </div>
 
           <div>
             <label class="block font-medium mb-1">Cách Đăng Nhập</label>
-            <div class="grid grid-cols-2 gap-2">
+            <div class="grid grid-cols-3 gap-2">
               <button
                 type="button"
                 onclick="setFormDevice('LINE')"
@@ -1012,6 +1123,14 @@
                 class="py-2.5 px-3 rounded-xl border font-bold text-xs transition bg-gray-50 border-gray-200 text-gray-700"
               >
                 Google
+              </button>
+              <button
+                type="button"
+                onclick="setFormDevice('Facebook')"
+                id="form-device-Facebook"
+                class="py-2.5 px-3 rounded-xl border font-bold text-xs transition bg-gray-50 border-gray-200 text-gray-700"
+              >
+                Facebook
               </button>
             </div>
           </div>
@@ -1268,6 +1387,18 @@
               </div>
             </div>
           </div>
+
+          <div class="flex items-center gap-2 pt-1">
+            <span class="text-xs font-bold text-gray-500 uppercase tracking-wide">Thao tác nhanh</span>
+            <button
+              type="button"
+              onclick="quickAddEnd(25)"
+              title="Cộng thêm 25 tiếng vào thời gian KẾT THÚC (đã tính cả khung giờ cấm 10h-11h)"
+              class="px-4 py-2 rounded-xl bg-violet-500 hover:bg-violet-600 active:scale-95 text-white font-bold text-sm shadow transition flex items-center gap-1.5"
+            >
+              <i class="fa-solid fa-bolt text-xs"></i> +24h
+            </button>
+          </div>
         </div>
 
         <div class="flex gap-2 pt-2">
@@ -1506,7 +1637,8 @@
             <div class="flex items-center gap-2 mb-3 bg-slate-50 border border-indigo-100 rounded-xl p-2 pl-3">
               <span id="pw-reset-now-4ss" class="flex-1 font-mono text-sm font-bold text-slate-800 tracking-wider break-all select-all">—</span>
               <button id="pw-btn-reset-now-4ss" onclick="copyResetPassword('reset-now','4ss')" class="w-12 h-12 flex-shrink-0 flex items-center justify-center rounded-xl bg-indigo-500 hover:bg-indigo-600 active:scale-95 text-white transition shadow-sm" title="Copy mật khẩu"><i class="fa-regular fa-copy text-lg"></i></button>
-            </div>            <div id="list-reset-now-4ss" class="space-y-2">
+            </div>
+            <div id="list-reset-now-4ss" class="space-y-2">
               <p class="text-gray-400 text-sm italic">(Không có lịch)</p>
             </div>
           </div>
@@ -1522,7 +1654,42 @@
             <div class="flex items-center gap-2 mb-3 bg-slate-50 border border-indigo-100 rounded-xl p-2 pl-3">
               <span id="pw-reset-now-2ss" class="flex-1 font-mono text-sm font-bold text-slate-800 tracking-wider break-all select-all">—</span>
               <button id="pw-btn-reset-now-2ss" onclick="copyResetPassword('reset-now','2ss')" class="w-12 h-12 flex-shrink-0 flex items-center justify-center rounded-xl bg-indigo-500 hover:bg-indigo-600 active:scale-95 text-white transition shadow-sm" title="Copy mật khẩu"><i class="fa-regular fa-copy text-lg"></i></button>
-            </div>            <div id="list-reset-now-2ss" class="space-y-2">
+            </div>
+            <div id="list-reset-now-2ss" class="space-y-2">
+              <p class="text-gray-400 text-sm italic">(Không có lịch)</p>
+            </div>
+          </div>
+          <div class="border-t border-gray-100 pt-4">
+            <div class="flex items-center justify-between mb-3">
+              <h3
+                class="text-xs font-bold text-indigo-600 uppercase tracking-wider flex items-center gap-1.5"
+              >
+                <i class="fa-solid fa-list-ul text-indigo-500 text-[10px]"></i>
+                Acc: Isaac
+              </h3>
+            </div>
+            <div class="flex items-center gap-2 mb-3 bg-slate-50 border border-indigo-100 rounded-xl p-2 pl-3">
+              <span id="pw-reset-now-Isaac" class="flex-1 font-mono text-sm font-bold text-slate-800 tracking-wider break-all select-all">—</span>
+              <button id="pw-btn-reset-now-Isaac" onclick="copyResetPassword('reset-now','Isaac')" class="w-12 h-12 flex-shrink-0 flex items-center justify-center rounded-xl bg-indigo-500 hover:bg-indigo-600 active:scale-95 text-white transition shadow-sm" title="Copy mật khẩu"><i class="fa-regular fa-copy text-lg"></i></button>
+            </div>
+            <div id="list-reset-now-Isaac" class="space-y-2">
+              <p class="text-gray-400 text-sm italic">(Không có lịch)</p>
+            </div>
+          </div>
+          <div class="border-t border-gray-100 pt-4">
+            <div class="flex items-center justify-between mb-3">
+              <h3
+                class="text-xs font-bold text-indigo-600 uppercase tracking-wider flex items-center gap-1.5"
+              >
+                <i class="fa-solid fa-list-ul text-indigo-500 text-[10px]"></i>
+                Acc: White
+              </h3>
+            </div>
+            <div class="flex items-center gap-2 mb-3 bg-slate-50 border border-indigo-100 rounded-xl p-2 pl-3">
+              <span id="pw-reset-now-White" class="flex-1 font-mono text-sm font-bold text-slate-800 tracking-wider break-all select-all">—</span>
+              <button id="pw-btn-reset-now-White" onclick="copyResetPassword('reset-now','White')" class="w-12 h-12 flex-shrink-0 flex items-center justify-center rounded-xl bg-indigo-500 hover:bg-indigo-600 active:scale-95 text-white transition shadow-sm" title="Copy mật khẩu"><i class="fa-regular fa-copy text-lg"></i></button>
+            </div>
+            <div id="list-reset-now-White" class="space-y-2">
               <p class="text-gray-400 text-sm italic">(Không có lịch)</p>
             </div>
           </div>
@@ -1575,7 +1742,8 @@
             <div class="flex items-center gap-2 mb-3 bg-slate-50 border border-indigo-100 rounded-xl p-2 pl-3">
               <span id="pw-reset-history-detail-4ss" class="flex-1 font-mono text-sm font-bold text-slate-800 tracking-wider break-all select-all">—</span>
               <button id="pw-btn-reset-history-detail-4ss" onclick="copyResetPassword('reset-history-detail','4ss')" class="w-12 h-12 flex-shrink-0 flex items-center justify-center rounded-xl bg-indigo-500 hover:bg-indigo-600 active:scale-95 text-white transition shadow-sm" title="Copy mật khẩu"><i class="fa-regular fa-copy text-lg"></i></button>
-            </div>            <div id="list-reset-history-detail-4ss" class="space-y-2">
+            </div>
+            <div id="list-reset-history-detail-4ss" class="space-y-2">
               <p class="text-gray-400 text-sm italic">(Không có lịch)</p>
             </div>
           </div>
@@ -1591,7 +1759,42 @@
             <div class="flex items-center gap-2 mb-3 bg-slate-50 border border-indigo-100 rounded-xl p-2 pl-3">
               <span id="pw-reset-history-detail-2ss" class="flex-1 font-mono text-sm font-bold text-slate-800 tracking-wider break-all select-all">—</span>
               <button id="pw-btn-reset-history-detail-2ss" onclick="copyResetPassword('reset-history-detail','2ss')" class="w-12 h-12 flex-shrink-0 flex items-center justify-center rounded-xl bg-indigo-500 hover:bg-indigo-600 active:scale-95 text-white transition shadow-sm" title="Copy mật khẩu"><i class="fa-regular fa-copy text-lg"></i></button>
-            </div>            <div id="list-reset-history-detail-2ss" class="space-y-2">
+            </div>
+            <div id="list-reset-history-detail-2ss" class="space-y-2">
+              <p class="text-gray-400 text-sm italic">(Không có lịch)</p>
+            </div>
+          </div>
+          <div class="border-t border-gray-100 pt-4">
+            <div class="flex items-center justify-between mb-3">
+              <h3
+                class="text-xs font-bold text-indigo-600 uppercase tracking-wider flex items-center gap-1.5"
+              >
+                <i class="fa-solid fa-list-ul text-indigo-500 text-[10px]"></i>
+                Acc: Isaac
+              </h3>
+            </div>
+            <div class="flex items-center gap-2 mb-3 bg-slate-50 border border-indigo-100 rounded-xl p-2 pl-3">
+              <span id="pw-reset-history-detail-Isaac" class="flex-1 font-mono text-sm font-bold text-slate-800 tracking-wider break-all select-all">—</span>
+              <button id="pw-btn-reset-history-detail-Isaac" onclick="copyResetPassword('reset-history-detail','Isaac')" class="w-12 h-12 flex-shrink-0 flex items-center justify-center rounded-xl bg-indigo-500 hover:bg-indigo-600 active:scale-95 text-white transition shadow-sm" title="Copy mật khẩu"><i class="fa-regular fa-copy text-lg"></i></button>
+            </div>
+            <div id="list-reset-history-detail-Isaac" class="space-y-2">
+              <p class="text-gray-400 text-sm italic">(Không có lịch)</p>
+            </div>
+          </div>
+          <div class="border-t border-gray-100 pt-4">
+            <div class="flex items-center justify-between mb-3">
+              <h3
+                class="text-xs font-bold text-indigo-600 uppercase tracking-wider flex items-center gap-1.5"
+              >
+                <i class="fa-solid fa-list-ul text-indigo-500 text-[10px]"></i>
+                Acc: White
+              </h3>
+            </div>
+            <div class="flex items-center gap-2 mb-3 bg-slate-50 border border-indigo-100 rounded-xl p-2 pl-3">
+              <span id="pw-reset-history-detail-White" class="flex-1 font-mono text-sm font-bold text-slate-800 tracking-wider break-all select-all">—</span>
+              <button id="pw-btn-reset-history-detail-White" onclick="copyResetPassword('reset-history-detail','White')" class="w-12 h-12 flex-shrink-0 flex items-center justify-center rounded-xl bg-indigo-500 hover:bg-indigo-600 active:scale-95 text-white transition shadow-sm" title="Copy mật khẩu"><i class="fa-regular fa-copy text-lg"></i></button>
+            </div>
+            <div id="list-reset-history-detail-White" class="space-y-2">
               <p class="text-gray-400 text-sm italic">(Không có lịch)</p>
             </div>
           </div>
@@ -1633,10 +1836,22 @@
       firebase.initializeApp(firebaseConfig);
       const db = firebase.database();
 
-      let accounts = [
-        { accountName: "4ss", revenue: 0, revenueStartTime: "", schedule: [] },
-        { accountName: "2ss", revenue: 0, revenueStartTime: "", schedule: [] },
-      ];
+      // 4 tài khoản (thứ tự cố định: 4ss, 2ss, Isaac, White)
+      const ACC_NAMES = ["4ss", "2ss", "Isaac", "White"];
+      const PW_FIELD = {
+        "4ss": "pw4",
+        "2ss": "pw2",
+        Isaac: "pwIsaac",
+        White: "pwWhite",
+      };
+      // Khung giờ cấm: 10h - 11h hằng ngày (giờ có chỉ số 10)
+      const BAN_HOUR = 10;
+      let accounts = ACC_NAMES.map((n) => ({
+        accountName: n,
+        revenue: 0,
+        revenueStartTime: "",
+        schedule: [],
+      }));
       let notes = [];
       let resetPasswordHistory = [];
       let activeTab = "upcoming";
@@ -1710,12 +1925,38 @@
         };
       }
 
+      // Khung giờ cấm: giờ có chỉ số 10 (10h-11h) mỗi ngày
+      function isBannedHour(abs) {
+        return (((abs % 24) + 24) % 24) === BAN_HOUR;
+      }
+
+      // Số lần khung giờ cấm nằm trong khoảng [a, b)
+      function countBannedHours(a, b) {
+        if (b <= a) return 0;
+        const r = ((a % 24) + 24) % 24;
+        const first = a + ((BAN_HOUR - r + 24) % 24);
+        if (first >= b) return 0;
+        return Math.floor((b - 1 - first) / 24) + 1;
+      }
+
+      // Số giờ được tính tiền trong [a, b): bỏ qua khung giờ cấm như thể nó không tồn tại
+      function billableHours(a, b) {
+        if (b <= a) return 0;
+        return Math.max(0, b - a - countBannedHours(a, b));
+      }
+
+      const ACC_PRICES = {
+        "4ss": { hour: 5000, day: 59000 },
+        "2ss": { hour: 6000, day: 69000 },
+        Isaac: { hour: 4000, day: 49000 },
+        White: { hour: 9000, day: 109000 },
+      };
+
       function calculatePrice(accountName, hours) {
-        const price24 = accountName === "4ss" ? 59000 : 69000;
-        const price1 = accountName === "4ss" ? 5000 : 6000;
+        const p = ACC_PRICES[accountName] || ACC_PRICES["2ss"];
         const days = Math.floor(hours / 24);
         const remHours = hours % 24;
-        return days * price24 + remHours * price1;
+        return days * p.day + remHours * p.hour;
       }
 
       // Logic tăng giảm input số
@@ -2121,6 +2362,36 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
         });
       }
 
+      // Đảm bảo luôn có đủ 4 acc (dữ liệu cũ trên Firebase chỉ có 4ss và 2ss)
+      function ensureAccounts() {
+        let changed = false;
+        const t = getSystemDate();
+        ACC_NAMES.forEach((n) => {
+          if (!accounts.find((a) => a && a.accountName === n)) {
+            accounts.push({
+              accountName: n,
+              revenue: 0,
+              revenueStartTime: `0h ngày ${t.day}/${t.month}/${t.year}`,
+              schedule: [],
+            });
+            changed = true;
+          }
+        });
+        accounts.forEach((a) => {
+          if (!a.schedule) a.schedule = [];
+          if (!a.revenue) a.revenue = 0;
+          if (!a.revenueStartTime) {
+            a.revenueStartTime = `0h ngày ${t.day}/${t.month}/${t.year}`;
+            changed = true;
+          }
+        });
+        accounts.sort(
+          (a, b) =>
+            ACC_NAMES.indexOf(a.accountName) - ACC_NAMES.indexOf(b.accountName),
+        );
+        return changed;
+      }
+
       function listenToFirebase() {
         db.ref("rental_data").on("value", (snapshot) => {
           const data = snapshot.val();
@@ -2133,7 +2404,9 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
             accounts.forEach((acc) => {
               if (!acc.schedule) acc.schedule = [];
             });
+            const addedAcc = ensureAccounts();
             renderUI();
+            if (addedAcc) saveData();
           }
         });
       }
@@ -2147,6 +2420,7 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
       }
 
       function initApp() {
+        applyTheme(document.documentElement.classList.contains("dark"));
         updateClock();
         const today = getSystemDate();
         accounts.forEach((acc) => {
@@ -2176,7 +2450,7 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
 
       function createRentalCardHtml(r, accIdx, rIdx, timeStr) {
         return `
-                <div class="bg-gradient-to-r from-slate-50 via-indigo-50/40 to-slate-50 p-3.5 rounded-xl flex justify-between items-center border border-indigo-100/80 shadow-sm hover:shadow transition">
+                <div class="bg-gradient-to-r from-slate-50 via-indigo-50/40 to-slate-50 p-3.5 rounded-xl flex flex-wrap gap-2 justify-between items-center border border-indigo-100/80 shadow-sm hover:shadow transition">
                     <div class="space-y-1">
                         <div class="flex items-center gap-2">
                             <span class="font-bold text-slate-800 text-sm tracking-wide">${r.tenantName || "Khách X"}</span>
@@ -2189,9 +2463,15 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
                         </div>
                     </div>
                     <div class="flex items-center gap-1.5">
-                        <button onclick="showRentalResultByKey(${accIdx}, '${rentalKeyEnc(r)}')" class="bg-white hover:bg-sky-50 text-sky-600 border border-sky-200 px-3 py-1.5 rounded-lg text-xs font-bold transition shadow-sm flex items-center gap-1">
+                        ${
+                          r.deviceType === "Google" || r.deviceType === "Facebook"
+                            ? `<button onclick="showRentalResultByKey(${accIdx}, '${rentalKeyEnc(r)}')" class="bg-white hover:bg-amber-50 text-amber-600 border border-amber-200 px-3 py-1.5 rounded-lg text-xs font-bold transition shadow-sm flex items-center gap-1">
+                            <i class="fa-solid fa-scroll"></i> Kịch bản
+                        </button>`
+                            : `<button onclick="showRentalResultByKey(${accIdx}, '${rentalKeyEnc(r)}')" class="bg-white hover:bg-sky-50 text-sky-600 border border-sky-200 px-3 py-1.5 rounded-lg text-xs font-bold transition shadow-sm flex items-center gap-1">
                             <i class="fa-regular fa-envelope"></i> Email
-                        </button>
+                        </button>`
+                        }
                         <button onclick="editRentalByKey(${accIdx}, '${rentalKeyEnc(r)}')" class="bg-white hover:bg-indigo-50 text-indigo-600 border border-indigo-200 px-3 py-1.5 rounded-lg text-xs font-bold transition shadow-sm flex items-center gap-1">
                             <i class="fa-solid fa-pen-to-square"></i> Sửa
                         </button>
@@ -2238,20 +2518,18 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
         });
         pruneResetHistory(activeDayObj);
 
-        let totalRevenue = accounts[0].revenue + accounts[1].revenue;
+        let totalRevenue = accounts.reduce((sum, a) => sum + (a.revenue || 0), 0);
         document.getElementById("total-revenue").innerText =
           totalRevenue.toLocaleString("vi-VN") + " VNĐ";
 
-        document.getElementById("rev-4ss").innerText =
-          accounts[0].revenue.toLocaleString("vi-VN") + " VNĐ";
-        document.getElementById("rev-2ss").innerText =
-          accounts[1].revenue.toLocaleString("vi-VN") + " VNĐ";
-        document.getElementById("rev-start-4ss").innerText =
-          `Từ ${accounts[0].revenueStartTime}`;
-        document.getElementById("rev-start-2ss").innerText =
-          `Từ ${accounts[1].revenueStartTime}`;
+        ACC_NAMES.forEach((n, i) => {
+          document.getElementById(`rev-${n}`).innerText =
+            (accounts[i].revenue || 0).toLocaleString("vi-VN") + " VNĐ";
+          document.getElementById(`rev-start-${n}`).innerText =
+            `Từ ${accounts[i].revenueStartTime}`;
+        });
 
-        ["4ss", "2ss"].forEach((accName, idx) => {
+        ACC_NAMES.forEach((accName, idx) => {
           const acc = accounts[idx];
           const effSched = getEffectiveSchedule(acc, activeDayObj);
 
@@ -2418,7 +2696,7 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
         const last = resetPasswordHistory.reduce((a, b) =>
           (b.id || 0) > (a.id || 0) ? b : a,
         );
-        return (accName === "4ss" ? last.pw4 : last.pw2) || "";
+        return last[PW_FIELD[accName]] || "";
       }
 
       // Lưu lại thông tin lịch đang xem để nút "Kịch bản" dùng
@@ -2511,11 +2789,6 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
 
         // (nội dung, hiện nút Copy, không có nút Quay lại, tiêu đề, copy xong tự đóng)
         showCustomAlert(text, true, null, "Kịch bản", true);
-      }
-
-      function copyCalcResult() {
-        const text = document.getElementById("calc-result-text").innerText;
-        copyToClip(text, "btn-copy-calc");
       }
 
       let confirmCallback = null;
@@ -2628,22 +2901,238 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
         document.getElementById("modal-custom-prompt").classList.remove("flex");
       }
 
-      // --- CÁC HÀM LỊCH TRỐNG & KIỂM TRA TRỐNG ---
-      function openFreeScheduleModal() {
-        showCustomOptionsModal(
-          "Chọn tài khoản xem lịch trống:",
-          [
-            { label: "Acc 4ss", value: "0" },
-            { label: "Acc 2ss", value: "1" },
-            { label: "Cả 2 acc", value: "2" },
-          ],
-          (choice) => {
-            showFreeScheduleResult(parseInt(choice));
-          },
-        );
+      // --- BỘ CHỌN TÀI KHOẢN (Kiểm tra / Lịch trống: chọn nhiều, "Tất cả" chọn riêng) ---
+      // --- CÁC HÀM KỊCH BẢN GOOGLE / FACEBOOK ---
+      function getLastResetAbs() {
+        if (!resetPasswordHistory || resetPasswordHistory.length === 0)
+          return -Infinity;
+        return Math.max(...resetPasswordHistory.map((x) => x.ts));
       }
 
-      function showFreeScheduleResult(choice) {
+      // Chọn Google hay Facebook cho khách dựa trên ai đã liên kết từ lần reset mật khẩu gần nhất
+      function pickLinkType(isNow, usedG, usedF) {
+        if (!isNow) {
+          if (!usedG) return "Google";
+          if (!usedF) return "Facebook";
+        } else {
+          if (!usedG && !usedF) return "Google";
+          if (!usedF) return "Facebook";
+          if (!usedG) return "Google";
+        }
+        return "Google";
+      }
+
+      // Trả về mảng các dòng kịch bản (mỗi dòng có 1 nút copy riêng)
+      function buildGoogleFbScript(accIdx, rental) {
+        const acc = accounts[accIdx];
+        const accName = acc.accountName;
+        const t = getSystemDate();
+        const currentAbs = getEpochHours(t.year, t.month, t.day, t.hour);
+        const key = rentalKeyEnc(rental);
+        const isLink = (r) => r.deviceType === "Google" || r.deviceType === "Facebook";
+
+        // Các lịch khác của acc này (không tính chính lịch đang xem)
+        const others = getEffectiveSchedule(acc, t, currentAbs).filter(
+          (r) => rentalKeyEnc(r) !== key,
+        );
+
+        // Từ hiện tại trở đi: lịch đang trong ca hoặc chưa tới
+        const fromNow = others.filter((r) => isLink(r) && r.endAbs > currentAbs);
+        const nowG = fromNow.some((r) => r.deviceType === "Google");
+        const nowF = fromNow.some((r) => r.deviceType === "Facebook");
+
+        // O3: đã có người chọn cả Google lẫn Facebook -> hết slot PC
+        if (nowG && nowF) {
+          fromNow.sort((a, b) => a.startAbs - b.startAbs);
+          const when = formatTimeT(fromNow[0].endAbs + 1, currentAbs);
+          return [
+            `À bạn cho mình xin lỗi nha, hiện tại acc ${accName} hết slot thuê cho PC mất rồi ạ.\n\n` +
+              `Đối với PC thì acc ${accName} từ ${when} trở đi mới được thuê hoặc đặt trước nghen.\n\n` +
+              `Bạn cho mình xin số tài khoản ngân hàng của bạn để mình hoàn lại tiền cho bạn nha.`,
+          ];
+        }
+
+        // O1 / O2: xét ai đã thuê bằng Google/Facebook tính từ lần reset mật khẩu gần nhất
+        const lastReset = getLastResetAbs();
+        const sinceReset = others.filter((r) => isLink(r) && r.endAbs > lastReset);
+        const usedG = sinceReset.some((r) => r.deviceType === "Google");
+        const usedF = sinceReset.some((r) => r.deviceType === "Facebook");
+
+        const s = rental.start;
+        const isNow =
+          s.year === t.year && s.month === t.month && s.day === t.day && s.hour === t.hour;
+
+        const link = pickLinkType(isNow, usedG, usedF);
+        const other = link === "Google" ? "Facebook" : "Google";
+
+        const line1 =
+          "Dạ nếu bạn vẫn chơi PC chứ không phải Android thì bạn làm theo cách cũ mà mình đã hướng dẫn lúc trước rồi gửi mình ảnh QR đó nghen.\n\n" +
+          `Bạn chọn ${link} giúp mình nha, do ${other} bên mình có bạn khách khác đang liên kết vào mất rồi ạ.\n\n` +
+          "Nếu được thì bạn nên làm ngay bây giờ luôn để mình hỗ trợ nha, để sau mới làm thì có thể mình sẽ bận và không hỗ trợ được ạ.";
+        const line2 = isNow
+          ? "Dạ mình quét QR xong rồi ạ, bạn vào chơi nghen."
+          : "Dạ mình quét QR xong rồi ạ, đúng giờ bạn tự vào chơi mà không cần nói gì hết nha.";
+        const result = [line1, line2];
+        result.link = link; // loại đăng nhập mà kịch bản đang nói với khách
+        return result;
+      }
+
+      let scriptLinesCtx = [];
+      function openGoogleFbScript(accIdx, rental) {
+        const lines = buildGoogleFbScript(accIdx, rental);
+        const link = lines.link;
+
+        // Kịch bản nói Facebook mà lịch đang là Google (hoặc ngược lại) -> tự đổi và lưu
+        if (link && link !== rental.deviceType) {
+          const key = rentalKeyEnc(rental);
+          const real = accounts[accIdx].schedule.find(
+            (x) => rentalKeyEnc(x) === key,
+          );
+          if (real) {
+            real.deviceType = link;
+            saveData();
+          }
+          rental.deviceType = link;
+        }
+
+        showScriptModal(accounts[accIdx].accountName, rental.deviceType, lines);
+      }
+
+      function showScriptModal(accName, devVal, lines) {
+        scriptLinesCtx = lines;
+        document.getElementById("script-title").innerText =
+          `Kịch bản - ${accName} (${devVal})`;
+        const box = document.getElementById("script-lines");
+        box.innerHTML = "";
+        lines.forEach((text, i) => {
+          const row = document.createElement("div");
+          row.className =
+            "flex items-center gap-2 bg-slate-50 border border-indigo-100 rounded-xl p-2 pl-3";
+          const span = document.createElement("span");
+          span.className =
+            "flex-1 text-sm text-slate-800 whitespace-pre-wrap break-words select-all py-1";
+          span.textContent = text;
+          const btn = document.createElement("button");
+          btn.id = `script-btn-${i}`;
+          btn.title = "Copy";
+          btn.className =
+            "w-12 h-12 flex-shrink-0 flex items-center justify-center rounded-xl bg-indigo-500 hover:bg-indigo-600 active:scale-95 text-white transition shadow-sm";
+          btn.innerHTML = '<i class="fa-regular fa-copy text-lg"></i>';
+          btn.onclick = () => copyScriptLine(i);
+          row.appendChild(span);
+          row.appendChild(btn);
+          box.appendChild(row);
+        });
+        const m = document.getElementById("modal-script");
+        m.classList.remove("hidden");
+        m.classList.add("flex");
+      }
+
+      function closeScriptModal() {
+        const m = document.getElementById("modal-script");
+        m.classList.add("hidden");
+        m.classList.remove("flex");
+      }
+
+      function copyScriptLine(i) {
+        const text = scriptLinesCtx[i];
+        if (!text) return;
+        const btn = document.getElementById(`script-btn-${i}`);
+        const old = btn.innerHTML;
+        const done = () => {
+          btn.innerHTML = '<i class="fa-solid fa-check text-lg"></i>';
+          setTimeout(() => (btn.innerHTML = old), 800);
+        };
+        const fallback = () => {
+          const ta = document.createElement("textarea");
+          ta.value = text;
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand("copy");
+          ta.remove();
+          done();
+        };
+        if (navigator.clipboard)
+          navigator.clipboard.writeText(text).then(done).catch(fallback);
+        else fallback();
+      }
+
+      // --- THU GỌN / SỔ XUỐNG DANH SÁCH Ở "TẤT CẢ LỊCH" ---
+      function toggleAllList(name) {
+        const list = document.getElementById(`list-all-${name}`);
+        const caret = document.getElementById(`all-caret-${name}`);
+        const btn = document.getElementById(`all-toggle-${name}`);
+        if (!list) return;
+        const willOpen = list.classList.contains("hidden");
+        list.classList.toggle("hidden", !willOpen);
+        if (caret) caret.style.transform = willOpen ? "rotate(0deg)" : "rotate(-90deg)";
+        if (btn) btn.setAttribute("aria-expanded", willOpen ? "true" : "false");
+      }
+
+      // --- CHẾ ĐỘ SÁNG / TỐI ---
+      function applyTheme(dark) {
+        document.documentElement.classList.toggle("dark", !!dark);
+        const knob = document.getElementById("theme-knob");
+        const icon = document.getElementById("theme-knob-icon");
+        if (knob) knob.style.transform = dark ? "translateX(28px)" : "translateX(0)";
+        if (icon)
+          icon.className = dark
+            ? "fa-solid fa-moon text-indigo-300 text-sm"
+            : "fa-solid fa-sun text-amber-500 text-sm";
+      }
+
+      function toggleTheme() {
+        const dark = !document.documentElement.classList.contains("dark");
+        applyTheme(dark);
+        try {
+          localStorage.setItem("themeMode", dark ? "dark" : "light");
+        } catch (e) {}
+      }
+
+      // --- NÚT THAO TÁC NHANH: +24h (cộng 25h vì không tính giờ cấm) ---
+      function quickAddEnd(hoursToAdd) {
+        const today = getSystemDate();
+        const num = (id) => parseInt(document.getElementById("form-" + id)?.value);
+        const pick = (a, b, c) => (!isNaN(a) ? a : !isNaN(b) ? b : c);
+        const eY = pick(num("eyear"), num("syear"), today.year);
+        const eM = pick(num("emonth"), num("smonth"), today.month);
+        const eD = pick(num("eday"), num("sday"), today.day);
+        const eH = pick(num("ehour"), num("shour"), today.hour);
+        const d = fromEpochHours(getEpochHours(eY, eM, eD, eH) + hoursToAdd);
+        document.getElementById("form-eyear").value = d.y;
+        document.getElementById("form-emonth").value = d.m;
+        document.getElementById("form-eday").value = d.d;
+        document.getElementById("form-ehour").value = d.h;
+      }
+
+      // --- CÁC HÀM LỊCH TRỐNG & KIỂM TRA TRỐNG ---
+      function openFreeScheduleModal(keepSelection) {
+        if (!keepSelection) accPickerSel.free = ["all"];
+        renderAccPicker("free");
+        const m = document.getElementById("modal-free");
+        m.classList.remove("hidden");
+        m.classList.add("flex");
+      }
+
+      function closeFreeScheduleModal() {
+        const m = document.getElementById("modal-free");
+        m.classList.add("hidden");
+        m.classList.remove("flex");
+      }
+
+      function confirmFreeSchedule() {
+        const idxs = getPickerIndices("free");
+        if (idxs.length === 0) {
+          showCustomAlert("Vui lòng chọn Tài khoản!");
+          return;
+        }
+        closeFreeScheduleModal();
+        showFreeScheduleResult(idxs);
+      }
+
+      const CONNECTORS = ["Dạ", "Còn", "Thêm", "Và"];
+
+      function showFreeScheduleResult(indices) {
         const today = getSystemDate();
         let currentAbs = getEpochHours(
           today.year,
@@ -2651,46 +3140,34 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
           today.day,
           today.hour,
         );
-        let msg = "";
-
-        if (choice === 0 || choice === 1) {
-          let slots = generateFreeSlots(accounts[choice], today);
-          let validSlots = slots
+        // Lịch trống vẫn xem 10h-11h là khung giờ bình thường (không áp dụng khung giờ cấm)
+        let blocks = [];
+        indices.forEach((accIdx, pos) => {
+          const acc = accounts[accIdx];
+          let valid = generateFreeSlots(acc, today)
             .map((s) => formatSlotT(s.s, s.e, currentAbs))
             .filter((txt) => txt !== "");
-          let plural = validSlots.length > 1 ? "các " : "";
-          msg += `Dạ acc ${accounts[choice].accountName} trống ${plural}khung giờ sau ạ:\n`;
-          validSlots.forEach((txt) => {
-            msg += `+ ${txt}\n`;
+          let plural = valid.length > 1 ? "các " : "";
+          let b =
+            pos === 0
+              ? `Dạ acc ${acc.accountName} trống ${plural}khung giờ sau ạ:\n`
+              : `${CONNECTORS[pos]} acc ${acc.accountName} thì trống ${plural}khung giờ sau ạ:\n`;
+          valid.forEach((txt) => {
+            b += `+ ${txt}\n`;
           });
-        } else if (choice === 2) {
-          let slots4ss = generateFreeSlots(accounts[0], today);
-          let valid4 = slots4ss
-            .map((s) => formatSlotT(s.s, s.e, currentAbs))
-            .filter((txt) => txt !== "");
-          let pl4 = valid4.length > 1 ? "các " : "";
-          msg += `Dạ acc 4ss trống ${pl4}khung giờ sau ạ:\n`;
-          valid4.forEach((txt) => {
-            msg += `+ ${txt}\n`;
-          });
-          msg += `\n`;
-          let slots2ss = generateFreeSlots(accounts[1], today);
-          let valid2 = slots2ss
-            .map((s) => formatSlotT(s.s, s.e, currentAbs))
-            .filter((txt) => txt !== "");
-          let pl2 = valid2.length > 1 ? "các " : "";
-          msg += `Và acc 2ss thì trống ${pl2}khung giờ sau ạ:\n`;
-                    valid2.forEach((txt) => {
-            msg += `+ ${txt}\n`;
-          });
-        }
-        msg = msg.trim() + "\n\nNếu bạn khó hiểu thì hỏi mình nghen.";
-        showCustomAlert(msg, true, openFreeScheduleModal);
+          blocks.push(b.trim());
+        });
+        const msg =
+          "❌ Khung giờ cấm vì lý do bí mật: Từ 10 giờ trưa ➔ 11 giờ trưa hằng ngày\n\n" +
+          blocks.join("\n\n") +
+          "\n\nNếu bạn khó hiểu thì hỏi mình nghen.";
+        showCustomAlert(msg, true, () => openFreeScheduleModal(true));
       }
 
       function openCheckModal() {
         const today = getSystemDate();
-        setCheckAcc("2");
+        accPickerSel.check = ["all"];
+        renderAccPicker("check");
         document.getElementById("check-sday").value = today.day;
         document.getElementById("check-smonth").value = today.month;
         document.getElementById("check-syear").value = today.year;
@@ -2730,7 +3207,7 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
       }
 
       function executeCheck() {
-        const accVal = checkAccChoice;
+        const accIdxs = getPickerIndices("check");
         const today = getSystemDate();
 
         const sDay = parseInt(document.getElementById("check-sday").value);
@@ -2749,7 +3226,7 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
         const eYear =
           parseInt(document.getElementById("check-eyear").value) || today.year;
 
-        if (accVal === "" || accVal === null) {
+        if (accIdxs.length === 0) {
           showCustomAlert("Vui lòng chọn Tài khoản!");
           return;
         }
@@ -2777,30 +3254,17 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
         let durationCheck = checkE - checkS;
         let timeStrS = formatTimeT(inS, currentAbs);
 
-        // Xử lý Check function
-        let msg = "";
-        if (accVal === "0" || accVal === "1") {
-          msg = runCheckSingle(
-            parseInt(accVal),
-            checkS,
-            checkE,
-            durationCheck,
-            inS,
-            inE,
-            currentAbs,
-            timeStrS,
-          );
-        } else {
-          msg = runCheckBoth(
-            checkS,
-            checkE,
-            durationCheck,
-            inS,
-            inE,
-            currentAbs,
-            timeStrS,
-          );
-        }
+        // Xử lý Check function (có thể chọn nhiều acc)
+        let msg = runCheckMulti(
+          accIdxs,
+          checkS,
+          checkE,
+          durationCheck,
+          inS,
+          inE,
+          currentAbs,
+          timeStrS,
+        );
 
         closeCheckModal();
         showCustomAlert(msg, true, () => {
@@ -2809,8 +3273,10 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
         });
       }
 
-      function getCoverage(accIdx, checkS, checkE, currentAbs) {
+      // banUntil: các giờ h < banUntil mà trùng khung giờ cấm sẽ bị coi là KHÔNG trống
+      function getCoverage(accIdx, checkS, checkE, currentAbs, banUntil) {
         const today = getSystemDate();
+        if (banUntil === undefined) banUntil = checkS; // mặc định: không áp dụng giờ cấm
 
         // Fix quá khứ: Nếu giờ checkS nhỏ hơn hiện tại, lấy giờ checkS làm gốc để sinh slot trống
         let checkDayObj = { ...today };
@@ -2825,35 +3291,25 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
           currentAbs,
         );
 
+        const hourFree = (h) => {
+          if (h < banUntil && isBannedHour(h)) return false;
+          for (let s of freeSlots) {
+            if (h >= s.s && (s.e === -1 || h < s.e)) return true;
+          }
+          return false;
+        };
+
         let covered = 0;
         let nonFreeRanges = [];
 
         let h = checkS;
         while (h < checkE) {
-          let isHourFree = false;
-          for (let s of freeSlots) {
-            if (h >= s.s && (s.e === -1 || h < s.e)) {
-              // Note: s.e is end boundary, free [s, e] covers h if h < e
-              isHourFree = true;
-              break;
-            }
-          }
-          if (isHourFree) {
+          if (hourFree(h)) {
             covered++;
             h++;
           } else {
             let blockS = h;
-            while (h < checkE) {
-              let isStillFree = false;
-              for (let s of freeSlots) {
-                if (h >= s.s && (s.e === -1 || h < s.e)) {
-                  isStillFree = true;
-                  break;
-                }
-              }
-              if (isStillFree) break;
-              h++;
-            }
+            while (h < checkE && !hourFree(h)) h++;
             nonFreeRanges.push({ s: blockS, e: h });
           }
         }
@@ -2871,11 +3327,33 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
         timeStrS,
       ) {
         const accName = accounts[accIdx].accountName;
-        const res = getCoverage(accIdx, checkS, checkE, currentAbs);
+        // Lịch thuê từ 24 tiếng trở lên được phép vướng khung giờ cấm (sẽ được bù giờ);
+        // dưới 24 tiếng thì khung giờ cấm 10h-11h coi như không trống.
+        const waiveBan = inE - inS >= 24;
+        const res = getCoverage(
+          accIdx,
+          checkS,
+          checkE,
+          currentAbs,
+          waiveBan ? checkS : inE,
+        );
         const timeDesc = inS === currentAbs ? "hiện tại" : "lúc đó";
 
         if (res.covered === durationCheck) {
-          return `Dạ acc ${accName} ${timeDesc} có trống ạ.`;
+          let okMsg = `Dạ acc ${accName} ${timeDesc} có trống ạ.`;
+          if (waiveBan) {
+            const x = countBannedHours(inS, inE);
+            if (x > 0) {
+              // Có trống /x/ tiếng ngay sau thời gian kết thúc không?
+              const ext = getCoverage(accIdx, checkE, checkE + x, currentAbs, checkE);
+              if (ext.covered === x) {
+                okMsg +=
+                  `\n\nNhưng với khung giờ mà bạn đặt thì bị vướng vào khung giờ cấm hằng ngày ( từ 10 giờ trưa ➔ 11 giờ trưa ) của bên mình mất rồi ạ. Vì thế nên mình sẽ bù thêm ${x} tiếng thuê vào sau khung giờ mà bạn đặt nha.\n\n` +
+                  `Nếu bạn đồng ý thì báo mình nghen.`;
+              }
+            }
+          }
+          return okMsg;
         }
 
         // Logic kiểm tra giờ liền kề trống cho khung 1 tiếng (Chạy trước khi chặn hoàn toàn res.covered === 0)
@@ -2897,10 +3375,12 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
 
           let nextHourFree = false;
           let nextHour = inS + 1; // Lấy chính xác mốc bắt đầu + 1
-          for (let s of freeSlots) {
-            if (nextHour >= s.s && (s.e === -1 || nextHour < s.e)) {
-              nextHourFree = true;
-              break;
+          if (!isBannedHour(nextHour)) {
+            for (let s of freeSlots) {
+              if (nextHour >= s.s && (s.e === -1 || nextHour < s.e)) {
+                nextHourFree = true;
+                break;
+              }
             }
           }
           if (nextHourFree) {
@@ -2946,7 +3426,10 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
         return `Dạ acc ${accName} ${timeDesc} không trống mất rồi ạ.`;
       }
 
-      function runCheckBoth(
+      // Kiểm tra nhiều acc: giống nhau hết thì gộp "cả N acc", khác nhau thì tách riêng
+      // và đổi từ mở đầu theo thứ tự: Dạ -> Còn -> Thêm -> Và
+      function runCheckMulti(
+        idxs,
         checkS,
         checkE,
         durationCheck,
@@ -2955,68 +3438,53 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
         currentAbs,
         timeStrS,
       ) {
-        // BƯỚC 1: Lấy kết quả hiển thị chuẩn của từng acc bằng cách gọi hàm runCheckSingle
-        let msg4 = runCheckSingle(
-          0,
-          checkS,
-          checkE,
-          durationCheck,
-          inS,
-          inE,
-          currentAbs,
-          timeStrS,
+        const msgs = idxs.map((i) =>
+          runCheckSingle(i, checkS, checkE, durationCheck, inS, inE, currentAbs, timeStrS),
         );
-        let msg2 = runCheckSingle(
-          1,
-          checkS,
-          checkE,
-          durationCheck,
-          inS,
-          inE,
-          currentAbs,
-          timeStrS,
+        if (idxs.length === 1) return msgs[0];
+
+        const names = idxs.map((i) => accounts[i].accountName);
+        const norms = msgs.map((m, k) =>
+          m.split(`acc ${names[k]}`).join("").trim(),
         );
 
-        // BƯỚC 2: Xóa tên acc khỏi chuỗi để so sánh xem 2 acc có chung 1 kết quả/trường hợp hay không
-        let norm4 = msg4.replace(/acc 4ss/g, "").trim();
-        let norm2 = msg2.replace(/acc 2ss/g, "").trim();
-
-        if (norm4 === norm2) {
-          // NẾU CHUNG TRƯỜNG HỢP: Gộp thành "cả 2 acc"
-          return msg4.replace(/acc 4ss/g, "cả 2 acc");
-        } else {
-          // NẾU KHÁC TRƯỜNG HỢP: Tách riêng, 4ss trên, 2ss dưới, đổi "Dạ" thành "Còn", ngăn cách 1 hàng trống
-          let modifiedMsg2 = msg2;
-          if (modifiedMsg2.startsWith("Dạ ")) {
-            modifiedMsg2 = "Còn " + modifiedMsg2.substring(3); // Cắt từ chữ "Dạ " và thay bằng "Còn "
-          }
-          return msg4 + "\n\n" + modifiedMsg2;
+        if (norms.every((n) => n === norms[0])) {
+          // CHUNG TRƯỜNG HỢP: gộp thành "cả N acc"
+          return msgs[0].split(`acc ${names[0]}`).join(`cả ${idxs.length} acc`);
         }
+
+        return msgs
+          .map((m, k) =>
+            k > 0 && m.startsWith("Dạ ") ? CONNECTORS[k] + " " + m.substring(3) : m,
+          )
+          .join("\n\n");
       }
 
       // --- XÓA SẠCH LỊCH & RESET DOANH THU ---
+      function accOptionList() {
+        return [
+          ...ACC_NAMES.map((n, i) => ({ label: `Acc ${n}`, value: String(i) })),
+          { label: "Tất cả", value: String(ACC_NAMES.length) },
+        ];
+      }
+
+      function accTargetLabel(choice) {
+        if (parseInt(choice) >= ACC_NAMES.length) return "TẤT CẢ CÁC ACC";
+        const n = ACC_NAMES[parseInt(choice)];
+        return `ACC ${n === "4ss" || n === "2ss" ? n.replace("ss", "-SS") : n.toUpperCase()}`;
+      }
+
       function openClearAllDataModal() {
         showCustomOptionsModal(
           "Chọn tài khoản xóa sạch lịch:",
-          [
-            { label: "Acc 4ss", value: "0" },
-            { label: "Acc 2ss", value: "1" },
-            { label: "Cả 2 acc", value: "2" },
-          ],
+          accOptionList(),
           (choice) => {
-            let target =
-              choice === "2"
-                ? "CẢ 2 ACC"
-                : `ACC ${choice === "0" ? "4-SS" : "2-SS"}`;
             showCustomConfirm(
-              `Xóa sạch lịch của ${target}?`,
+              `Xóa sạch lịch của ${accTargetLabel(choice)}?`,
               () => {
-                if (choice === "0" || choice === "1")
-                  accounts[parseInt(choice)].schedule = [];
-                else if (choice === "2") {
-                  accounts[0].schedule = [];
-                  accounts[1].schedule = [];
-                }
+                if (parseInt(choice) >= ACC_NAMES.length)
+                  accounts.forEach((a) => (a.schedule = []));
+                else accounts[parseInt(choice)].schedule = [];
                 saveData();
               },
               openClearAllDataModal,
@@ -3028,18 +3496,10 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
       function openResetRevenueModal() {
         showCustomOptionsModal(
           "Chọn tài khoản reset doanh thu:",
-          [
-            { label: "Acc 4ss", value: "0" },
-            { label: "Acc 2ss", value: "1" },
-            { label: "Cả 2 acc", value: "2" },
-          ],
+          accOptionList(),
           (choice) => {
-            let target =
-              choice === "2"
-                ? "CẢ 2 ACC"
-                : `ACC ${choice === "0" ? "4-SS" : "2-SS"}`;
             showCustomConfirm(
-              `Reset doanh thu của ${target}?`,
+              `Reset doanh thu của ${accTargetLabel(choice)}?`,
               () => {
                 const today = getSystemDate();
                 const resetStartAbs = getEpochHours(
@@ -3067,20 +3527,17 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
                       r.end.hour,
                     );
                     if (e > resetStartAbs) {
-                      let hours = e - s;
-                      newRev += calculatePrice(acc.accountName, hours);
+                      // Khung giờ cấm không tính tiền
+                      newRev += calculatePrice(acc.accountName, billableHours(s, e));
                     }
                   });
                   acc.revenue = newRev;
                   acc.revenueStartTime = newRevStart;
                 };
 
-                if (choice === "0" || choice === "1") {
-                  resetAccRevenue(parseInt(choice));
-                } else if (choice === "2") {
-                  resetAccRevenue(0);
-                  resetAccRevenue(1);
-                }
+                if (parseInt(choice) >= ACC_NAMES.length)
+                  accounts.forEach((_, i) => resetAccRevenue(i));
+                else resetAccRevenue(parseInt(choice));
                 saveData();
               },
               openResetRevenueModal,
@@ -3182,7 +3639,7 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
         // filterAbs = mốc reset (cố định) để chọn lịch; nowAbs = giờ VN hiện tại để hiển thị
         const _t = getSystemDate();
         const nowAbs = getEpochHours(_t.year, _t.month, _t.day, _t.hour);
-        ["4ss", "2ss"].forEach((accName, idx) => {
+        ACC_NAMES.forEach((accName, idx) => {
           const acc = accounts[idx];
           const container = document.getElementById(
             `list-${prefix}-${accName}`,
@@ -3228,8 +3685,9 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
       }
 
       // Gán mật khẩu lên giao diện (prefix: "reset-now" hoặc "reset-history-detail")
-      function setResetPasswords(prefix, pw4, pw2) {
-        [["4ss", pw4], ["2ss", pw2]].forEach(([name, pw]) => {
+      function setResetPasswords(prefix, item) {
+        ACC_NAMES.forEach((name) => {
+          const pw = item ? item[PW_FIELD[name]] : "";
           const el = document.getElementById(`pw-${prefix}-${name}`);
           if (el) el.innerText = pw || "(Không có mật khẩu)";
         });
@@ -3257,16 +3715,18 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
         else fallback();
       }
 
-      // Bấm "Reset mật khẩu" => LƯU NGAY (kèm 2 mật khẩu), modal giữ nguyên đến khi bấm Đồng ý
+      // Bấm "Reset mật khẩu" => LƯU NGAY (kèm mật khẩu của cả 4 acc), modal giữ nguyên đến khi bấm Đồng ý
       function openResetNowModal() {
         const today = getSystemDate();
         const ts = getEpochHours(today.year, today.month, today.day, today.hour);
-        const pw4 = generateStrongPassword();
-        const pw2 = generateStrongPassword();
-        resetPasswordHistory.push({ id: Date.now(), ts: ts, pw4: pw4, pw2: pw2 });
+        const item = { id: Date.now(), ts: ts };
+        ACC_NAMES.forEach((n) => {
+          item[PW_FIELD[n]] = generateStrongPassword();
+        });
+        resetPasswordHistory.push(item);
         saveData();
         resetNowTs = ts;
-        setResetPasswords("reset-now", pw4, pw2);
+        setResetPasswords("reset-now", item);
         renderResetNowLists(ts, "reset-now");
         document.getElementById("modal-reset-now").classList.remove("hidden");
         document.getElementById("modal-reset-now").classList.add("flex");
@@ -3354,7 +3814,7 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
         const item = resetPasswordHistory.find((x) => x.id === id);
         if (!item) return;
         resetDetailId = id;
-        setResetPasswords("reset-history-detail", item.pw4, item.pw2); // mật khẩu cố định theo lần reset
+        setResetPasswords("reset-history-detail", item); // mật khẩu cố định theo lần reset
         refreshResetHistoryDetail();
 
         closeResetHistoryModal();
@@ -3394,110 +3854,84 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
         if (isOpen("modal-reset-history-detail") && resetDetailId !== null)
           refreshResetHistoryDetail();
       }, 1000);
-      // --- TÍNH TIỀN LOGIC ---
-      let calcAccChoice = "";
-      let calcLoginChoice = "";
-      let calcTimingChoice = "";
+      // --- BỘ CHỌN TÀI KHOẢN ---
+      const ACC_LABELS = ACC_NAMES.map((n) => `Acc ${n}`);
+      const PICKER_THEME = {
+        check: {
+          on: "bg-cyan-600 border-cyan-700 text-white shadow-lg ring-4 ring-cyan-200 scale-[1.03]",
+          off: "bg-white border-gray-300 text-gray-700 shadow-sm hover:border-cyan-500 hover:bg-cyan-50",
+        },
+        free: {
+          on: "bg-teal-600 border-teal-700 text-white shadow-lg ring-4 ring-teal-200 scale-[1.03]",
+          off: "bg-white border-gray-300 text-gray-700 shadow-sm hover:border-teal-500 hover:bg-teal-50",
+        },
+        form: {
+          on: "bg-indigo-600 border-indigo-700 text-white shadow-lg ring-4 ring-indigo-200 scale-[1.03]",
+          off: "bg-white border-gray-300 text-gray-700 shadow-sm hover:border-indigo-500 hover:bg-indigo-50",
+        },
+      };
+      // Mỗi bộ chọn nhiều lựa chọn lưu mảng giá trị: ["all"] hoặc các chỉ số acc ("0","1",...)
+      let accPickerSel = { check: ["all"], free: ["all"] };
 
-      function openCalcModal() {
-        showCustomOptionsModal(
-          "Chọn tài khoản Tính tiền:",
-          [
-            { label: "Acc 4ss", value: "0" },
-            { label: "Acc 2ss", value: "1" },
-            { label: "Cả 2 acc", value: "2" },
-          ],
-          (choice) => {
-            calcAccChoice = choice;
-            document
-              .getElementById("modal-calculate")
-              .classList.remove("hidden");
-            document.getElementById("modal-calculate").classList.add("flex");
-
-            document.getElementById("calc-page-2").classList.remove("hidden");
-            document.getElementById("calc-page-3").classList.add("hidden");
-
-            setCalcLogin("LINE");
-            buildCalcHoursInput();
-          },
-        );
+      function pickerBtnHtml(key, value, label, selected, extraCls, onclick) {
+        const th = PICKER_THEME[key];
+        const cls = `${extraCls} py-3 px-3 rounded-xl border-2 font-bold text-sm transition-all duration-200 flex items-center justify-center gap-1.5 active:scale-95 ${selected ? th.on : th.off}`;
+        const icon = selected
+          ? '<i class="fa-solid fa-circle-check"></i>'
+          : value === "all"
+            ? '<i class="fa-solid fa-layer-group opacity-60"></i>'
+            : "";
+        return `<button type="button" id="${key}-acc-${value}" aria-pressed="${selected}" onclick="${onclick}" class="${cls}">${icon}<span>${label}</span></button>`;
       }
 
-      function closeCalcModal() {
-        document.getElementById("modal-calculate").classList.add("hidden");
-        document.getElementById("modal-calculate").classList.remove("flex");
+      function renderAccPicker(key) {
+        const box = document.getElementById(`${key}-acc-picker`);
+        if (!box) return;
+        const sel = accPickerSel[key];
+        let html = ACC_LABELS.map((lb, i) =>
+          pickerBtnHtml(key, String(i), lb, sel.includes(String(i)), "", `toggleAccPicker('${key}','${i}')`),
+        ).join("");
+        html += pickerBtnHtml(key, "all", "Tất cả", sel.includes("all"), "col-span-2", `toggleAccPicker('${key}','all')`);
+        box.innerHTML = html;
       }
 
-      function backToCalcPage1() {
-        closeCalcModal();
-        openCalcModal();
-      }
-
-      function backToCalcPage2() {
-        document.getElementById("calc-page-3").classList.add("hidden");
-        document.getElementById("calc-page-2").classList.remove("hidden");
-      }
-
-function setCalcLogin(type) {
-  calcLoginChoice = type;
-  ["LINE", "Google"].forEach((t) => {
-    const btn = document.getElementById(`calc-login-${t}`);
-    if (t === type) {
-            btn.className =
-              "py-2.5 px-3 rounded-xl border font-bold text-xs transition bg-indigo-50 border-indigo-500 text-indigo-700";
-          } else {
-            btn.className =
-              "py-2.5 px-3 rounded-xl border font-bold text-xs transition bg-gray-50 border-gray-200 text-gray-700";
-          }
-        });
-
-        const scanOpts = document.getElementById("calc-scan-options");
-        if (type === "Scan PC") {
-          scanOpts.classList.remove("hidden");
-          setCalcTiming("Thuê ngay");
+      // "Tất cả" chỉ được chọn riêng; các acc còn lại chọn được nhiều cùng lúc
+      function toggleAccPicker(key, value) {
+        let sel = accPickerSel[key].slice();
+        if (value === "all") {
+          sel = ["all"];
         } else {
-          scanOpts.classList.add("hidden");
-          calcTimingChoice = "";
+          sel = sel.filter((v) => v !== "all");
+          if (sel.includes(value)) sel = sel.filter((v) => v !== value);
+          else sel.push(value);
+          if (sel.length === ACC_NAMES.length) sel = ["all"]; // chọn đủ cả 4 => quy về "Tất cả"
         }
+        accPickerSel[key] = sel;
+        renderAccPicker(key);
       }
 
-      // --- Chọn Tài khoản cho Kiểm Tra ---
-      let checkAccChoice = "";
-      function setCheckAcc(value) {
-        checkAccChoice = value;
-        ["0", "1", "2"].forEach((v) => {
-          const btn = document.getElementById(`check-acc-${v}`);
-          if (v === value) {
-            btn.className =
-              "py-2.5 px-3 rounded-xl border font-bold text-xs transition bg-cyan-50 border-cyan-500 text-cyan-700";
-          } else {
-            btn.className =
-              "py-2.5 px-3 rounded-xl border font-bold text-xs transition bg-gray-50 border-gray-200 text-gray-700";
-          }
-        });
+      function getPickerIndices(key) {
+        const sel = accPickerSel[key];
+        if (sel.includes("all")) return ACC_NAMES.map((_, i) => i);
+        return sel.map(Number).sort((a, b) => a - b);
       }
 
-      // --- Chọn Tài khoản cho Nhập Lịch Mới ---
+      // --- Chọn Tài khoản cho Nhập Lịch Mới (chọn 1 acc, bố cục 2x2) ---
       let formAccChoice = "";
       function setFormAcc(value) {
         formAccChoice = value;
-        ["0", "1"].forEach((v) => {
-          const btn = document.getElementById(`form-acc-${v}`);
-          if (v === value) {
-            btn.className =
-              "py-2.5 px-3 rounded-xl border font-bold text-xs transition bg-indigo-50 border-indigo-500 text-indigo-700";
-          } else {
-            btn.className =
-              "py-2.5 px-3 rounded-xl border font-bold text-xs transition bg-gray-50 border-gray-200 text-gray-700";
-          }
-        });
+        const box = document.getElementById("form-acc-picker");
+        if (!box) return;
+        box.innerHTML = ACC_LABELS.map((lb, i) =>
+          pickerBtnHtml("form", String(i), lb, value === String(i), "", `setFormAcc('${i}')`),
+        ).join("");
       }
 
       // --- Chọn Cách đăng nhập cho Nhập Lịch Mới ---
       let formDeviceChoice = "LINE";
 function setFormDevice(type) {
   formDeviceChoice = type;
-  ["LINE", "Google"].forEach((t) => {
+  ["LINE", "Google", "Facebook"].forEach((t) => {
     const btn = document.getElementById(`form-device-${t}`);
     if (t === type) {
             btn.className =
@@ -3613,89 +4047,6 @@ function setFormDevice(type) {
       }, 1000);
       // ===== KẾT THÚC TÍNH NĂNG NÚT GẠT "GIỜ ẢO" =====
 
-      function setCalcTiming(type) {
-        calcTimingChoice = type;
-        const nowBtn = document.getElementById("calc-timing-now");
-        const latBtn = document.getElementById("calc-timing-later");
-
-        if (type === "Thuê ngay") {
-          nowBtn.className =
-            "py-2.5 px-3 rounded-xl border font-bold text-xs transition bg-indigo-50 border-indigo-500 text-indigo-700";
-          latBtn.className =
-            "py-2.5 px-3 rounded-xl border font-bold text-xs transition bg-gray-50 border-gray-200 text-gray-700";
-        } else {
-          latBtn.className =
-            "py-2.5 px-3 rounded-xl border font-bold text-xs transition bg-indigo-50 border-indigo-500 text-indigo-700";
-          nowBtn.className =
-            "py-2.5 px-3 rounded-xl border font-bold text-xs transition bg-gray-50 border-gray-200 text-gray-700";
-        }
-      }
-
-      function buildCalcHoursInput() {
-        const container = document.getElementById("calc-hours-container");
-        if (calcAccChoice === "0" || calcAccChoice === "1") {
-          const accName = calcAccChoice === "0" ? "4ss" : "2ss";
-          container.innerHTML = `
-                    <div>
-                        <label class="block font-medium mb-1 text-sm">Số giờ thuê (${accName})</label>
-                        <div class="flex items-center bg-white border border-gray-300 rounded-xl overflow-hidden focus-within:border-indigo-500 focus-within:ring-2 focus-within:ring-indigo-200 transition shadow-sm">
-                            <button type="button" onclick="stepInput('calc-hours-single', -1)" class="px-4 py-2.5 bg-gray-50 hover:bg-gray-100 text-gray-600 font-bold border-r border-gray-200 transition active:bg-gray-200"><i class="fa-solid fa-minus text-xs"></i></button>
-                            <input type="number" id="calc-hours-single" min="1" max="999" value="1" class="w-full py-2.5 bg-transparent outline-none text-center font-bold text-gray-800">
-                            <button type="button" onclick="stepInput('calc-hours-single', 1)" class="px-4 py-2.5 bg-gray-50 hover:bg-gray-100 text-gray-600 font-bold border-l border-gray-200 transition active:bg-gray-200"><i class="fa-solid fa-plus text-xs"></i></button>
-                        </div>
-                    </div>`;
-        } else {
-          container.innerHTML = `
-                    <div class="grid grid-cols-2 gap-2">
-                        <div>
-                            <label class="block font-medium mb-1 text-sm">Số giờ Acc 4ss</label>
-                            <div class="flex items-center bg-white border border-gray-300 rounded-xl overflow-hidden focus-within:border-indigo-500 focus-within:ring-2 focus-within:ring-indigo-200 transition shadow-sm">
-                                <button type="button" onclick="stepInput('calc-hours-4ss', -1)" class="px-3 py-2.5 bg-gray-50 hover:bg-gray-100 text-gray-600 font-bold border-r border-gray-200 transition active:bg-gray-200"><i class="fa-solid fa-minus text-xs"></i></button>
-                                <input type="number" id="calc-hours-4ss" min="1" max="999" value="1" class="w-full py-2.5 bg-transparent outline-none text-center font-bold text-gray-800">
-                                <button type="button" onclick="stepInput('calc-hours-4ss', 1)" class="px-3 py-2.5 bg-gray-50 hover:bg-gray-100 text-gray-600 font-bold border-l border-gray-200 transition active:bg-gray-200"><i class="fa-solid fa-plus text-xs"></i></button>
-                            </div>
-                        </div>
-                        <div>
-                            <label class="block font-medium mb-1 text-sm">Số giờ Acc 2ss</label>
-                            <div class="flex items-center bg-white border border-gray-300 rounded-xl overflow-hidden focus-within:border-indigo-500 focus-within:ring-2 focus-within:ring-indigo-200 transition shadow-sm">
-                                <button type="button" onclick="stepInput('calc-hours-2ss', -1)" class="px-3 py-2.5 bg-gray-50 hover:bg-gray-100 text-gray-600 font-bold border-r border-gray-200 transition active:bg-gray-200"><i class="fa-solid fa-minus text-xs"></i></button>
-                                <input type="number" id="calc-hours-2ss" min="1" max="999" value="1" class="w-full py-2.5 bg-transparent outline-none text-center font-bold text-gray-800">
-                                <button type="button" onclick="stepInput('calc-hours-2ss', 1)" class="px-3 py-2.5 bg-gray-50 hover:bg-gray-100 text-gray-600 font-bold border-l border-gray-200 transition active:bg-gray-200"><i class="fa-solid fa-plus text-xs"></i></button>
-                            </div>
-                        </div>
-                    </div>`;
-        }
-      }
-
-      function finishCalculation() {
-        let total = 0;
-        if (calcAccChoice === "0" || calcAccChoice === "1") {
-          const hInput = document.getElementById("calc-hours-single");
-          const hours = parseInt(hInput ? hInput.value : 1) || 1;
-          const accName = calcAccChoice === "0" ? "4ss" : "2ss";
-          total = calculatePrice(accName, hours);
-        } else {
-          const h4Input = document.getElementById("calc-hours-4ss");
-          const h2Input = document.getElementById("calc-hours-2ss");
-          const hours4 = parseInt(h4Input ? h4Input.value : 1) || 1;
-          const hours2 = parseInt(h2Input ? h2Input.value : 1) || 1;
-          total = calculatePrice("4ss", hours4) + calculatePrice("2ss", hours2);
-        }
-
-        const x = (total / 1000).toLocaleString("vi-VN");
-        let msg = "";
-
-if (calcLoginChoice === "LINE") {
-  msg = `Dạ của bạn là ${x}k STK cũ ạ!...`;
-} else if (calcLoginChoice === "Google") {
-  msg = `Dạ của bạn là ${x}k STK cũ ạ!...(liên kết acc)`;
-}
-
-        document.getElementById("calc-result-text").innerText = msg;
-        document.getElementById("calc-page-2").classList.add("hidden");
-        document.getElementById("calc-page-3").classList.remove("hidden");
-      }
-
       function openAddModal() {
         const today = getSystemDate();
         document.getElementById("modal-title").innerText = "Nhập Lịch Thuê Mới";
@@ -3769,9 +4120,13 @@ if (calcLoginChoice === "LINE") {
         if (accName === "2ss" && devVal === "LINE")
           return "nguyenlamtrucanh09@gmail.com";
         if (accName === "4ss" && devVal === "Google")
-          return "4ssthueacc@gmail.com";
+          return "thueacclamchananh@gmail.com";
         if (accName === "2ss" && devVal === "Google")
-          return "2ssthueacc@gmail.com";
+          return "thueacclamchananh@gmail.com";
+        if (accName === "Isaac" && devVal === "LINE")
+          return "thuonghuyennguyen181@gmail.com";
+        if (accName === "White" && devVal === "LINE")
+          return "thueacc201@gmail.com";
         return "";
       }
 
@@ -3784,6 +4139,11 @@ if (calcLoginChoice === "LINE") {
         }
                 const r = accounts[accIdx].schedule[idx];
         const accName = accounts[accIdx].accountName;
+        // Đăng nhập Google/Facebook: hiện thẳng "Kịch bản" thay cho Email
+        if (r.deviceType === "Google" || r.deviceType === "Facebook") {
+          openGoogleFbScript(accIdx, r);
+          return;
+        }
         showEmailResult(accName, r.deviceType, r.start);
       }
 
@@ -3924,6 +4284,14 @@ if (calcLoginChoice === "LINE") {
           return;
         }
 
+        // Khung giờ cấm 10h-11h: lịch dưới 24 tiếng không được vướng vào khung giờ này
+        if (endAbs - startAbs < 24 && countBannedHours(startAbs, endAbs) > 0) {
+          showCustomAlert(
+            "Lỗi: Khung giờ thuê bị vướng vào khung giờ cấm hằng ngày (từ 10 giờ trưa ➔ 11 giờ trưa)! Chỉ lịch thuê từ 24 tiếng trở lên mới được vướng khung giờ này.",
+          );
+          return;
+        }
+
         let currentAbs = toAbsoluteHours(
           today.year,
           today.month,
@@ -3987,36 +4355,43 @@ if (calcLoginChoice === "LINE") {
             today,
           );
           const oldEffectiveStart = Math.max(oldStartAbs, oldRevStartAbs);
-          const oldValidHours =
-            oldEndAbs > oldEffectiveStart ? oldEndAbs - oldEffectiveStart : 0;
+          const oldValidHours = billableHours(oldEffectiveStart, oldEndAbs);
           oldAcc.revenue -= calculatePrice(oldAcc.accountName, oldValidHours);
           oldAcc.schedule.splice(editRentalIdx, 1);
         }
 
-        acc.schedule.push({
+        const newRental = {
           tenantName: tenant,
           start: { year: sY, month: sM, day: sDay, hour: sHour },
           end: { year: eY, month: eM, day: eDay, hour: eHour },
           deviceType: devVal,
           virtualHour: vhOn,
-        });
+        };
+        acc.schedule.push(newRental);
 
+        // Doanh thu bỏ qua khung giờ cấm như thể nó không tồn tại
         const effectiveStart = Math.max(startAbs, revStartAbs);
-        const validHours =
-          endAbs > effectiveStart ? endAbs - effectiveStart : 0;
-        acc.revenue += calculatePrice(acc.accountName, validHours);
+        acc.revenue += calculatePrice(
+          acc.accountName,
+          billableHours(effectiveStart, endAbs),
+        );
 
         closeModal();
         saveData();
 
         if (editRentalIdx === -1) {
-          const accName = acc.accountName; // "4ss" hoặc "2ss"
-          showEmailResult(accName, devVal, {
-            year: sY,
-            month: sM,
-            day: sDay,
-            hour: sHour,
-          });
+          if (devVal === "Google" || devVal === "Facebook") {
+            // Google/Facebook: hiện thẳng "Kịch bản" thay cho trang Email
+            openGoogleFbScript(accIdx, newRental);
+          } else {
+            const accName = acc.accountName;
+            showEmailResult(accName, devVal, {
+              year: sY,
+              month: sM,
+              day: sDay,
+              hour: sHour,
+            });
+          }
         }
       }
 
@@ -4052,7 +4427,7 @@ if (calcLoginChoice === "LINE") {
               : getEpochHours(today.year, today.month, today.day, 0);
 
             if (eAbs > revStartAbs) {
-              let hours = eAbs - sAbs;
+              let hours = billableHours(sAbs, eAbs); // bỏ qua khung giờ cấm
               let price = calculatePrice(accounts[accIdx].accountName, hours);
               accounts[accIdx].revenue = Math.max(
                 0,
