@@ -1392,8 +1392,8 @@
             <span class="text-xs font-bold text-gray-500 uppercase tracking-wide">Thao tác nhanh</span>
             <button
               type="button"
-              onclick="quickAddEnd(25)"
-              title="Cộng thêm 25 tiếng vào thời gian KẾT THÚC (đã tính cả khung giờ cấm 10h-11h)"
+              onclick="quickAddEnd(24)"
+              title="Cộng thêm 24 tiếng vào thời gian KẾT THÚC"
               class="px-4 py-2 rounded-xl bg-violet-500 hover:bg-violet-600 active:scale-95 text-white font-bold text-sm shadow transition flex items-center gap-1.5"
             >
               <i class="fa-solid fa-bolt text-xs"></i> +24h
@@ -1844,8 +1844,7 @@
         Isaac: "pwIsaac",
         White: "pwWhite",
       };
-      // Khung giờ cấm: 10h - 11h hằng ngày (giờ có chỉ số 10)
-      const BAN_HOUR = 10;
+      
       let accounts = ACC_NAMES.map((n) => ({
         accountName: n,
         revenue: 0,
@@ -1925,24 +1924,10 @@
         };
       }
 
-      // Khung giờ cấm: giờ có chỉ số 10 (10h-11h) mỗi ngày
-      function isBannedHour(abs) {
-        return (((abs % 24) + 24) % 24) === BAN_HOUR;
-      }
-
-      // Số lần khung giờ cấm nằm trong khoảng [a, b)
-      function countBannedHours(a, b) {
-        if (b <= a) return 0;
-        const r = ((a % 24) + 24) % 24;
-        const first = a + ((BAN_HOUR - r + 24) % 24);
-        if (first >= b) return 0;
-        return Math.floor((b - 1 - first) / 24) + 1;
-      }
-
-      // Số giờ được tính tiền trong [a, b): bỏ qua khung giờ cấm như thể nó không tồn tại
+      // Số giờ được tính tiền trong [a, b)
       function billableHours(a, b) {
         if (b <= a) return 0;
-        return Math.max(0, b - a - countBannedHours(a, b));
+        return b - a;
       }
 
       const ACC_PRICES = {
@@ -3089,7 +3074,7 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
         } catch (e) {}
       }
 
-      // --- NÚT THAO TÁC NHANH: +24h (cộng 25h vì không tính giờ cấm) ---
+      // --- NÚT THAO TÁC NHANH: +24h ---
       function quickAddEnd(hoursToAdd) {
         const today = getSystemDate();
         const num = (id) => parseInt(document.getElementById("form-" + id)?.value);
@@ -3140,7 +3125,6 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
           today.day,
           today.hour,
         );
-        // Lịch trống vẫn xem 10h-11h là khung giờ bình thường (không áp dụng khung giờ cấm)
         let blocks = [];
         indices.forEach((accIdx, pos) => {
           const acc = accounts[accIdx];
@@ -3158,7 +3142,6 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
           blocks.push(b.trim());
         });
         const msg =
-          "❌ Khung giờ cấm vì lý do bí mật: Từ 10 giờ trưa ➔ 11 giờ trưa hằng ngày\n\n" +
           blocks.join("\n\n") +
           "\n\nNếu bạn khó hiểu thì hỏi mình nghen.";
         showCustomAlert(msg, true, () => openFreeScheduleModal(true));
@@ -3273,10 +3256,8 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
         });
       }
 
-      // banUntil: các giờ h < banUntil mà trùng khung giờ cấm sẽ bị coi là KHÔNG trống
-      function getCoverage(accIdx, checkS, checkE, currentAbs, banUntil) {
+        function getCoverage(accIdx, checkS, checkE, currentAbs) {
         const today = getSystemDate();
-        if (banUntil === undefined) banUntil = checkS; // mặc định: không áp dụng giờ cấm
 
         // Fix quá khứ: Nếu giờ checkS nhỏ hơn hiện tại, lấy giờ checkS làm gốc để sinh slot trống
         let checkDayObj = { ...today };
@@ -3292,7 +3273,6 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
         );
 
         const hourFree = (h) => {
-          if (h < banUntil && isBannedHour(h)) return false;
           for (let s of freeSlots) {
             if (h >= s.s && (s.e === -1 || h < s.e)) return true;
           }
@@ -3326,34 +3306,12 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
         currentAbs,
         timeStrS,
       ) {
-        const accName = accounts[accIdx].accountName;
-        // Lịch thuê từ 24 tiếng trở lên được phép vướng khung giờ cấm (sẽ được bù giờ);
-        // dưới 24 tiếng thì khung giờ cấm 10h-11h coi như không trống.
-        const waiveBan = inE - inS >= 24;
-        const res = getCoverage(
-          accIdx,
-          checkS,
-          checkE,
-          currentAbs,
-          waiveBan ? checkS : inE,
-        );
+                const accName = accounts[accIdx].accountName;
+        const res = getCoverage(accIdx, checkS, checkE, currentAbs);
         const timeDesc = inS === currentAbs ? "hiện tại" : "lúc đó";
 
         if (res.covered === durationCheck) {
-          let okMsg = `Dạ acc ${accName} ${timeDesc} có trống ạ.`;
-          if (waiveBan) {
-            const x = countBannedHours(inS, inE);
-            if (x > 0) {
-              // Có trống /x/ tiếng ngay sau thời gian kết thúc không?
-              const ext = getCoverage(accIdx, checkE, checkE + x, currentAbs, checkE);
-              if (ext.covered === x) {
-                okMsg +=
-                  `\n\nNhưng với khung giờ mà bạn đặt thì bị vướng vào khung giờ cấm hằng ngày ( từ 10 giờ trưa ➔ 11 giờ trưa ) của bên mình mất rồi ạ. Vì thế nên mình sẽ bù thêm ${x} tiếng thuê vào sau khung giờ mà bạn đặt nha.\n\n` +
-                  `Nếu bạn đồng ý thì báo mình nghen.`;
-              }
-            }
-          }
-          return okMsg;
+          return `Dạ acc ${accName} ${timeDesc} có trống ạ.`;
         }
 
         // Logic kiểm tra giờ liền kề trống cho khung 1 tiếng (Chạy trước khi chặn hoàn toàn res.covered === 0)
@@ -3373,14 +3331,12 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
             currentAbs,
           );
 
-          let nextHourFree = false;
+                    let nextHourFree = false;
           let nextHour = inS + 1; // Lấy chính xác mốc bắt đầu + 1
-          if (!isBannedHour(nextHour)) {
-            for (let s of freeSlots) {
-              if (nextHour >= s.s && (s.e === -1 || nextHour < s.e)) {
-                nextHourFree = true;
-                break;
-              }
+          for (let s of freeSlots) {
+            if (nextHour >= s.s && (s.e === -1 || nextHour < s.e)) {
+              nextHourFree = true;
+              break;
             }
           }
           if (nextHourFree) {
@@ -3527,8 +3483,7 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
                       r.end.hour,
                     );
                     if (e > resetStartAbs) {
-                      // Khung giờ cấm không tính tiền
-                      newRev += calculatePrice(acc.accountName, billableHours(s, e));
+                                            newRev += calculatePrice(acc.accountName, billableHours(s, e));
                     }
                   });
                   acc.revenue = newRev;
@@ -4284,13 +4239,7 @@ function setFormDevice(type) {
           return;
         }
 
-        // Khung giờ cấm 10h-11h: lịch dưới 24 tiếng không được vướng vào khung giờ này
-        if (endAbs - startAbs < 24 && countBannedHours(startAbs, endAbs) > 0) {
-          showCustomAlert(
-            "Lỗi: Khung giờ thuê bị vướng vào khung giờ cấm hằng ngày (từ 10 giờ trưa ➔ 11 giờ trưa)! Chỉ lịch thuê từ 24 tiếng trở lên mới được vướng khung giờ này.",
-          );
-          return;
-        }
+        
 
         let currentAbs = toAbsoluteHours(
           today.year,
@@ -4369,8 +4318,7 @@ function setFormDevice(type) {
         };
         acc.schedule.push(newRental);
 
-        // Doanh thu bỏ qua khung giờ cấm như thể nó không tồn tại
-        const effectiveStart = Math.max(startAbs, revStartAbs);
+                const effectiveStart = Math.max(startAbs, revStartAbs);
         acc.revenue += calculatePrice(
           acc.accountName,
           billableHours(effectiveStart, endAbs),
