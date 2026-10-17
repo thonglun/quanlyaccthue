@@ -258,6 +258,7 @@
                   >
                     <i class="fa-solid fa-gamepad text-indigo-500 text-xs"></i>
                     Acc: 4ss
+                    <span id="login-badges-4ss" class="flex items-center gap-1.5 ml-1"></span>
                   </h3>
                   <div>
                     <div class="flex items-center gap-1.5 mb-3">
@@ -292,6 +293,7 @@
                   >
                     <i class="fa-solid fa-gamepad text-indigo-500 text-xs"></i>
                     Acc: 2ss
+                    <span id="login-badges-2ss" class="flex items-center gap-1.5 ml-1"></span>
                   </h3>
                   <div>
                     <div class="flex items-center gap-1.5 mb-3">
@@ -326,6 +328,7 @@
                   >
                     <i class="fa-solid fa-gamepad text-indigo-500 text-xs"></i>
                     Acc: Isaac
+                    <span id="login-badges-Isaac" class="flex items-center gap-1.5 ml-1"></span>
                   </h3>
                   <div>
                     <div class="flex items-center gap-1.5 mb-3">
@@ -360,6 +363,7 @@
                   >
                     <i class="fa-solid fa-gamepad text-indigo-500 text-xs"></i>
                     Acc: White
+                    <span id="login-badges-White" class="flex items-center gap-1.5 ml-1"></span>
                   </h3>
                   <div>
                     <div class="flex items-center gap-1.5 mb-3">
@@ -1447,163 +1451,6 @@
       </div>
     </div>
 
-    <!-- MODAL NHẬP THỜI ĐIỂM RESET MẬT KHẨU -->
-    <div
-      id="modal-reset-input"
-      class="fixed inset-0 bg-black/50 hidden items-center justify-center p-4 z-50"
-    >
-      <div class="bg-white rounded-2xl w-full max-w-md p-6 space-y-4 shadow-xl">
-        <div class="flex items-center justify-between border-b pb-2">
-          <h3 class="text-lg font-bold text-gray-800">Reset Mật Khẩu</h3>
-        </div>
-
-        <div class="space-y-3 text-sm">
-          <div class="grid grid-cols-2 gap-2">
-            <div>
-              <label class="block font-medium mb-1">Ngày</label>
-              <div
-                class="flex items-center bg-white border border-gray-300 rounded-xl overflow-hidden focus-within:border-violet-500 focus-within:ring-2 focus-within:ring-violet-200 transition shadow-sm"
-              >
-                <button
-                  type="button"
-                  onclick="stepInput('rp-sday', -1)"
-                  class="px-4 py-2.5 bg-gray-50 hover:bg-gray-100 text-gray-600 font-bold border-r border-gray-200 transition active:bg-gray-200"
-                >
-                  <i class="fa-solid fa-minus text-xs"></i>
-                </button>
-                <input
-                  type="number"
-                  id="rp-sday"
-                  min="1"
-                  max="31"
-                  placeholder="Ngày"
-                  class="w-full py-2.5 bg-transparent outline-none text-center font-bold text-gray-800"
-                />
-                <button
-                  type="button"
-                  onclick="stepInput('rp-sday', 1)"
-                  class="px-4 py-2.5 bg-gray-50 hover:bg-gray-100 text-gray-600 font-bold border-l border-gray-200 transition active:bg-gray-200"
-                >
-                  <i class="fa-solid fa-plus text-xs"></i>
-                </button>
-              </div>
-            </div>
-            <div>
-              <label class="block font-medium mb-1">Giờ (0-23)</label>
-              <div
-                class="flex items-center bg-white border border-gray-300 rounded-xl overflow-hidden focus-within:border-violet-500 focus-within:ring-2 focus-within:ring-violet-200 transition shadow-sm"
-              >
-                <button
-                  type="button"
-                  onclick="stepInput('rp-shour', -1)"
-                  class="px-4 py-2.5 bg-gray-50 hover:bg-gray-100 text-gray-600 font-bold border-r border-gray-200 transition active:bg-gray-200"
-                >
-                  <i class="fa-solid fa-minus text-xs"></i>
-                </button>
-                <input
-                  type="number"
-                  id="rp-shour"
-                  min="0"
-                  max="23"
-                  placeholder="Giờ"
-                  class="w-full py-2.5 bg-transparent outline-none text-center font-bold text-gray-800"
-                />
-                <button
-                  type="button"
-                  onclick="stepInput('rp-shour', 1)"
-                  class="px-4 py-2.5 bg-gray-50 hover:bg-gray-100 text-gray-600 font-bold border-l border-gray-200 transition active:bg-gray-200"
-                >
-                  <i class="fa-solid fa-plus text-xs"></i>
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <div class="grid grid-cols-2 gap-2">
-            <div>
-              <label class="block font-medium mb-1">Tháng</label>
-              <div
-                class="flex items-center bg-white border border-gray-300 rounded-xl overflow-hidden focus-within:border-violet-500 focus-within:ring-2 focus-within:ring-violet-200 transition shadow-sm"
-              >
-                <button
-                  type="button"
-                  onclick="stepInput('rp-smonth', -1)"
-                  class="px-4 py-2.5 bg-gray-50 hover:bg-gray-100 text-gray-600 font-bold border-r border-gray-200 transition active:bg-gray-200"
-                >
-                  <i class="fa-solid fa-minus text-xs"></i>
-                </button>
-                <input
-                  type="number"
-                  id="rp-smonth"
-                  min="1"
-                  max="12"
-                  placeholder="Tháng"
-                  class="w-full py-2.5 bg-transparent outline-none text-center font-bold text-gray-800"
-                />
-                <button
-                  type="button"
-                  onclick="stepInput('rp-smonth', 1)"
-                  class="px-4 py-2.5 bg-gray-50 hover:bg-gray-100 text-gray-600 font-bold border-l border-gray-200 transition active:bg-gray-200"
-                >
-                  <i class="fa-solid fa-plus text-xs"></i>
-                </button>
-              </div>
-            </div>
-            <div>
-              <label class="block font-medium mb-1">Năm</label>
-              <div
-                class="flex items-center bg-white border border-gray-300 rounded-xl overflow-hidden focus-within:border-violet-500 focus-within:ring-2 focus-within:ring-violet-200 transition shadow-sm"
-              >
-                <button
-                  type="button"
-                  onclick="stepInput('rp-syear', -1)"
-                  class="px-4 py-2.5 bg-gray-50 hover:bg-gray-100 text-gray-600 font-bold border-r border-gray-200 transition active:bg-gray-200"
-                >
-                  <i class="fa-solid fa-minus text-xs"></i>
-                </button>
-                <input
-                  type="number"
-                  id="rp-syear"
-                  min="2020"
-                  max="2099"
-                  placeholder="Năm"
-                  class="w-full py-2.5 bg-transparent outline-none text-center font-bold text-gray-800"
-                />
-                <button
-                  type="button"
-                  onclick="stepInput('rp-syear', 1)"
-                  class="px-4 py-2.5 bg-gray-50 hover:bg-gray-100 text-gray-600 font-bold border-l border-gray-200 transition active:bg-gray-200"
-                >
-                  <i class="fa-solid fa-plus text-xs"></i>
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="flex gap-2 pt-2">
-          <button
-            onclick="closeResetInputModal()"
-            class="flex-1 py-2.5 rounded-xl bg-rose-500 hover:bg-rose-600 font-semibold text-white transition"
-          >
-            Hủy
-          </button>
-          <button
-            onclick="backFromResetInput()"
-            class="flex-1 py-2.5 rounded-xl bg-indigo-500 hover:bg-indigo-600 font-semibold text-white transition"
-          >
-            Quay lại
-          </button>
-          <button
-            onclick="executeResetPassword()"
-            class="flex-1 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 font-semibold text-white transition"
-          >
-            Reset
-          </button>
-        </div>
-      </div>
-    </div>
-
     <!-- MODAL RESET MẬT KHẨU - XEM LỊCH TRƯỚC KHI RESET -->
     <div
       id="modal-reset-now"
@@ -1951,13 +1798,7 @@
 
         let min = parseInt(input.min) || 0;
         let max = parseInt(input.max) || 999;
-        const prefix = id.startsWith("check-")
-          ? "check-"
-          : id.startsWith("form-")
-            ? "form-"
-            : id.startsWith("rp-")
-              ? "rp-"
-              : "calc-";
+        const prefix = id.startsWith("check-") ? "check-" : "form-";
 
         // MỚI: nhớ tháng/năm hiện tại của ô NGÀY để còn tính số ngày của tháng trước khi lùi ngày
         let curMonth = null,
@@ -2563,7 +2404,23 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
               )
             : `<p class="text-gray-400 text-sm italic">(Không có lịch sắp lên ca)</p>`;
 
-          // All
+          // Logo Google / Facebook: có khách thuê bằng hình thức này từ thời điểm hiện tại trở đi
+          const hasG = effSched.some(
+            (r) => r.deviceType === "Google" && r.endAbs > currentAbs,
+          );
+          const hasF = effSched.some(
+            (r) => r.deviceType === "Facebook" && r.endAbs > currentAbs,
+          );
+          const badgeBox = document.getElementById(`login-badges-${accName}`);
+          if (badgeBox) {
+            badgeBox.innerHTML =
+              (hasG
+                ? '<span title="Có khách thuê Google" class="w-6 h-6 rounded-full flex items-center justify-center shadow-sm" style="background:#fff;border:1px solid #d1d5db"><i class="fa-brands fa-google" style="color:#4285F4;font-size:12px"></i></span>'
+                : "") +
+              (hasF
+                ? '<span title="Có khách thuê Facebook" class="w-6 h-6 rounded-full flex items-center justify-center shadow-sm" style="background:#1877F2"><i class="fa-brands fa-facebook-f" style="color:#fff;font-size:12px"></i></span>'
+                : "");
+          }
 
           // All
           const allContainer = document.getElementById(`list-all-${accName}`);
@@ -2886,68 +2743,15 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
         document.getElementById("modal-custom-prompt").classList.remove("flex");
       }
 
-      // --- BỘ CHỌN TÀI KHOẢN (Kiểm tra / Lịch trống: chọn nhiều, "Tất cả" chọn riêng) ---
       // --- CÁC HÀM KỊCH BẢN GOOGLE / FACEBOOK ---
-      function getLastResetAbs() {
-        if (!resetPasswordHistory || resetPasswordHistory.length === 0)
-          return -Infinity;
-        return Math.max(...resetPasswordHistory.map((x) => x.ts));
-      }
-
-      // Chọn Google hay Facebook cho khách dựa trên ai đã liên kết từ lần reset mật khẩu gần nhất
-      function pickLinkType(isNow, usedG, usedF) {
-        if (!isNow) {
-          if (!usedG) return "Google";
-          if (!usedF) return "Facebook";
-        } else {
-          if (!usedG && !usedF) return "Google";
-          if (!usedF) return "Facebook";
-          if (!usedG) return "Google";
-        }
-        return "Google";
-      }
-
       // Trả về mảng các dòng kịch bản (mỗi dòng có 1 nút copy riêng)
-      function buildGoogleFbScript(accIdx, rental) {
-        const acc = accounts[accIdx];
-        const accName = acc.accountName;
+      function buildGoogleFbScript(rental) {
         const t = getSystemDate();
-        const currentAbs = getEpochHours(t.year, t.month, t.day, t.hour);
-        const key = rentalKeyEnc(rental);
-        const isLink = (r) => r.deviceType === "Google" || r.deviceType === "Facebook";
-
-        // Các lịch khác của acc này (không tính chính lịch đang xem)
-        const others = getEffectiveSchedule(acc, t, currentAbs).filter(
-          (r) => rentalKeyEnc(r) !== key,
-        );
-
-        // Từ hiện tại trở đi: lịch đang trong ca hoặc chưa tới
-        const fromNow = others.filter((r) => isLink(r) && r.endAbs > currentAbs);
-        const nowG = fromNow.some((r) => r.deviceType === "Google");
-        const nowF = fromNow.some((r) => r.deviceType === "Facebook");
-
-        // O3: đã có người chọn cả Google lẫn Facebook -> hết slot PC
-        if (nowG && nowF) {
-          fromNow.sort((a, b) => a.startAbs - b.startAbs);
-          const when = formatTimeT(fromNow[0].endAbs + 1, currentAbs);
-          return [
-            `À bạn cho mình xin lỗi nha, hiện tại acc ${accName} hết slot thuê cho PC mất rồi ạ.\n\n` +
-              `Đối với PC thì acc ${accName} từ ${when} trở đi mới được thuê hoặc đặt trước nghen.\n\n` +
-              `Bạn cho mình xin số tài khoản ngân hàng của bạn để mình hoàn lại tiền cho bạn nha.`,
-          ];
-        }
-
-        // O1 / O2: xét ai đã thuê bằng Google/Facebook tính từ lần reset mật khẩu gần nhất
-        const lastReset = getLastResetAbs();
-        const sinceReset = others.filter((r) => isLink(r) && r.endAbs > lastReset);
-        const usedG = sinceReset.some((r) => r.deviceType === "Google");
-        const usedF = sinceReset.some((r) => r.deviceType === "Facebook");
-
         const s = rental.start;
         const isNow =
           s.year === t.year && s.month === t.month && s.day === t.day && s.hour === t.hour;
 
-        const link = pickLinkType(isNow, usedG, usedF);
+        const link = rental.deviceType;
         const other = link === "Google" ? "Facebook" : "Google";
 
         const line1 =
@@ -2957,29 +2761,12 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
         const line2 = isNow
           ? "Dạ mình quét QR xong rồi ạ, bạn vào chơi nghen."
           : "Dạ mình quét QR xong rồi ạ, đúng giờ bạn tự vào chơi mà không cần nói gì hết nha.";
-        const result = [line1, line2];
-        result.link = link; // loại đăng nhập mà kịch bản đang nói với khách
-        return result;
+        return [line1, line2];
       }
 
       let scriptLinesCtx = [];
       function openGoogleFbScript(accIdx, rental) {
-        const lines = buildGoogleFbScript(accIdx, rental);
-        const link = lines.link;
-
-        // Kịch bản nói Facebook mà lịch đang là Google (hoặc ngược lại) -> tự đổi và lưu
-        if (link && link !== rental.deviceType) {
-          const key = rentalKeyEnc(rental);
-          const real = accounts[accIdx].schedule.find(
-            (x) => rentalKeyEnc(x) === key,
-          );
-          if (real) {
-            real.deviceType = link;
-            saveData();
-          }
-          rental.deviceType = link;
-        }
-
+        const lines = buildGoogleFbScript(rental);
         showScriptModal(accounts[accIdx].accountName, rental.deviceType, lines);
       }
 
@@ -3517,54 +3304,6 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
             else if (choice === "history") openResetHistoryModal();
           },
         );
-      }
-
-      // --- MODAL NHẬP THỜI ĐIỂM RESET MẬT KHẨU ---
-      function openResetInputModal() {
-        const today = getSystemDate();
-        document.getElementById("rp-sday").value = today.day;
-        document.getElementById("rp-smonth").value = today.month;
-        document.getElementById("rp-syear").value = today.year;
-        document.getElementById("rp-shour").value = today.hour;
-        document.getElementById("modal-reset-input").classList.remove("hidden");
-        document.getElementById("modal-reset-input").classList.add("flex");
-      }
-
-      function closeResetInputModal() {
-        document.getElementById("modal-reset-input").classList.add("hidden");
-        document.getElementById("modal-reset-input").classList.remove("flex");
-      }
-
-      function backFromResetInput() {
-        closeResetInputModal();
-        openResetPasswordModal();
-      }
-
-      function executeResetPassword() {
-        const day = parseInt(document.getElementById("rp-sday").value);
-        const month = parseInt(document.getElementById("rp-smonth").value);
-        const year = parseInt(document.getElementById("rp-syear").value);
-        const hour = parseInt(document.getElementById("rp-shour").value);
-
-        if (isNaN(day) || isNaN(month) || isNaN(year) || isNaN(hour)) {
-          showCustomAlert("Vui lòng nhập đầy đủ ngày, tháng, năm và giờ!");
-          return;
-        }
-        if (
-          month < 1 ||
-          month > 12 ||
-          hour < 0 ||
-          hour > 23 ||
-          day < 1 ||
-          day > getDaysInMonth(year, month)
-        ) {
-          showCustomAlert("Ngày, tháng hoặc giờ không hợp lệ!");
-          return;
-        }
-
-        const chosenAbs = getEpochHours(year, month, day, hour);
-        closeResetInputModal();
-        openResetNowModal(chosenAbs);
       }
 
       // Lấy danh sách lịch đang hoạt động trùng hiện tại + các lịch sau đó, không tính 1 tiếng ảo,
