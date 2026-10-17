@@ -2809,7 +2809,9 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
       }
 
       // "acc 4ss", "acc 4ss và acc White", "acc 4ss, acc 2ss và acc White"
-      function joinAccNames(names) {
+            function joinAccNames(names) {
+        if (names.length === ACC_NAMES.length)
+          return `tất cả ${ACC_NAMES.length} acc`;
         const list = names.map((n) => `acc ${n}`);
         if (list.length === 1) return list[0];
         return `${list.slice(0, -1).join(", ")} và ${list[list.length - 1]}`;
@@ -3032,6 +3034,18 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
         const today = getSystemDate();
         const currentAbs = getCurrentAbs();
         const pc = pcState.free;
+
+                // Nếu cả 4 acc có lịch trống giống nhau 100% thì dù chọn acc nào cũng trả về "tất cả 4 acc"
+        const allIdxs = ACC_NAMES.map((_, i) => i);
+        const allKeys = new Set(
+          allIdxs.map((i) =>
+            getFreeSlots(i, today, currentAbs, pc)
+              .map((x) => formatSlotT(x.s, x.e, currentAbs))
+              .filter((txt) => txt !== "")
+              .join("\n"),
+          ),
+        );
+        if (allKeys.size === 1) indices = allIdxs;
 
         // Các acc có danh sách khung giờ trống giống nhau 100% thì gộp thành 1 khối
         const groups = [];
@@ -3303,6 +3317,28 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
         currentAbs,
         pc,
       ) {
+                // Nếu cả 4 acc cùng 1 kết quả 100% thì dù chọn acc nào cũng trả về "tất cả 4 acc"
+        const allIdxs = ACC_NAMES.map((_, i) => i);
+        const allNorms = new Set(
+          allIdxs.map((i) => {
+            const n = accounts[i].accountName;
+            return runCheckSingle(
+              i,
+              checkS,
+              checkE,
+              durationCheck,
+              inS,
+              inE,
+              currentAbs,
+              pc,
+            )
+              .split(`acc ${n}`)
+              .join("")
+              .trim();
+          }),
+        );
+        if (allNorms.size === 1) idxs = allIdxs;
+
         const groups = [];
         idxs.forEach((i) => {
           const name = accounts[i].accountName;
