@@ -258,7 +258,7 @@
                   >
                     <i class="fa-solid fa-gamepad text-indigo-500 text-xs"></i>
                     Acc: 4ss
-                    <span id="login-badges-4ss" class="flex items-center gap-1.5 ml-1"></span>
+                    <span id="link-icons-4ss" class="flex items-center gap-1 ml-1"></span>
                   </h3>
                   <div>
                     <div class="flex items-center gap-1.5 mb-3">
@@ -293,7 +293,7 @@
                   >
                     <i class="fa-solid fa-gamepad text-indigo-500 text-xs"></i>
                     Acc: 2ss
-                    <span id="login-badges-2ss" class="flex items-center gap-1.5 ml-1"></span>
+                    <span id="link-icons-2ss" class="flex items-center gap-1 ml-1"></span>
                   </h3>
                   <div>
                     <div class="flex items-center gap-1.5 mb-3">
@@ -328,7 +328,7 @@
                   >
                     <i class="fa-solid fa-gamepad text-indigo-500 text-xs"></i>
                     Acc: Isaac
-                    <span id="login-badges-Isaac" class="flex items-center gap-1.5 ml-1"></span>
+                    <span id="link-icons-Isaac" class="flex items-center gap-1 ml-1"></span>
                   </h3>
                   <div>
                     <div class="flex items-center gap-1.5 mb-3">
@@ -363,7 +363,7 @@
                   >
                     <i class="fa-solid fa-gamepad text-indigo-500 text-xs"></i>
                     Acc: White
-                    <span id="login-badges-White" class="flex items-center gap-1.5 ml-1"></span>
+                    <span id="link-icons-White" class="flex items-center gap-1 ml-1"></span>
                   </h3>
                   <div>
                     <div class="flex items-center gap-1.5 mb-3">
@@ -556,9 +556,27 @@
       class="fixed inset-0 bg-black/50 hidden items-center justify-center p-4 z-50"
     >
       <div class="bg-white rounded-2xl w-full max-w-md p-6 space-y-4 shadow-xl">
-        <h3 class="text-lg font-bold text-gray-800 border-b pb-2">
-          Chọn tài khoản xem lịch trống
-        </h3>
+        <div class="flex items-center justify-between gap-3 border-b pb-2">
+          <h3 class="text-lg font-bold text-gray-800">
+            Chọn tài khoản xem lịch trống
+          </h3>
+          <div
+            class="flex items-center gap-1.5 flex-shrink-0"
+            title="Chỉ tính lịch trống cho PC (Google / Facebook)"
+          >
+            <span class="text-[10px] font-bold text-gray-400 uppercase">PC</span>
+            <button
+              type="button"
+              id="free-pc-toggle"
+              onclick="toggleFreePC()"
+              class="w-9 h-5 rounded-full bg-gray-300 relative transition-colors duration-300 flex-shrink-0"
+            >
+              <span
+                class="absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform duration-300"
+              ></span>
+            </button>
+          </div>
+        </div>
         <div class="text-sm">
           <label class="block font-medium mb-1"
             >Tài Khoản
@@ -1700,8 +1718,7 @@
       }));
       let notes = [];
       let resetPasswordHistory = [];
-      let activeTab = "upcoming";
-
+      
       // Hàm tính số ngày trong tháng dựa vào Năm và Tháng
       function getDaysInMonth(year, month) {
         return new Date(year, month, 0).getDate();
@@ -1984,17 +2001,8 @@
         cascadeToParent(overflow); // MỚI: ngày tràn -> tháng đổi; tháng tràn -> năm đổi
       }
 
-      // Lấy danh sách Schedule sau khi thêm 1 giờ ảo (Nếu start trùng hiện tại)
-      function getEffectiveSchedule(acc, activeDayObj, realNowAbs) {
-        let currentAbs =
-          realNowAbs !== undefined
-            ? realNowAbs
-            : getEpochHours(
-                activeDayObj.year,
-                activeDayObj.month,
-                activeDayObj.day,
-                activeDayObj.hour,
-              );
+      // Lấy danh sách Schedule sau khi cộng 1 giờ ảo (nếu có)
+      function getEffectiveSchedule(acc) {
         return acc.schedule.map((r) => {
           let s = getEpochHours(
             r.start.year,
@@ -2022,7 +2030,7 @@
           realNowAbs !== undefined ? realNowAbs : startTimelineAbs;
 
         let slots = [];
-        let effSched = getEffectiveSchedule(acc, activeDayObj, currentAbs);
+        let effSched = getEffectiveSchedule(acc);
 
         effSched.sort((a, b) => a.startAbs - b.startAbs);
 
@@ -2258,8 +2266,7 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
       }
 
       function switchTab(tabName) {
-        activeTab = tabName;
-        ["upcoming", "all", "notes"].forEach((t) => {
+                ["upcoming", "all", "notes"].forEach((t) => {
           const btn = document.getElementById(`tab-btn-${t}`);
           const content = document.getElementById(`tab-${t}`);
           if (t === tabName) {
@@ -2357,7 +2364,9 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
 
         ACC_NAMES.forEach((accName, idx) => {
           const acc = accounts[idx];
-          const effSched = getEffectiveSchedule(acc, activeDayObj);
+          const effSched = getEffectiveSchedule(acc);
+          document.getElementById(`link-icons-${accName}`).innerHTML =
+            linkIconsHtml(acc, currentAbs);
 
           // Đang thuê
           const upContainer = document.getElementById(
@@ -2403,24 +2412,6 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
                 ),
               )
             : `<p class="text-gray-400 text-sm italic">(Không có lịch sắp lên ca)</p>`;
-
-          // Logo Google / Facebook: có khách thuê bằng hình thức này từ thời điểm hiện tại trở đi
-          const hasG = effSched.some(
-            (r) => r.deviceType === "Google" && r.endAbs > currentAbs,
-          );
-          const hasF = effSched.some(
-            (r) => r.deviceType === "Facebook" && r.endAbs > currentAbs,
-          );
-          const badgeBox = document.getElementById(`login-badges-${accName}`);
-          if (badgeBox) {
-            badgeBox.innerHTML =
-              (hasG
-                ? '<span title="Có khách thuê Google" class="w-6 h-6 rounded-full flex items-center justify-center shadow-sm" style="background:#fff;border:1px solid #d1d5db"><i class="fa-brands fa-google" style="color:#4285F4;font-size:12px"></i></span>'
-                : "") +
-              (hasF
-                ? '<span title="Có khách thuê Facebook" class="w-6 h-6 rounded-full flex items-center justify-center shadow-sm" style="background:#1877F2"><i class="fa-brands fa-facebook-f" style="color:#fff;font-size:12px"></i></span>'
-                : "");
-          }
 
           // All
           const allContainer = document.getElementById(`list-all-${accName}`);
@@ -2609,25 +2600,9 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
           s.month === now.month &&
           s.day === now.day &&
           s.hour === now.hour;
-        const isGoogle = ctx.devVal === "Google";
-        const isLine = ctx.devVal === "LINE";
-
-        let text = "";
-        if (isLine && isNow) {
-          text = "Dạ cách đăng nhập như cũ bạn nghen.";
-        } else if (isLine && !isNow) {
-          text = "Dạ đúng giờ bạn tự vào chơi mà không cần nói gì hết nghen, cách đăng nhập như cũ ạ.";
-        } else if (isGoogle && isNow) {
-          text =
-            "Dạ nếu bạn vẫn chơi PC chứ không phải Android thì bạn làm theo cách cũ mà mình đã hướng dẫn lúc trước rồi gửi mình ảnh QR đó nghen.\n\n" +
-            "Sau khi ảnh QR biến mất trên màn hình PC của bạn rồi thì bạn tự vào chơi mà không cần nói gì hết nghen.";
-        } else if (isGoogle && !isNow) {
-          text =
-            "Dạ nếu bạn vẫn chơi PC chứ không phải Android thì bạn làm theo cách cũ mà mình đã hướng dẫn lúc trước rồi gửi mình ảnh QR đó nghen.\n\n" +
-            "Sau khi ảnh QR biến mất trên màn hình PC của bạn rồi thì đúng giờ bạn tự vào chơi mà không cần nói gì hết nghen.";
-        } else {
-          return;
-        }
+        const text = isNow
+          ? "Dạ cách đăng nhập như cũ bạn nghen."
+          : "Dạ đúng giờ bạn tự vào chơi mà không cần nói gì hết nghen, cách đăng nhập như cũ ạ.";
 
         // (nội dung, hiện nút Copy, không có nút Quay lại, tiêu đề, copy xong tự đóng)
         showCustomAlert(text, true, null, "Kịch bản", true);
@@ -2743,31 +2718,119 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
         document.getElementById("modal-custom-prompt").classList.remove("flex");
       }
 
-      // --- CÁC HÀM KỊCH BẢN GOOGLE / FACEBOOK ---
+      // --- LOGIC GOOGLE / FACEBOOK ---
+      const isLinkLogin = (r) =>
+        r.deviceType === "Google" || r.deviceType === "Facebook";
+
+      // Tình trạng Google/Facebook của 1 acc, tính từ giờ hiện tại VN trở đi (bỏ qua lịch có khóa selfKey)
+      function analyzeLinkUsage(acc, selfKey, currentAbs) {
+        const list = getEffectiveSchedule(acc)
+          .filter(
+            (r) =>
+              isLinkLogin(r) &&
+              r.endAbs > currentAbs &&
+              rentalKeyEnc(r) !== selfKey,
+          )
+          .sort((a, b) => a.startAbs - b.startAbs);
+        return {
+          usedG: list.some((r) => r.deviceType === "Google"),
+          usedF: list.some((r) => r.deviceType === "Facebook"),
+          nearest: list[0] || null, // lịch Google/Facebook gần nhất với hiện tại
+        };
+      }
+
+      // Quyết định khi lưu lịch Google/Facebook
+      function decideLink(chosen, info, startAbs, currentAbs) {
+        const { usedG, usedF, nearest } = info;
+        if (usedG && usedF) {
+          // Cả 2 đều có người dùng: đứng sau lịch gần nhất (hoặc trùng giờ hiện tại) thì nhận, đứng trước thì từ chối
+          if (startAbs === currentAbs || startAbs > nearest.startAbs)
+            return { mode: "A", type: nearest.deviceType, showLine: true };
+          return { mode: "reject", nearest: nearest };
+        }
+        if (usedG) return { mode: "N", type: "Facebook", showLine: true };
+        if (usedF) return { mode: "N", type: "Google", showLine: true };
+        return { mode: "N", type: chosen, showLine: false };
+      }
+
+      function buildLinkRejectMessage(accName, nearest, currentAbs) {
+        const when = formatTimeT(nearest.endAbs + 1, currentAbs);
+        return (
+          `À mình xin lỗi có đôi chút nhầm lẫn, hiện tại thì acc ${accName} đối với PC không trống mất rồi ạ.\n\n` +
+          `Đối với PC thì acc ${accName} từ ${when} trở đi mới đặt được nghen.\n\n` +
+          "Nếu bạn muốn đặt trước thì báo mình khung giờ mà bạn muốn đặt, còn nếu bạn muốn hoàn tiền thì bạn cho mình xin thông tin ngân hàng của bạn nha."
+        );
+      }
+
       // Trả về mảng các dòng kịch bản (mỗi dòng có 1 nút copy riêng)
-      function buildGoogleFbScript(rental) {
+      function buildGoogleFbScript(accIdx, rental) {
+        const acc = accounts[accIdx];
         const t = getSystemDate();
+        const currentAbs = getEpochHours(t.year, t.month, t.day, t.hour);
         const s = rental.start;
         const isNow =
-          s.year === t.year && s.month === t.month && s.day === t.day && s.hour === t.hour;
+          s.year === t.year &&
+          s.month === t.month &&
+          s.day === t.day &&
+          s.hour === t.hour;
 
-        const link = rental.deviceType;
-        const other = link === "Google" ? "Facebook" : "Google";
+        // Ưu tiên kết quả đã lưu lúc nhập lịch; lịch cũ chưa có thì tính lại
+        let mode = rental.linkMode;
+        let showLine = rental.linkLine;
+        if (mode === undefined) {
+          const info = analyzeLinkUsage(acc, rentalKeyEnc(rental), currentAbs);
+          mode = info.usedG && info.usedF ? "A" : "N";
+          showLine = info.usedG || info.usedF;
+        }
+
+        if (mode === "A") {
+          return [
+            "Trước khi tới giờ thuê khoảng 30 phút thì bạn làm lại y hệt lúc trước rồi gửi mình mã QR mà không cần nói gì hết nghen.\n\n" +
+              `Chọn ${rental.deviceType} giúp mình nha.`,
+          ];
+        }
 
         const line1 =
-          "Dạ nếu bạn vẫn chơi PC chứ không phải Android thì bạn làm theo cách cũ mà mình đã hướng dẫn lúc trước rồi gửi mình ảnh QR đó nghen.\n\n" +
-          `Bạn chọn ${link} giúp mình nha, do ${other} bên mình có bạn khách khác đang liên kết vào mất rồi ạ.\n\n` +
-          "Nếu được thì bạn nên làm ngay bây giờ luôn để mình hỗ trợ nha, để sau mới làm thì có thể mình sẽ bận và không hỗ trợ được ạ.";
+          "Dạ bạn làm lại y hệt lúc trước nghen.\n\n" +
+          (showLine ? `Chọn ${rental.deviceType} giúp mình nha.\n\n` : "") +
+          "Nếu làm bây giờ được thì mình khuyên nên làm ngay vì có thể lúc sau mình sẽ bị bận và không giúp bạn được ạ.";
         const line2 = isNow
           ? "Dạ mình quét QR xong rồi ạ, bạn vào chơi nghen."
-          : "Dạ mình quét QR xong rồi ạ, đúng giờ bạn tự vào chơi mà không cần nói gì hết nha.";
+          : "Dạ mình quét QR xong rồi ạ, đúng giờ bạn tự vào chơi mà không cần nói gì hết nghen.";
         return [line1, line2];
       }
 
       let scriptLinesCtx = [];
       function openGoogleFbScript(accIdx, rental) {
-        const lines = buildGoogleFbScript(rental);
-        showScriptModal(accounts[accIdx].accountName, rental.deviceType, lines);
+        showScriptModal(
+          accounts[accIdx].accountName,
+          rental.deviceType,
+          buildGoogleFbScript(accIdx, rental),
+        );
+      }
+
+      // Logo tròn Google / Facebook cạnh tên acc ở tab "Tình trạng"
+      const GOOGLE_ICON_HTML =
+        '<span title="Có khách thuê bằng Google" class="inline-flex items-center justify-center w-6 h-6 rounded-full border border-gray-300 shadow-sm" style="background:#fff">' +
+        '<svg viewBox="0 0 48 48" class="w-3.5 h-3.5">' +
+        '<path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>' +
+        '<path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>' +
+        '<path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>' +
+        '<path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>' +
+        "</svg></span>";
+      const FACEBOOK_ICON_HTML =
+        '<span title="Có khách thuê bằng Facebook" class="inline-flex items-center justify-center w-6 h-6 rounded-full shadow-sm" style="background:#1877F2">' +
+        '<i class="fa-brands fa-facebook-f text-white text-xs"></i></span>';
+
+      function linkIconsHtml(acc, currentAbs) {
+        const list = getEffectiveSchedule(acc).filter(
+          (r) => isLinkLogin(r) && r.endAbs > currentAbs,
+        );
+        let html = "";
+        if (list.some((r) => r.deviceType === "Google")) html += GOOGLE_ICON_HTML;
+        if (list.some((r) => r.deviceType === "Facebook"))
+          html += FACEBOOK_ICON_HTML;
+        return html;
       }
 
       function showScriptModal(accName, devVal, lines) {
@@ -2878,8 +2941,28 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
       }
 
       // --- CÁC HÀM LỊCH TRỐNG & KIỂM TRA TRỐNG ---
+      let freePcMode = false;
+
+      function renderFreePcToggle() {
+        const btn = document.getElementById("free-pc-toggle");
+        if (!btn) return;
+        const knob = btn.querySelector("span");
+        btn.classList.toggle("bg-gray-300", !freePcMode);
+        btn.classList.toggle("bg-emerald-500", freePcMode);
+        if (knob) knob.classList.toggle("translate-x-4", freePcMode);
+      }
+
+      function toggleFreePC() {
+        freePcMode = !freePcMode;
+        renderFreePcToggle();
+      }
+
       function openFreeScheduleModal(keepSelection) {
-        if (!keepSelection) accPickerSel.free = ["all"];
+        if (!keepSelection) {
+          accPickerSel.free = ["all"];
+          freePcMode = false;
+        }
+        renderFreePcToggle();
         renderAccPicker("free");
         const m = document.getElementById("modal-free");
         m.classList.remove("hidden");
@@ -2915,8 +2998,15 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
         let blocks = [];
         indices.forEach((accIdx, pos) => {
           const acc = accounts[accIdx];
-          let valid = generateFreeSlots(acc, today)
-            .map((s) => formatSlotT(s.s, s.e, currentAbs))
+          let slots = generateFreeSlots(acc, today);
+          if (freePcMode) {
+            // Nút PC bật: cả Google và Facebook đều có người dùng -> thời gian trước lịch Google/Facebook gần nhất coi như không trống
+            const info = analyzeLinkUsage(acc, null, currentAbs);
+            if (info.usedG && info.usedF)
+              slots = slots.filter((sl) => sl.s >= info.nearest.startAbs);
+          }
+          let valid = slots
+            .map((sl) => formatSlotT(sl.s, sl.e, currentAbs))
             .filter((txt) => txt !== "");
           let plural = valid.length > 1 ? "các " : "";
           let b =
@@ -3813,10 +3903,6 @@ function setFormDevice(type) {
           return "yendanghai23@gmail.com";
         if (accName === "2ss" && devVal === "LINE")
           return "nguyenlamtrucanh09@gmail.com";
-        if (accName === "4ss" && devVal === "Google")
-          return "thueacclamchananh@gmail.com";
-        if (accName === "2ss" && devVal === "Google")
-          return "thueacclamchananh@gmail.com";
         if (accName === "Isaac" && devVal === "LINE")
           return "thuonghuyennguyen181@gmail.com";
         if (accName === "White" && devVal === "LINE")
@@ -4021,6 +4107,33 @@ function setFormDevice(type) {
           return;
         }
 
+        // Google/Facebook: chọn loại đã có người dùng thì tự chuyển sang loại còn lại
+        let finalDev = devVal;
+        let linkDecision = null;
+        if (devVal === "Google" || devVal === "Facebook") {
+          const selfKey = isEditingSameAcc
+            ? rentalKeyEnc(acc.schedule[editRentalIdx])
+            : null;
+          linkDecision = decideLink(
+            devVal,
+            analyzeLinkUsage(acc, selfKey, currentAbs),
+            startAbs,
+            currentAbs,
+          );
+          if (linkDecision.mode === "reject") {
+            showCustomAlert(
+              buildLinkRejectMessage(
+                acc.accountName,
+                linkDecision.nearest,
+                currentAbs,
+              ),
+              true,
+            );
+            return;
+          }
+          finalDev = linkDecision.type;
+        }
+
         const revStartAbs = parseRevenueStartTime(acc.revenueStartTime, today);
 
         if (editRentalIdx !== -1 && editAccIdx !== -1) {
@@ -4052,9 +4165,13 @@ function setFormDevice(type) {
           tenantName: tenant,
           start: { year: sY, month: sM, day: sDay, hour: sHour },
           end: { year: eY, month: eM, day: eDay, hour: eHour },
-          deviceType: devVal,
+          deviceType: finalDev,
           virtualHour: vhOn,
         };
+        if (linkDecision) {
+          newRental.linkMode = linkDecision.mode;
+          newRental.linkLine = linkDecision.showLine;
+        }
         acc.schedule.push(newRental);
 
                 const effectiveStart = Math.max(startAbs, revStartAbs);
@@ -4067,7 +4184,7 @@ function setFormDevice(type) {
         saveData();
 
         if (editRentalIdx === -1) {
-          if (devVal === "Google" || devVal === "Facebook") {
+          if (linkDecision) {
             // Google/Facebook: hiện thẳng "Kịch bản" thay cho trang Email
             openGoogleFbScript(accIdx, newRental);
           } else {
