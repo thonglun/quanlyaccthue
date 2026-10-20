@@ -1432,17 +1432,7 @@
             </div>
           </div>
 
-          <div class="flex items-center gap-2 pt-1">
-            <span class="text-xs font-bold text-gray-500 uppercase tracking-wide">Thao tác nhanh</span>
-            <button
-              type="button"
-              onclick="quickAddEnd(24)"
-              title="Cộng thêm 24 tiếng vào thời gian KẾT THÚC"
-              class="px-4 py-2 rounded-xl bg-violet-500 hover:bg-violet-600 active:scale-95 text-white font-bold text-sm shadow transition flex items-center gap-1.5"
-            >
-              <i class="fa-solid fa-bolt text-xs"></i> +24h
-            </button>
-          </div>
+          
         </div>
 
         <div class="flex gap-2 pt-2">
@@ -2529,18 +2519,61 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
         if (onAlertBack) onAlertBack();
       }
 
-      function copyToClip(text, btnId) {
-        navigator.clipboard.writeText(text).then(() => {
-          const btn = document.getElementById(btnId);
-          const originalHTML = btn.innerHTML;
-          btn.innerHTML = '<i class="fa-solid fa-check mr-1"></i> Đã Copy';
-          btn.classList.add("scale-105", "opacity-90");
+            // ===== COPY DÙNG CHUNG: hàng đợi để bấm cực nhanh vẫn lưu riêng từng nội dung =====
+      let clipQueue = Promise.resolve();
 
-          setTimeout(() => {
-            btn.innerHTML = originalHTML;
-            btn.classList.remove("scale-105", "opacity-90");
-          }, 800);
+      function writeClipboard(text) {
+        return new Promise((resolve) => {
+          const fallback = () => {
+            try {
+              const ta = document.createElement("textarea");
+              ta.value = text;
+              ta.style.position = "fixed";
+              ta.style.opacity = "0";
+              document.body.appendChild(ta);
+              ta.select();
+              document.execCommand("copy");
+              ta.remove();
+            } catch (e) {}
+            resolve();
+          };
+          if (navigator.clipboard && window.isSecureContext) {
+            navigator.clipboard.writeText(text).then(resolve).catch(fallback);
+          } else {
+            fallback();
+          }
         });
+      }
+
+      // Nội dung `text` được chốt ngay lúc bấm; các lần ghi chạy lần lượt, cách nhau 120ms
+      function copyText(text) {
+        const job = clipQueue
+          .then(() => writeClipboard(text))
+          .then(() => new Promise((r) => setTimeout(r, 600)));
+        clipQueue = job.catch(() => {});
+        return job;
+      }
+
+      // Đổi icon tạm thời; luôn nhớ icon gốc nên bấm nhanh nhiều lần cũng không kẹt icon "check"
+      function flashCopied(btn, html, extraClasses) {
+        if (!btn) return;
+        if (btn.dataset.orig === undefined) btn.dataset.orig = btn.innerHTML;
+        btn.innerHTML = html;
+        if (extraClasses) btn.classList.add(...extraClasses);
+        clearTimeout(btn._copyTimer);
+        btn._copyTimer = setTimeout(() => {
+          btn.innerHTML = btn.dataset.orig;
+          if (extraClasses) btn.classList.remove(...extraClasses);
+        }, 800);
+      }
+
+      function copyToClip(text, btnId) {
+        copyText(text);
+        flashCopied(
+          document.getElementById(btnId),
+          '<i class="fa-solid fa-check mr-1"></i> Đã Copy',
+          ["scale-105", "opacity-90"],
+        );
       }
 
       function copyAlertMessage() {
@@ -2585,27 +2618,14 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
         m.classList.remove("flex");
       }
 
-      function copyEmailField(field) {
+            function copyEmailField(field) {
         const text = document.getElementById(`email-result-${field}`).innerText;
         if (!text || text.startsWith("(")) return;
-        const btn = document.getElementById(`email-result-btn-${field}`);
-        const old = btn.innerHTML;
-        const done = () => {
-          btn.innerHTML = '<i class="fa-solid fa-check text-lg"></i>';
-          setTimeout(() => (btn.innerHTML = old), 800);
-        };
-        const fallback = () => {
-          const ta = document.createElement("textarea");
-          ta.value = text;
-          document.body.appendChild(ta);
-          ta.select();
-          document.execCommand("copy");
-          ta.remove();
-          done();
-        };
-        if (navigator.clipboard)
-          navigator.clipboard.writeText(text).then(done).catch(fallback);
-        else fallback();
+        copyText(text);
+        flashCopied(
+          document.getElementById(`email-result-btn-${field}`),
+          '<i class="fa-solid fa-check text-lg"></i>',
+        );
       }
       // Mở trang "Kịch bản" (dùng lại modal thông báo z-60 nên nằm đè lên trang cũ, không tắt trang cũ)
       function openKichBan() {
@@ -2911,27 +2931,14 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
         m.classList.remove("flex");
       }
 
-      function copyScriptLine(i) {
+            function copyScriptLine(i) {
         const text = scriptLinesCtx[i];
         if (!text) return;
-        const btn = document.getElementById(`script-btn-${i}`);
-        const old = btn.innerHTML;
-        const done = () => {
-          btn.innerHTML = '<i class="fa-solid fa-check text-lg"></i>';
-          setTimeout(() => (btn.innerHTML = old), 800);
-        };
-        const fallback = () => {
-          const ta = document.createElement("textarea");
-          ta.value = text;
-          document.body.appendChild(ta);
-          ta.select();
-          document.execCommand("copy");
-          ta.remove();
-          done();
-        };
-        if (navigator.clipboard)
-          navigator.clipboard.writeText(text).then(done).catch(fallback);
-        else fallback();
+        copyText(text);
+        flashCopied(
+          document.getElementById(`script-btn-${i}`),
+          '<i class="fa-solid fa-check text-lg"></i>',
+        );
       }
 
       // --- THU GỌN / SỔ XUỐNG DANH SÁCH Ở "TẤT CẢ LỊCH" ---
@@ -2966,21 +2973,7 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
         } catch (e) {}
       }
 
-      // --- NÚT THAO TÁC NHANH: +24h ---
-      function quickAddEnd(hoursToAdd) {
-        const today = getSystemDate();
-        const num = (id) => parseInt(document.getElementById("form-" + id)?.value);
-        const pick = (a, b, c) => (!isNaN(a) ? a : !isNaN(b) ? b : c);
-        const eY = pick(num("eyear"), num("syear"), today.year);
-        const eM = pick(num("emonth"), num("smonth"), today.month);
-        const eD = pick(num("eday"), num("sday"), today.day);
-        const eH = pick(num("ehour"), num("shour"), today.hour);
-        const d = fromEpochHours(getEpochHours(eY, eM, eD, eH) + hoursToAdd);
-        document.getElementById("form-eyear").value = d.y;
-        document.getElementById("form-emonth").value = d.m;
-        document.getElementById("form-eday").value = d.d;
-        document.getElementById("form-ehour").value = d.h;
-      }
+      
 
       // --- CÁC HÀM LỊCH TRỐNG & KIỂM TRA TRỐNG ---
       // Công tắc "PC" của Lịch trống / Kiểm tra (mặc định tắt mỗi lần mở mới)
@@ -3550,26 +3543,14 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
         });
       }
 
-      function copyResetPassword(prefix, name) {
+            function copyResetPassword(prefix, name) {
         const text = document.getElementById(`pw-${prefix}-${name}`).innerText;
         if (!text || text.startsWith("(")) return;
-        const btn = document.getElementById(`pw-btn-${prefix}-${name}`);
-        const old = btn.innerHTML;
-        const done = () => {
-          btn.innerHTML = '<i class="fa-solid fa-check text-lg"></i>';
-          setTimeout(() => (btn.innerHTML = old), 800);
-        };
-        const fallback = () => {
-          const ta = document.createElement("textarea");
-          ta.value = text;
-          document.body.appendChild(ta);
-          ta.select();
-          document.execCommand("copy");
-          ta.remove();
-          done();
-        };
-        if (navigator.clipboard) navigator.clipboard.writeText(text).then(done).catch(fallback);
-        else fallback();
+        copyText(text);
+        flashCopied(
+          document.getElementById(`pw-btn-${prefix}-${name}`),
+          '<i class="fa-solid fa-check text-lg"></i>',
+        );
       }
 
       // Bấm "Reset mật khẩu" => LƯU NGAY (kèm mật khẩu của cả 4 acc), modal giữ nguyên đến khi bấm Đồng ý
