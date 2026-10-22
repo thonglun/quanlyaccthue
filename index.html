@@ -2549,7 +2549,7 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
       function copyText(text) {
         const job = clipQueue
           .then(() => writeClipboard(text))
-          .then(() => new Promise((r) => setTimeout(r, 600)));
+          .then(() => new Promise((r) => setTimeout(r, 1200)));
         clipQueue = job.catch(() => {});
         return job;
       }
