@@ -1852,10 +1852,13 @@
             const blockStart = s + 24 * k;
             if (blockStart >= dayStartAbs && blockStart < dayEndAbs) total += p.day;
           }
-          // Phần giờ lẻ còn lại
+          // Phần giờ lẻ còn lại: chia theo số giờ thực tế rơi vào hôm nay
           const remStart = s + 24 * days;
-          if (rem > 0 && remStart >= dayStartAbs && remStart < dayEndAbs) {
-            total += rem * p.hour;
+          const remEnd = remStart + rem;
+          if (rem > 0) {
+            const overlap =
+              Math.min(remEnd, dayStartAbs + 24) - Math.max(remStart, dayStartAbs);
+            if (overlap > 0) total += overlap * p.hour;
           }
         });
         return total;
