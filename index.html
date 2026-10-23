@@ -978,7 +978,7 @@
             Thông báo
           </h3>
           <button
-            onclick="openKichBanEmail()"
+            onclick="openKichBanEmail(this)"
             class="flex-shrink-0 inline-flex items-center gap-1.5 px-3.5 h-10 rounded-xl bg-amber-500 hover:bg-amber-600 active:scale-95 text-white text-sm font-semibold shadow-sm transition"
             title="Xem kịch bản"
           >
@@ -1494,7 +1494,7 @@
             Reset Mật Khẩu - Các Lịch Liên Quan
           </h3>
           <button
-            onclick="openKichBan()"
+            onclick="openKichBan(this)"
             class="flex-shrink-0 inline-flex items-center gap-1.5 px-3.5 h-10 rounded-xl bg-amber-500 hover:bg-amber-600 active:scale-95 text-white text-sm font-semibold shadow-sm transition"
             title="Xem kịch bản"
           >
@@ -2519,39 +2519,67 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
         if (onAlertBack) onAlertBack();
       }
 
-            // ===== COPY DÙNG CHUNG: hàng đợi để bấm cực nhanh vẫn lưu riêng từng nội dung =====
-      let clipQueue = Promise.resolve();
-
-      function writeClipboard(text) {
-        return new Promise((resolve) => {
-          const fallback = () => {
-            try {
-              const ta = document.createElement("textarea");
-              ta.value = text;
-              ta.style.position = "fixed";
-              ta.style.opacity = "0";
-              document.body.appendChild(ta);
-              ta.select();
-              document.execCommand("copy");
-              ta.remove();
-            } catch (e) {}
-            resolve();
-          };
-          if (navigator.clipboard && window.isSecureContext) {
-            navigator.clipboard.writeText(text).then(resolve).catch(fallback);
-          } else {
-            fallback();
-          }
-        });
+      // ===== COPY DÙNG CHUNG: ghi clipboard NGAY LẬP TỨC lúc bấm (đồng bộ, không hàng đợi) =====
+      // Bấm liên tiếp bao nhiêu lần cũng được, lần bấm sau cùng sẽ nằm trong clipboard
+      function _writeClipboard(text) {
+        text = String(text == null ? "" : text);
+        let ok = false;
+        const prev = document.activeElement;
+        try {
+          const ta = document.createElement("textarea");
+          ta.value = text;
+          ta.setAttribute("readonly", "");
+          ta.style.position = "fixed";
+          ta.style.top = "0";
+          ta.style.left = "0";
+          ta.style.opacity = "0";
+          ta.style.pointerEvents = "none";
+          document.body.appendChild(ta);
+          ta.focus({ preventScroll: true });
+          ta.select();
+          ta.setSelectionRange(0, text.length);
+          ok = document.execCommand("copy");
+          ta.remove();
+        } catch (e) {
+          ok = false;
+        }
+        try {
+          if (prev && prev.focus) prev.focus({ preventScroll: true });
+        } catch (e) {}
+        // Dự phòng nếu cách trên bị trình duyệt chặn
+        if (!ok && navigator.clipboard && window.isSecureContext) {
+          navigator.clipboard.writeText(text).catch(() => {});
+        }
+        return ok;
       }
 
-      // Nội dung `text` được chốt ngay lúc bấm; các lần ghi chạy lần lượt, cách nhau 120ms
+      // ===== HÀNG ĐỢI COPY: mỗi lần ghi cách nhau tối thiểu COPY_GAP ms, đúng thứ tự bấm =====
+      // Để clipboard / lịch sử clipboard của máy kịp ghi nhận từng lần (mật khẩu → email → kịch bản)
+      const COPY_GAP = 350; // đổi số này nếu cần (tăng lên 500 nếu máy vẫn nuốt)
+      let _copyQueue = [];
+      let _copyBusy = false;
+      let _lastCopyAt = 0;
+
       function copyText(text) {
-        const job = clipQueue
-          .then(() => writeClipboard(text))
-          .then(() => new Promise((r) => setTimeout(r, 1200)));
-        clipQueue = job.catch(() => {});
-        return job;
+        text = String(text == null ? "" : text);
+        _copyQueue.push(text);
+        _runCopyQueue();
+        return true;
+      }
+
+      function _runCopyQueue() {
+        if (_copyBusy || _copyQueue.length === 0) return;
+        _copyBusy = true;
+        const wait = Math.max(0, _lastCopyAt + COPY_GAP - Date.now());
+        const doWrite = () => {
+          const t = _copyQueue.shift();
+          _writeClipboard(t);
+          _lastCopyAt = Date.now();
+          _copyBusy = false;
+          _runCopyQueue();
+        };
+        if (wait === 0) doWrite(); // lần bấm đầu: ghi ngay lập tức
+        else setTimeout(doWrite, wait);
       }
 
       // Đổi icon tạm thời; luôn nhớ icon gốc nên bấm nhanh nhiều lần cũng không kẹt icon "check"
@@ -2628,17 +2656,18 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
         );
       }
       // Mở trang "Kịch bản" (dùng lại modal thông báo z-60 nên nằm đè lên trang cũ, không tắt trang cũ)
-      function openKichBan() {
+      function openKichBan(btn) {
         const text =
           "Mình gửi mật khẩu mới nghen, bạn đừng rep hoặc thả tym tin nhắn này nha.\n\n" +
-	  "👉 Mình gửi là để đề phòng khi bạn offline thì vẫn có thể vào lại acc được khi vẫn còn trong thời gian thuê.\n\n" +
+          "👉 Mình gửi là để đề phòng khi bạn offline thì vẫn có thể vào lại acc được khi vẫn còn trong thời gian thuê.\n\n" +
           "Mình không thể giải đáp thắc mắc vì sao lại đổi mật khẩu được nên bạn thông cảm giúp mình nha.";
-        // (nội dung, hiện nút Copy, không có nút Quay lại, tiêu đề, copy xong tự đóng)
-        showCustomAlert(text, true, null, "Kịch bản", true);
+        // Copy luôn + hiện dấu tick (y hệt các nút copy mật khẩu / email)
+        copyText(text);
+        flashCopied(btn, '<i class="fa-solid fa-check text-lg"></i>');
       }
 
       // Kịch bản của trang Email (nhập lịch mới / nút Email ở Tình trạng & Tất cả lịch)
-      function openKichBanEmail() {
+      function openKichBanEmail(btn) {
         const ctx = emailResultCtx;
         if (!ctx || !ctx.start) return;
 
@@ -2660,8 +2689,9 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
           return;
         }
 
-        // (nội dung, hiện nút Copy, không có nút Quay lại, tiêu đề, copy xong tự đóng)
-        showCustomAlert(text, true, null, "Kịch bản", true);
+        // Copy luôn + hiện dấu tick (y hệt các nút copy khác)
+        copyText(text);
+        flashCopied(btn, '<i class="fa-solid fa-check text-lg"></i>');
       }
 
       let confirmCallback = null;
