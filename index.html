@@ -166,6 +166,9 @@
                 <div id="rev-start-4ss" class="text-xs text-indigo-200 mt-0.5">
                   Từ 0h ngày --
                 </div>
+                <div id="rev-today-4ss" class="text-xs text-amber-300 font-bold mt-0.5">
+                  Hôm nay: 0 VNĐ
+                </div>
               </div>
               <div>
                 <div class="font-bold text-indigo-100">
@@ -173,6 +176,9 @@
                 </div>
                 <div id="rev-start-2ss" class="text-xs text-indigo-200 mt-0.5">
                   Từ 0h ngày --
+                </div>
+                <div id="rev-today-2ss" class="text-xs text-amber-300 font-bold mt-0.5">
+                  Hôm nay: 0 VNĐ
                 </div>
               </div>
               <div>
@@ -182,6 +188,9 @@
                 <div id="rev-start-Isaac" class="text-xs text-indigo-200 mt-0.5">
                   Từ 0h ngày --
                 </div>
+                <div id="rev-today-Isaac" class="text-xs text-amber-300 font-bold mt-0.5">
+                  Hôm nay: 0 VNĐ
+                </div>
               </div>
               <div>
                 <div class="font-bold text-indigo-100">
@@ -189,6 +198,9 @@
                 </div>
                 <div id="rev-start-White" class="text-xs text-indigo-200 mt-0.5">
                   Từ 0h ngày --
+                </div>
+                <div id="rev-today-White" class="text-xs text-amber-300 font-bold mt-0.5">
+                  Hôm nay: 0 VNĐ
                 </div>
               </div>
                 </div>
@@ -1821,6 +1833,34 @@
         return days * p.day + remHours * p.hour;
       }
 
+      // Doanh thu "Hôm nay" (0h -> 24h giờ VN).
+      // Mỗi khối 24 tiếng của lịch được tính vào NGÀY BẮT ĐẦU của khối đó;
+      // phần giờ lẻ còn lại (< 24 tiếng) tính vào ngày bắt đầu của phần lẻ.
+      function calcTodayRevenue(acc, dayStartAbs) {
+        const dayEndAbs = dayStartAbs + 24;
+        const p = ACC_PRICES[acc.accountName] || ACC_PRICES["2ss"];
+        let total = 0;
+        (acc.schedule || []).forEach((r) => {
+          const s = getEpochHours(r.start.year, r.start.month, r.start.day, r.start.hour);
+          const e = getEpochHours(r.end.year, r.end.month, r.end.day, r.end.hour);
+          const hours = billableHours(s, e);
+          const days = Math.floor(hours / 24);
+          const rem = hours % 24;
+
+          // Các khối 24 tiếng đầy đủ
+          for (let k = 0; k < days; k++) {
+            const blockStart = s + 24 * k;
+            if (blockStart >= dayStartAbs && blockStart < dayEndAbs) total += p.day;
+          }
+          // Phần giờ lẻ còn lại
+          const remStart = s + 24 * days;
+          if (rem > 0 && remStart >= dayStartAbs && remStart < dayEndAbs) {
+            total += rem * p.hour;
+          }
+        });
+        return total;
+      }
+
       // Logic tăng giảm input số
       function stepInput(id, delta) {
         const input = document.getElementById(id);
@@ -2369,11 +2409,16 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
         document.getElementById("total-revenue").innerText =
           totalRevenue.toLocaleString("vi-VN") + " VNĐ";
 
+        const todayStartAbs = getEpochHours(today.year, today.month, today.day, 0);
         ACC_NAMES.forEach((n, i) => {
           document.getElementById(`rev-${n}`).innerText =
             (accounts[i].revenue || 0).toLocaleString("vi-VN") + " VNĐ";
           document.getElementById(`rev-start-${n}`).innerText =
             `Từ ${accounts[i].revenueStartTime}`;
+          document.getElementById(`rev-today-${n}`).innerText =
+            "Hôm nay: " +
+            calcTodayRevenue(accounts[i], todayStartAbs).toLocaleString("vi-VN") +
+            " VNĐ";
         });
 
         ACC_NAMES.forEach((accName, idx) => {
