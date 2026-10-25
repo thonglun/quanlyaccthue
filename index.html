@@ -1521,6 +1521,7 @@
               >
                 <i class="fa-solid fa-list-ul text-indigo-500 text-[10px]"></i>
                 Acc: 4ss
+                <span id="login-badges-reset-now-4ss" class="inline-flex items-center gap-1 ml-1.5"></span>
               </h3>
             </div>
             <div class="flex items-center gap-2 mb-3 bg-slate-50 border border-indigo-100 rounded-xl p-2 pl-3">
@@ -1538,6 +1539,7 @@
               >
                 <i class="fa-solid fa-list-ul text-indigo-500 text-[10px]"></i>
                 Acc: 2ss
+                <span id="login-badges-reset-now-2ss" class="inline-flex items-center gap-1 ml-1.5"></span>
               </h3>
             </div>
             <div class="flex items-center gap-2 mb-3 bg-slate-50 border border-indigo-100 rounded-xl p-2 pl-3">
@@ -1555,6 +1557,7 @@
               >
                 <i class="fa-solid fa-list-ul text-indigo-500 text-[10px]"></i>
                 Acc: Isaac
+                <span id="login-badges-reset-now-Isaac" class="inline-flex items-center gap-1 ml-1.5"></span>
               </h3>
             </div>
             <div class="flex items-center gap-2 mb-3 bg-slate-50 border border-indigo-100 rounded-xl p-2 pl-3">
@@ -1572,6 +1575,7 @@
               >
                 <i class="fa-solid fa-list-ul text-indigo-500 text-[10px]"></i>
                 Acc: White
+                <span id="login-badges-reset-now-White" class="inline-flex items-center gap-1 ml-1.5"></span>
               </h3>
             </div>
             <div class="flex items-center gap-2 mb-3 bg-slate-50 border border-indigo-100 rounded-xl p-2 pl-3">
@@ -1626,6 +1630,7 @@
               >
                 <i class="fa-solid fa-list-ul text-indigo-500 text-[10px]"></i>
                 Acc: 4ss
+                <span id="login-badges-reset-history-detail-4ss" class="inline-flex items-center gap-1 ml-1.5"></span>
               </h3>
             </div>
             <div class="flex items-center gap-2 mb-3 bg-slate-50 border border-indigo-100 rounded-xl p-2 pl-3">
@@ -1643,6 +1648,7 @@
               >
                 <i class="fa-solid fa-list-ul text-indigo-500 text-[10px]"></i>
                 Acc: 2ss
+                <span id="login-badges-reset-history-detail-2ss" class="inline-flex items-center gap-1 ml-1.5"></span>
               </h3>
             </div>
             <div class="flex items-center gap-2 mb-3 bg-slate-50 border border-indigo-100 rounded-xl p-2 pl-3">
@@ -1660,6 +1666,7 @@
               >
                 <i class="fa-solid fa-list-ul text-indigo-500 text-[10px]"></i>
                 Acc: Isaac
+                <span id="login-badges-reset-history-detail-Isaac" class="inline-flex items-center gap-1 ml-1.5"></span>
               </h3>
             </div>
             <div class="flex items-center gap-2 mb-3 bg-slate-50 border border-indigo-100 rounded-xl p-2 pl-3">
@@ -1677,6 +1684,7 @@
               >
                 <i class="fa-solid fa-list-ul text-indigo-500 text-[10px]"></i>
                 Acc: White
+                <span id="login-badges-reset-history-detail-White" class="inline-flex items-center gap-1 ml-1.5"></span>
               </h3>
             </div>
             <div class="flex items-center gap-2 mb-3 bg-slate-50 border border-indigo-100 rounded-xl p-2 pl-3">
@@ -3563,6 +3571,15 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
           .sort((a, b) => a.startAbs - b.startAbs);
       }
 
+      // Logo Google/Facebook cho modal reset mật khẩu.
+      // list = kết quả của getResetNowSchedule (đã bỏ lịch đã hết và lịch đang ở đúng 1 tiếng cuối)
+      function getResetLinkUsage(list) {
+        return {
+          google: list.some((r) => r.deviceType === "Google"),
+          facebook: list.some((r) => r.deviceType === "Facebook"),
+        };
+      }
+
       function renderResetNowLists(filterAbs, prefix = "reset-now") {
         // filterAbs = mốc reset (cố định) để chọn lịch; nowAbs = giờ VN hiện tại để hiển thị
         const _t = getSystemDate();
@@ -3573,6 +3590,11 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
             `list-${prefix}-${accName}`,
           );
           const list = getResetNowSchedule(acc, filterAbs);
+          const badgeEl = document.getElementById(
+            `login-badges-${prefix}-${accName}`,
+          );
+          if (badgeEl)
+            badgeEl.innerHTML = loginBadgesHtml(getResetLinkUsage(list));
           if (list.length === 0) {
             container.innerHTML = `<p class="text-gray-400 text-sm italic">(Không có lịch)</p>`;
           } else {
