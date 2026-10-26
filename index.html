@@ -1615,7 +1615,7 @@
             Các Lịch Liên Quan
           </h3>
           <button
-            onclick="openKichBan()"
+            onclick="openKichBan(this)"
             class="flex-shrink-0 inline-flex items-center gap-1.5 px-3.5 h-10 rounded-xl bg-amber-500 hover:bg-amber-600 active:scale-95 text-white text-sm font-semibold shadow-sm transition"
             title="Xem kịch bản"
           >
@@ -2651,6 +2651,30 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
         }, 800);
       }
 
+
+      // Animation riêng cho nút "Kịch bản": giữ nguyên kích thước, tick ở giữa + nền xanh lá trong 0.8s
+      function flashKichBan(btn) {
+        if (!btn) return;
+        if (btn.dataset.kbOrig === undefined) {
+          btn.dataset.kbOrig = btn.innerHTML;
+          // Khoá kích thước hiện tại để nút không bị co lại khi chữ biến mất
+          btn.style.width = btn.offsetWidth + "px";
+          btn.style.height = btn.offsetHeight + "px";
+        }
+        btn.style.justifyContent = "center"; // tick nằm chính giữa
+        btn.style.setProperty("background-color", "#10b981", "important"); // xanh lá (emerald-500), thắng cả hover
+        btn.innerHTML = '<i class="fa-solid fa-check text-lg"></i>';
+        clearTimeout(btn._kbTimer);
+        btn._kbTimer = setTimeout(() => {
+          btn.innerHTML = btn.dataset.kbOrig;
+          delete btn.dataset.kbOrig;
+          btn.style.width = "";
+          btn.style.height = "";
+          btn.style.justifyContent = "";
+          btn.style.removeProperty("background-color");
+        }, 800);
+      }
+
       function copyToClip(text, btnId) {
         copyText(text);
         flashCopied(
@@ -2714,14 +2738,11 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
       // Mở trang "Kịch bản" (dùng lại modal thông báo z-60 nên nằm đè lên trang cũ, không tắt trang cũ)
       function openKichBan(btn) {
         const text =
-          "Mình gửi mật khẩu mới nghen, bạn đừng rep hoặc thả tym tin nhắn này nha.\n\n" +
-          "👉 Mình gửi là để đề phòng khi bạn offline thì vẫn có thể vào lại acc được khi vẫn còn trong thời gian thuê.\n\n" +
-          "Mình không thể giải đáp thắc mắc vì sao lại đổi mật khẩu được nên bạn thông cảm giúp mình nha.";
-        // Copy luôn + hiện dấu tick (y hệt các nút copy mật khẩu / email)
+          "Mình gửi mật khẩu mới nghen, bạn đừng rep hoặc thả tym tin nhắn này nha.";
+        // Copy luôn + hiện dấu tick xanh lá, giữ nguyên kích thước nút
         copyText(text);
-        flashCopied(btn, '<i class="fa-solid fa-check text-lg"></i>');
+        flashKichBan(btn);
       }
-
       // Kịch bản của trang Email (nhập lịch mới / nút Email ở Tình trạng & Tất cả lịch)
       function openKichBanEmail(btn) {
         const ctx = emailResultCtx;
@@ -2745,9 +2766,9 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
           return;
         }
 
-        // Copy luôn + hiện dấu tick (y hệt các nút copy khác)
+        // Copy luôn + hiện dấu tick xanh lá, giữ nguyên kích thước nút
         copyText(text);
-        flashCopied(btn, '<i class="fa-solid fa-check text-lg"></i>');
+        flashKichBan(btn);
       }
 
       let confirmCallback = null;
