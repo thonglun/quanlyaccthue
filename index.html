@@ -1877,6 +1877,9 @@
         const input = document.getElementById(id);
         if (!input) return;
 
+        // Người dùng đã thao tác với thời gian BẮT ĐẦU của form -> cho phép tự bật giờ ảo
+        if (/^form-(sday|smonth|syear|shour)$/.test(id)) vhState.form.armed = true;
+
         let min = parseInt(input.min) || 0;
         let max = parseInt(input.max) || 999;
         const prefix = id.startsWith("check-") ? "check-" : "form-";
@@ -2325,6 +2328,14 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
           if (!acc.revenueStartTime) {
             acc.revenueStartTime = `0h ngày ${today.day}/${today.month}/${today.year}`;
           }
+        });
+        // Gõ tay vào ô thời gian BẮT ĐẦU của form cũng tính là đã thao tác
+        ["sday", "smonth", "syear", "shour"].forEach((f) => {
+          const el = document.getElementById("form-" + f);
+          if (el)
+            el.addEventListener("input", () => {
+              vhState.form.armed = true;
+            });
         });
         listenToFirebase();
       }
@@ -3916,8 +3927,8 @@ function setFormDevice(type) {
       // ===== TÍNH NĂNG NÚT GẠT "GIỜ ẢO" =====
       // key: 'check' (Modal Kiểm tra) hoặc 'form' (Modal Nhập lịch mới / Sửa)
       let vhState = {
-        check: { on: false, source: null, suppressed: false, lastMatch: false },
-        form: { on: false, source: null, suppressed: false, lastMatch: false },
+        check: { on: false, source: null, suppressed: false, lastMatch: false, armed: true },
+        form: { on: false, source: null, suppressed: false, lastMatch: false, armed: true },
       };
 
       // Kiểm tra xem thời gian BẮT ĐẦU đang nhập có trùng khớp hiện tại (ngày/tháng/năm/giờ) không
@@ -3963,6 +3974,7 @@ function setFormDevice(type) {
           source: null,
           suppressed: false,
           lastMatch: false,
+          armed: true,
         };
         renderVHToggle(key);
       }
@@ -3992,6 +4004,12 @@ function setFormDevice(type) {
         if (!modalEl || modalEl.classList.contains("hidden")) return;
         const st = vhState[key];
         const match = vhFieldsMatchNow(prefix);
+
+        // Chưa thao tác thời gian bắt đầu lần nào (vd: vừa mở Sửa lịch) -> không tự bật/tắt
+        if (st.armed === false) {
+          st.lastMatch = match;
+          return;
+        }
 
         if (match && !st.lastMatch) {
           // Có sự kiện mới (giờ vừa khớp lại) -> gỡ bỏ trạng thái bị chặn
@@ -4153,6 +4171,7 @@ function setFormDevice(type) {
         document.getElementById("form-eyear").value = r.end.year;
 
         resetVHState("form");
+        vhState.form.armed = false; // chỉ cho tự bật giờ ảo sau khi người dùng thao tác thời gian bắt đầu
         if (r.virtualHour) {
           setVHState("form", true, "manual");
         }
