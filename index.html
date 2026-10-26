@@ -3162,6 +3162,17 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
         const blocks = groups.map((g, pos) => {
           const plural = g.valid.length > 1 ? "các " : "";
           const who = joinAccNames(g.names);
+
+          // Chỉ có 1 khung giờ -> viết liền mạch trong 1 câu
+          if (g.valid.length === 1) {
+            // Đổi chữ "Từ" ở đầu thành "từ" để câu liền mạch
+            const one = g.valid[0].charAt(0).toLowerCase() + g.valid[0].slice(1);
+            return pos === 0
+              ? `Dạ ${who} trống ${one} ạ.`
+              : `${CONNECTORS[pos]} ${who} thì trống ${one} ạ.`;
+          }
+
+          // Từ 2 khung giờ trở lên -> giữ nguyên kiểu liệt kê cũ
           let b =
             pos === 0
               ? `Dạ ${who} trống ${plural}khung giờ sau ạ:\n`
