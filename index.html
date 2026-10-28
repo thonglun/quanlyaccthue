@@ -3774,12 +3774,17 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
         return String(n);
       }
 
+      // Nhãn số tiền ghi trên đầu mỗi cột (dạng rút gọn cho vừa chỗ)
+      function fmtBarLabel(n) {
+        return String(Math.round(n / 1000));
+      }
+
       function buildBarChartSvg(values, color) {
         const W = 760,
-          H = 280,
+          H = 240,
           L = 52,
           R = 10,
-          T = 66,
+          T = 24,
           B = 28;
         const n = values.length;
         const maxV = Math.max(...values, 0);
@@ -3801,10 +3806,8 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
           const y = H - B - h;
           g += `<rect x="${x}" y="${y}" width="${bw}" height="${h}" rx="2" fill="${color}"><title>Ngày ${i + 1}: ${fmtVnd(v)} VNĐ</title></rect>`;
           if (v > 0) {
-            const lx = x + bw / 2;
-            const ly = y - 4;
-            g += `<text x="${lx}" y="${ly}" transform="rotate(-90 ${lx} ${ly})" text-anchor="start" font-size="9" font-weight="600" fill="${color}">${fmtVnd(v)}</text>`;
-          }NĐ</title></rect>`;
+            g += `<text x="${x + bw / 2}" y="${y - 5}" text-anchor="middle" font-size="11" font-weight="700" fill="${color}">${fmtBarLabel(v)}</text>`;
+          }
           if (n <= 16 || (i + 1) % 2 === 1 || i + 1 === n) {
             g += `<text x="${x + bw / 2}" y="${H - B + 14}" text-anchor="middle" font-size="10" fill="#9ca3af">${i + 1}</text>`;
           }
@@ -3837,7 +3840,7 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
           series.total.push(tot);
         }
         const defs = [
-          { key: "total", label: "TỔNG CẢ 4 ACC", color: "#4f46e5" },
+          { key: "total", label: "TỔNG CẢ 4 ACC", color: "#f87171" },
           { key: "4ss", label: "Acc 4ss", color: "#10b981" },
           { key: "2ss", label: "Acc 2ss", color: "#0ea5e9" },
           { key: "Isaac", label: "Acc Isaac", color: "#f59e0b" },
@@ -3852,7 +3855,7 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
                 <span class="font-bold" style="color:${df.color}">Cả tháng: ${fmtVnd(sum)} VNĐ</span>
               </div>
               <div class="overflow-x-auto">${buildBarChartSvg(series[df.key], df.color)}</div>
-              <div class="text-[11px] text-gray-400 text-center">Trục hoành: ngày trong tháng • Trục tung: doanh thu (VNĐ)</div>
+              <div class="text-[11px] text-gray-400 text-center">Trục hoành: ngày trong tháng • Trục tung: doanh thu (VNĐ) • Số trên cột: nghìn đồng</div>>
             </div>`;
           })
           .join("");
