@@ -156,6 +156,23 @@
                   >
                     TỔNG DOANH THU CẢ 4 ACC
                   </div>
+                  <!-- 2 nút này chỉ hiện trên màn hình >= 640px -->
+                  <button
+                    onclick="openDailyRevenueModal()"
+                    class="hidden sm:flex bg-fuchsia-500 hover:bg-fuchsia-600 text-white font-bold px-4 py-2.5 rounded-xl text-sm items-center gap-2 shadow transition"
+                  >
+                    <i class="fa-solid fa-table-list"></i> Doanh thu mỗi ngày
+                  </button>
+                  <button
+                    onclick="openRevenueChartModal()"
+                    class="hidden sm:flex bg-orange-500 hover:bg-orange-600 text-white font-bold px-4 py-2.5 rounded-xl text-sm items-center gap-2 shadow transition"
+                  >
+                    <i class="fa-solid fa-chart-column"></i> Thống kê doanh thu
+                  </button>
+                </div>
+                <div id="total-revenue" class="text-4xl font-black mb-4">0 VNĐ</div>
+                <!-- 2 nút này chỉ hiện trên mobile (< 640px), nằm dưới số tiền -->
+                <div class="flex sm:hidden flex-wrap items-center gap-3 mb-4">
                   <button
                     onclick="openDailyRevenueModal()"
                     class="bg-fuchsia-500 hover:bg-fuchsia-600 text-white font-bold px-4 py-2.5 rounded-xl text-sm flex items-center gap-2 shadow transition"
@@ -169,7 +186,6 @@
                     <i class="fa-solid fa-chart-column"></i> Thống kê doanh thu
                   </button>
                 </div>
-                <div id="total-revenue" class="text-4xl font-black mb-4">0 VNĐ</div>
                 <div
                   class="grid grid-cols-2 gap-4 border-t border-indigo-500/50 pt-3 text-sm"
                 >
