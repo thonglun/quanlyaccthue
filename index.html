@@ -68,6 +68,11 @@
       .dark .ring-cyan-200, .dark .ring-teal-200, .dark .ring-indigo-200 { --tw-ring-color: rgba(165, 180, 252, 0.4) !important; }
       .dark input, .dark textarea { color: #f3f4f6; }
       .dark input::placeholder { color: #6b7280; }
+      /* Nút "TB theo ngày" ở chế độ tối */
+      .dark .bg-orange-50 { background-color: #431407 !important; }
+      .dark [class*="hover:bg-orange-100"]:hover { background-color: #7c2d12 !important; }
+      .dark .text-orange-600 { color: #fdba74 !important; }
+      .dark .border-orange-200 { border-color: #9a3412 !important; }
       /* ===== Bảng doanh thu mỗi ngày ===== */
       #daily-revenue-body table { border-collapse: separate; border-spacing: 0; min-width: 600px; }
       #daily-revenue-body th, #daily-revenue-body td { border-bottom: 1px solid #e5e7eb; }
@@ -3846,20 +3851,126 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
           { key: "Isaac", label: "Acc Isaac", color: "#f59e0b" },
           { key: "White", label: "Acc White", color: "#ec4899" },
         ];
+        // Reset trạng thái "TB theo ngày" mỗi lần vẽ lại (mặc định 1 → cuối tháng)
+        chartSeries = series;
+        chartDays = days;
+        chartRange = {};
+        defs.forEach((df) => {
+          chartRange[df.key] = { s: 1, e: days };
+        });
+
         document.getElementById("revenue-chart-body").innerHTML = defs
           .map((df) => {
-            const sum = series[df.key].reduce((a, b) => a + b, 0);
+            const arr = series[df.key];
+            const sum = arr.reduce((a, b) => a + b, 0);
+            const avgAll = fmtAvgK(sum / days); // TB cả tháng (tính cả ngày = 0)
+            const r = chartRange[df.key];
             return `<div class="border border-gray-200 rounded-xl p-3">
-              <div class="flex justify-between items-center mb-1 text-sm">
-                <span class="font-bold text-gray-800">${df.label}</span>
-                <span class="font-bold" style="color:${df.color}">Cả tháng: ${fmtVnd(sum)} VNĐ</span>
+              <div class="flex flex-wrap justify-between items-center mb-1 gap-2">
+                <div class="flex flex-wrap items-center gap-2">
+                  <span class="font-bold text-gray-800 text-base uppercase">${df.label}</span>
+                  <span class="text-sm font-bold px-2.5 py-1 rounded-lg border border-transparent bg-gray-100 text-gray-700" title="Trung bình cộng cả tháng">TB: ${avgAll}</span>
+                  <button type="button" onclick="toggleRangeAvg('${df.key}')" class="text-sm font-bold px-2.5 py-1 rounded-lg bg-orange-50 text-orange-600 border border-orange-200 hover:bg-orange-100 transition" title="Tính trung bình theo khoảng ngày tự chọn">
+                    <i class="fa-solid fa-calendar-days mr-1"></i> TB theo ngày
+                  </button>
+                </div>
+                <span class="text-sm font-bold" style="color:${df.color}">Cả tháng: ${fmtVnd(sum)} VNĐ</span>
               </div>
-              <div class="overflow-x-auto">${buildBarChartSvg(series[df.key], df.color)}</div>
-              <div class="text-[11px] text-gray-400 text-center">Trục hoành: ngày trong tháng • Trục tung: doanh thu (VNĐ) • Số trên cột: nghìn đồng</div>>
+              <div id="range-panel-${df.key}" class="hidden flex-wrap items-center gap-2 mb-2 text-sm bg-gray-50 border border-gray-200 rounded-xl p-2">
+                <span class="font-medium text-gray-600">Từ ngày</span>
+                ${rangeStepperHtml(df.key, "s", r.s)}
+                <span class="font-medium text-gray-600">đến ngày</span>
+                ${rangeStepperHtml(df.key, "e", r.e)}
+                <span class="font-bold text-gray-800">→ TB: <span id="range-result-${df.key}" style="color:${df.color}">${fmtAvgK(avgOfRange(arr, r.s, r.e))}</span></span>
+              </div>
+              <div class="overflow-x-auto">${buildBarChartSvg(arr, df.color)}</div>
+              <div class="text-[11px] text-gray-400 text-center">Trục hoành: ngày trong tháng • Trục tung: doanh thu (VNĐ) • Số trên cột: nghìn đồng</div>
             </div>`;
           })
           .join("");
       }
+
+      // ===== TRUNG BÌNH CỘNG TRONG "THỐNG KÊ DOANH THU" =====
+      let chartSeries = {};
+      let chartRange = {}; // key -> { s: ngày bắt đầu, e: ngày kết thúc }
+      let chartDays = 30; // số ngày của tháng đang xem
+
+      // Trung bình các cột từ ngày s đến ngày e (tính cả ngày = 0)
+      function avgOfRange(arr, s, e) {
+        let sum = 0;
+        for (let d = s; d <= e; d++) sum += arr[d - 1] || 0;
+        return sum / (e - s + 1);
+      }
+
+      // Chia 1000, làm tròn XUỐNG (8678 -> "8k")
+      function fmtAvgK(avg) {
+        return Math.floor(avg / 1000) + "k";
+      }
+
+      function rangeStepperHtml(key, which, val) {
+        return `<div class="flex items-center bg-white border border-gray-300 rounded-lg overflow-hidden shadow-sm">
+          <button type="button" onclick="stepRange('${key}','${which}',-1)" class="px-2.5 py-1.5 bg-gray-50 hover:bg-gray-100 text-gray-600 font-bold border-r border-gray-200 transition active:bg-gray-200"><i class="fa-solid fa-minus text-[10px]"></i></button>
+          <input type="number" id="range-${which}-${key}" value="${val}" min="1" max="${chartDays}" onchange="setRange('${key}','${which}',this.value)" class="w-12 py-1.5 bg-transparent outline-none text-center font-bold text-gray-800 text-sm" />
+          <button type="button" onclick="stepRange('${key}','${which}',1)" class="px-2.5 py-1.5 bg-gray-50 hover:bg-gray-100 text-gray-600 font-bold border-l border-gray-200 transition active:bg-gray-200"><i class="fa-solid fa-plus text-[10px]"></i></button>
+        </div>`;
+      }
+
+      // Bấm nút "TB theo ngày" để mở / đóng khung chọn ngày
+      function toggleRangeAvg(key) {
+        const el = document.getElementById("range-panel-" + key);
+        if (!el) return;
+        el.classList.toggle("hidden");
+        el.classList.toggle("flex");
+      }
+
+      // Cập nhật 2 ô ngày + kết quả TB
+      function updateRangeUI(key) {
+        const r = chartRange[key];
+        if (!r) return;
+        document.getElementById(`range-s-${key}`).value = r.s;
+        document.getElementById(`range-e-${key}`).value = r.e;
+        document.getElementById(`range-result-${key}`).innerText = fmtAvgK(
+          avgOfRange(chartSeries[key], r.s, r.e),
+        );
+      }
+
+      // Nút + / - : chạm min/max thì quay vòng (1 <-> cuối tháng)
+      // Bắt đầu vượt kết thúc thì kết thúc đi theo; kết thúc nhỏ hơn bắt đầu thì bắt đầu đi theo
+      function stepRange(key, which, delta) {
+        const r = chartRange[key];
+        if (!r) return;
+        const wrap = (v) => (v > chartDays ? 1 : v < 1 ? chartDays : v);
+        if (which === "s") {
+          const was = r.s;
+          r.s = wrap(r.s + delta);
+          if (delta > 0 && was === r.e) r.e = wrap(r.e + delta); // 2 ô đang trùng nhau -> cùng đi
+          if (r.s > r.e) r.e = r.s;
+        } else {
+          const was = r.e;
+          r.e = wrap(r.e + delta);
+          if (delta < 0 && was === r.s) r.s = wrap(r.s + delta); // 2 ô đang trùng nhau -> cùng đi
+          if (r.e < r.s) r.s = r.e;
+        }
+        updateRangeUI(key);
+      }
+
+      // Gõ tay số vào ô
+      function setRange(key, which, raw) {
+        const r = chartRange[key];
+        if (!r) return;
+        let v = parseInt(raw);
+        if (isNaN(v)) v = which === "s" ? 1 : chartDays;
+        v = Math.min(chartDays, Math.max(1, v));
+        if (which === "s") {
+          r.s = v;
+          if (r.s > r.e) r.e = r.s;
+        } else {
+          r.e = v;
+          if (r.e < r.s) r.s = r.e;
+        }
+        updateRangeUI(key);
+      }
+      // ===== HẾT PHẦN TRUNG BÌNH CỘNG =====
 
       function openResetRevenueModal() {
         showCustomOptionsModal(
