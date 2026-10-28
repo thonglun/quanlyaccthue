@@ -68,6 +68,23 @@
       .dark .ring-cyan-200, .dark .ring-teal-200, .dark .ring-indigo-200 { --tw-ring-color: rgba(165, 180, 252, 0.4) !important; }
       .dark input, .dark textarea { color: #f3f4f6; }
       .dark input::placeholder { color: #6b7280; }
+      /* ===== Bảng doanh thu mỗi ngày ===== */
+      #daily-revenue-body table { border-collapse: separate; border-spacing: 0; min-width: 600px; }
+      #daily-revenue-body th, #daily-revenue-body td { border-bottom: 1px solid #e5e7eb; }
+      #daily-revenue-body thead th { position: sticky; top: 0; z-index: 2; background-color: #f3f4f6; }
+      #daily-revenue-body tbody tr:nth-child(odd) { background-color: #ffffff; }
+      #daily-revenue-body tbody tr:nth-child(even) { background-color: #f1f5f9; }
+      #daily-revenue-body tbody tr.dr-today { background-color: #fef3c7; }
+      #daily-revenue-body tfoot td { background-color: #f3f4f6; }
+      #daily-revenue-body .sticky-col { position: sticky; left: 0; z-index: 1; background-color: inherit; box-shadow: 1px 0 0 #d1d5db; }
+      #daily-revenue-body thead th.sticky-col, #daily-revenue-body tfoot td.sticky-col { z-index: 3; background-color: #f3f4f6; }
+      .dark #daily-revenue-body th, .dark #daily-revenue-body td { border-bottom-color: #374151; }
+      .dark #daily-revenue-body thead th, .dark #daily-revenue-body tfoot td { background-color: #1f2937; }
+      .dark #daily-revenue-body tbody tr:nth-child(odd) { background-color: #111827; }
+      .dark #daily-revenue-body tbody tr:nth-child(even) { background-color: #1f2937; }
+      .dark #daily-revenue-body tbody tr.dr-today { background-color: #1e1b4b; }
+      .dark #daily-revenue-body .sticky-col { box-shadow: 1px 0 0 #4b5563; }
+      .dark #daily-revenue-body thead th.sticky-col, .dark #daily-revenue-body tfoot td.sticky-col { background-color: #1f2937; }
     </style>
   </head>
   <body class="bg-slate-100 min-h-screen text-gray-800 p-4 md:p-6">
@@ -3688,14 +3705,14 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
             cells += `<td class="px-3 py-2 text-right">${fmtVnd(x)}</td>`;
           });
           sums.total += rowTotal;
-          rows += `<tr class="border-b border-gray-100 ${back === 0 ? "bg-amber-50 font-bold" : ""}">
-            <td class="px-3 py-2 whitespace-nowrap">${dt.d}/${dt.m}/${dt.y}${back === 0 ? " (Hôm nay)" : ""}</td>
+          rows += `<tr class="${back === 0 ? "dr-today font-bold" : ""}">
+            <td class="sticky-col px-3 py-2 whitespace-nowrap">${dt.d}/${dt.m}/${dt.y}${back === 0 ? " (Hôm nay)" : ""}</td>
             ${cells}
             <td class="px-3 py-2 text-right font-bold text-indigo-600">${fmtVnd(rowTotal)}</td>
           </tr>`;
         }
-        let head = '<th class="px-3 py-2 text-left">Ngày</th>';
-        let foot = '<td class="px-3 py-2">Tổng 30 ngày</td>';
+        let head = '<th class="sticky-col px-3 py-2 text-left">Ngày</th>';
+        let foot = '<td class="sticky-col px-3 py-2">Tổng 30 ngày</td>';
         ACC_NAMES.forEach((n) => {
           head += `<th class="px-3 py-2 text-right">Acc ${n}</th>`;
           foot += `<td class="px-3 py-2 text-right">${fmtVnd(sums[n])}</td>`;
@@ -3704,9 +3721,9 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
         foot += `<td class="px-3 py-2 text-right text-indigo-600">${fmtVnd(sums.total)}</td>`;
         document.getElementById("daily-revenue-body").innerHTML = `
           <table class="w-full text-sm">
-            <thead class="bg-gray-50 sticky top-0"><tr class="font-bold text-gray-700">${head}</tr></thead>
+            <thead><tr class="font-bold text-gray-700">${head}</tr></thead>
             <tbody>${rows}</tbody>
-            <tfoot class="bg-gray-50 font-bold"><tr>${foot}</tr></tfoot>
+            <tfoot><tr class="font-bold">${foot}</tr></tfoot>
           </table>
           <p class="text-xs text-gray-400 italic mt-2">Đơn vị: VNĐ. Mỗi ngày được lưu lại từ doanh thu "Hôm nay".</p>`;
         const m = document.getElementById("modal-daily-revenue");
