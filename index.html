@@ -2296,9 +2296,9 @@
           let potEnd = gapEnd;
 
           if (potEnd > potStart) {
-            // Nếu khung trống chỉ vỏn vẹn đúng 1 tiếng và bắt đầu ngay từ bây giờ
+            // Nếu khung trống chỉ vỏn vẹn đúng 30 phút và bắt đầu ngay từ bây giờ
             // -> coi như không trống, không đẩy vào slots (không hiển thị, không cho đặt)
-            if (potEnd - potStart === 1 && potStart === currentAbs) {
+            if (potEnd - potStart === 0.5 && potStart === currentAbs) {
               // Bỏ qua, không push
             } else {
               slots.push({ s: potStart, e: potEnd });
@@ -4814,7 +4814,7 @@ function setFormDevice(type) {
 
         if (!isFree) {
           showCustomAlert(
-            "Lỗi: Trùng lịch hoặc vi phạm khoảng cách an toàn (trống 1-3 tiếng)!",
+            "Lỗi: Trùng lịch hoặc vi phạm khoảng cách an toàn!",
           );
           return;
         }
