@@ -799,7 +799,10 @@
                   <i class="fa-solid fa-minus text-xs"></i>
                 </button>
                 <input
-                  type="number"
+                  type="text"
+                  inputmode="text"
+                  autocomplete="off"
+                  onblur="normalizeHourField(this)"
                   id="check-shour"
                   min="0"
                   max="23"
@@ -828,7 +831,10 @@
                   <i class="fa-solid fa-minus text-xs"></i>
                 </button>
                 <input
-                  type="number"
+                  type="text"
+                  inputmode="text"
+                  autocomplete="off"
+                  onblur="normalizeHourField(this)"
                   id="check-ehour"
                   min="0"
                   max="23"
@@ -1328,7 +1334,10 @@
                   <i class="fa-solid fa-minus text-xs"></i>
                 </button>
                 <input
-                  type="number"
+                  type="text"
+                  inputmode="text"
+                  autocomplete="off"
+                  onblur="normalizeHourField(this)"
                   id="form-shour"
                   min="0"
                   max="23"
@@ -1357,7 +1366,10 @@
                   <i class="fa-solid fa-minus text-xs"></i>
                 </button>
                 <input
-                  type="number"
+                  type="text"
+                  inputmode="text"
+                  autocomplete="off"
+                  onblur="normalizeHourField(this)"
                   id="form-ehour"
                   min="0"
                   max="23"
@@ -1931,13 +1943,14 @@
           day: now.getDate(),
           month: now.getMonth() + 1,
           year: now.getFullYear(),
-          hour: now.getHours(),
+          hour: now.getHours() + (now.getMinutes() >= 30 ? 0.5 : 0), // phút 30
         };
       }
 
       // Thay đổi sang Epoch Hours để xử lý chuẩn mọi logic qua tháng/năm/nhuận
       function getEpochHours(y, m, d, h) {
-        return Math.floor(Date.UTC(y, m - 1, d, h, 0, 0) / 3600000);
+        // h có thể là số lẻ (8.5 = 8h30)
+        return Date.UTC(y, m - 1, d, 0, 0, 0) / 3600000 + h;
       }
 
       function fromEpochHours(abs) {
@@ -1946,8 +1959,35 @@
           y: dt.getUTCFullYear(),
           m: dt.getUTCMonth() + 1,
           d: dt.getUTCDate(),
-          h: dt.getUTCHours(),
+          h: dt.getUTCHours() + dt.getUTCMinutes() / 60,
         };
+      }
+
+      // ===== HỖ TRỢ GIỜ CÓ PHÚT 30 =====
+      // 8.5 -> "8h30"; 8 -> "8h"
+      function fmtH(h) {
+        const w = Math.floor(h);
+        return h - w >= 0.5 ? `${w}h30` : `${w}h`;
+      }
+      // Hiển thị trong ô nhập: 8.5 -> "8h30"; 8 -> "8"
+      function fmtHourField(x) {
+        const w = Math.floor(x);
+        return x - w >= 0.5 ? `${w}h30` : String(w);
+      }
+      // Đọc ô giờ: "8", "8h", "8h30", "8:30" -> 8 / 8.5 (NaN nếu sai)
+      function parseHourField(v) {
+        const str = String(v == null ? "" : v).trim().toLowerCase();
+        if (!str) return NaN;
+        const m = str.match(/^(\d{1,2})(?:\s*[h:]\s*(\d{1,2})?)?$/);
+        if (!m) return NaN;
+        const h = parseInt(m[1], 10);
+        const mi = m[2] ? parseInt(m[2], 10) : 0;
+        if (h > 23 || mi > 59) return NaN;
+        return h + (mi >= 30 ? 0.5 : 0);
+      }
+      function normalizeHourField(el) {
+        const x = parseHourField(el.value);
+        if (!isNaN(x)) el.value = fmtHourField(x);
       }
 
       // Số giờ được tính tiền trong [a, b)
@@ -1967,7 +2007,17 @@
         const p = ACC_PRICES[accountName] || ACC_PRICES["2ss"];
         const days = Math.floor(hours / 24);
         const remHours = hours % 24;
-        return days * p.day + remHours * p.hour;
+        return days * p.day + priceHours(p, remHours);
+      }
+
+      // Giá 30 phút = một nửa giá giờ, làm tròn xuống đến nghìn đồng (2.500 -> 2.000)
+      function halfHourPrice(p) {
+        return Math.floor(p.hour / 2 / 1000) * 1000;
+      }
+      // Giá của h giờ lẻ (h có thể có .5)
+      function priceHours(p, h) {
+        const w = Math.floor(h);
+        return w * p.hour + (h - w >= 0.5 ? halfHourPrice(p) : 0);
       }
 
       // Doanh thu "Hôm nay" (0h -> 24h giờ VN).
@@ -1993,9 +2043,9 @@
           const remStart = s + 24 * days;
           const remEnd = remStart + rem;
           if (rem > 0) {
-            const overlap =
-              Math.min(remEnd, dayStartAbs + 24) - Math.max(remStart, dayStartAbs);
-            if (overlap > 0) total += overlap * p.hour;
+            const a = Math.max(remStart, dayStartAbs) - remStart;
+            const b = Math.min(remEnd, dayStartAbs + 24) - remStart;
+            if (b > a) total += priceHours(p, b) - priceHours(p, a);
           }
         });
         return total;
@@ -2054,11 +2104,13 @@
           }
         }
 
-        let val = parseInt(input.value);
+        const isHourId = id.includes("shour") || id.includes("ehour");
+        let val = isHourId ? parseHourField(input.value) : parseInt(input.value);
         const today = getSystemDate();
         if (isNaN(val)) val = min; // dự phòng nếu ô lỡ bị trống, không còn phân biệt "lần đầu"
         const oldVal = val;
-        val += delta;
+        const hStep = delta * 0.5; // ô giờ nhảy 30 phút
+        val += isHourId ? hStep : delta;
 
         // Khi ô GIỜ (shour/ehour) vượt biên 0-23 thì kéo theo ô NGÀY tương ứng +1/-1
         // + đồng bộ giờ bắt đầu/kết thúc khi đang cách nhau đúng 1 tiếng
@@ -2088,9 +2140,9 @@
 
           const sHourVal = isSHour
             ? oldVal
-            : parseInt(document.getElementById(prefix + "shour")?.value);
+            : parseHourField(document.getElementById(prefix + "shour")?.value);
           const eHourVal = isSHour
-            ? parseInt(document.getElementById(prefix + "ehour")?.value)
+            ? parseHourField(document.getElementById(prefix + "ehour")?.value)
             : oldVal;
 
           let shouldSyncOther = false;
@@ -2098,8 +2150,8 @@
             const startAbs = getEpochHours(sYear, sMonth, sDay, sHourVal);
             const endAbs = getEpochHours(eYear, eMonth, eDay, eHourVal);
 
-            // Chỉ đồng bộ khi đang cách nhau đúng 1 tiếng, và đang kéo dãn "về sau"/"về trước" đúng chiều
-            if (endAbs - startAbs === 1) {
+            // Chỉ đồng bộ khi đang cách nhau đúng 1 nấc (30 phút), và đang kéo dãn "về sau"/"về trước" đúng chiều
+            if (endAbs - startAbs === 0.5) {
               if ((isSHour && delta > 0) || (!isSHour && delta < 0)) {
                 shouldSyncOther = true;
               }
@@ -2107,15 +2159,15 @@
           }
 
           let dayCascade = 0;
-          if (val > max) {
-            val = min;
+          if (val >= 24) {
+            val -= 24;
             dayCascade = 1;
-          } else if (val < min) {
-            val = max;
+          } else if (val < 0) {
+            val += 24;
             dayCascade = -1;
           }
 
-          input.value = val;
+          input.value = fmtHourField(val);
 
           if (dayCascade !== 0) {
             const dayId = prefix + (isSHour ? "sday" : "eday");
@@ -2287,20 +2339,20 @@ function formatPoint(targetAbs, pairAbs, isStart, currentAbs) {
   // ƯU TIÊN 1: Trùng ngày hiện tại (đủ ngày + tháng + năm) -> "hôm nay"
   // Luôn hiển thị "hôm nay" dù mốc còn lại (start/end) khác tháng hay khác năm
   if (t.y === c.y && t.m === c.m && t.d === c.d) {
-    return `${t.h}h hôm nay`;
+    return `${fmtH(t.h)} hôm nay`;
   }
 
   // ƯU TIÊN 2: Trùng ngày liền sau hôm nay (đủ ngày + tháng + năm) -> "ngày mai"
   // Luôn hiển thị "ngày mai" dù khác tháng hay khác năm (vd 31/12 -> 1/1 năm sau)
   if (t.y === tm.y && t.m === tm.m && t.d === tm.d) {
-    return `${t.h}h ngày mai`;
+    return `${fmtH(t.h)} ngày mai`;
   }
 
   // Khác Năm (so với Hiện tại hoặc giữa Start và End) -> "Yh ngày Z/Tháng/Năm"
   const diffYearWithCurrent = t.y !== c.y;
   const diffYearWithPair = p !== null && t.y !== p.y;
   if (diffYearWithCurrent || diffYearWithPair) {
-    return `${t.h}h ngày ${t.d}/${t.m}/${t.y}`;
+    return `${fmtH(t.h)} ngày ${t.d}/${t.m}/${t.y}`;
   }
 
   // Khác Tháng (so với Hiện tại hoặc giữa Start và End) -> "Yh ngày Z/Tháng"
@@ -2308,11 +2360,11 @@ function formatPoint(targetAbs, pairAbs, isStart, currentAbs) {
   const diffMonthWithCurrent = t.m !== c.m;
   const diffMonthWithPair = p !== null && t.m !== p.m;
   if (diffMonthWithCurrent || diffMonthWithPair) {
-    return `${t.h}h ngày ${t.d}/${t.m}`;
+    return `${fmtH(t.h)} ngày ${t.d}/${t.m}`;
   }
 
   // Cùng Tháng, Năm với Hiện tại (và cặp nếu có)
-  return `${t.h}h ngày ${t.d}`;
+  return `${fmtH(t.h)} ngày ${t.d}`;
 }
 
       function formatTimeT(absTime, currentAbs) {
@@ -2342,7 +2394,7 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
     else if (s.y === c.y) dateStr = `Ngày ${s.d}/${s.m}`;
     else dateStr = `Ngày ${s.d}/${s.m}/${s.y}`;
 
-    return `${dateStr} [${s.h}h ➔ ${e.h}h]`;
+    return `${dateStr} [${fmtH(s.h)} ➔ ${fmtH(e.h)}]`;
   }
   return `Từ ${formatPoint(sAbs, eAbs, true, currentAbs)} ➔ ${formatPoint(eAbs, sAbs, false, currentAbs)}`;
 }
@@ -3341,14 +3393,14 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
         document.getElementById("check-sday").value = today.day;
         document.getElementById("check-smonth").value = today.month;
         document.getElementById("check-syear").value = today.year;
-        document.getElementById("check-shour").value = today.hour;
+        document.getElementById("check-shour").value = fmtHourField(today.hour);
 
         let ceHour = today.hour + 1;
         let ceDay = today.day,
           ceMonth = today.month,
           ceYear = today.year;
         if (ceHour >= 24) {
-          ceHour = 0;
+          ceHour -= 24;
           const cDaysInMonth = getDaysInMonth(ceYear, ceMonth);
           ceDay += 1;
           if (ceDay > cDaysInMonth) {
@@ -3363,7 +3415,7 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
         document.getElementById("check-eday").value = ceDay;
         document.getElementById("check-emonth").value = ceMonth;
         document.getElementById("check-eyear").value = ceYear;
-        document.getElementById("check-ehour").value = ceHour;
+        document.getElementById("check-ehour").value = fmtHourField(ceHour);
 
         resetVHState("check");
 
@@ -3381,9 +3433,9 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
         const today = getSystemDate();
 
         const sDay = parseInt(document.getElementById("check-sday").value);
-        const sHour = parseInt(document.getElementById("check-shour").value);
+        const sHour = parseHourField(document.getElementById("check-shour").value);
         const eDay = parseInt(document.getElementById("check-eday").value);
-        const eHour = parseInt(document.getElementById("check-ehour").value);
+        const eHour = parseHourField(document.getElementById("check-ehour").value);
 
         const sMonth =
           parseInt(document.getElementById("check-smonth").value) ||
@@ -3466,11 +3518,11 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
         let h = checkS;
         while (h < checkE) {
           if (hourFree(h)) {
-            covered++;
-            h++;
+            covered += 0.5;
+            h += 0.5;
           } else {
             let blockS = h;
-            while (h < checkE && !hourFree(h)) h++;
+            while (h < checkE && !hourFree(h)) h += 0.5;
             nonFreeRanges.push({ s: blockS, e: h });
           }
         }
@@ -3496,7 +3548,7 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
         }
 
         // Logic kiểm tra giờ liền kề trống cho khung 1 tiếng (Chạy trước khi chặn hoàn toàn res.covered === 0)
-        if (inE - inS === 1) {
+        if (inE - inS <= 1) {
           const today = getSystemDate();
 
           // Fix quá khứ tương tự getCoverage
@@ -3509,7 +3561,7 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
           let freeSlots = getFreeSlots(accIdx, checkDayObj, currentAbs, pc);
 
           let nextHourFree = false;
-          let nextHour = inS + 1; // Lấy chính xác mốc bắt đầu + 1
+          let nextHour = inE; // mốc ngay sau khung giờ cần kiểm tra
           for (let s of freeSlots) {
             if (nextHour >= s.s && (s.e === -1 || nextHour < s.e)) {
               nextHourFree = true;
@@ -3526,7 +3578,7 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
         }
 
         // Xử lý các điều kiện Ngoại lệ (Partially free)
-        if (inE - inS === 2) {
+        if (inE - inS > 1 && inE - inS <= 2) {
           let qStr = "";
           if (res.nonFreeRanges.length === 1) {
             qStr = `không trống từ ${formatTimeT(res.nonFreeRanges[0].s, currentAbs)} ➔ ${formatTimeT(res.nonFreeRanges[0].e, currentAbs)}`;
@@ -3543,7 +3595,7 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
         }
 
         // Rule Q (Duration >= 3, partially free)
-        if (durationCheck >= 3) {
+        if (durationCheck > 2) {
           if (res.nonFreeRanges.length === 1) {
             return `Dạ acc ${accName} với khung giờ mà bạn đặt thì không trống từ ${formatTimeT(res.nonFreeRanges[0].s, currentAbs)} ➔ ${formatTimeT(res.nonFreeRanges[0].e, currentAbs)} mất rồi ạ.`;
           } else {
@@ -4061,7 +4113,11 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
             );
             return { ...r, startAbs: s, endAbs: e };
           })
-          .filter((r) => r.endAbs > currentAbs && r.endAbs - 1 !== currentAbs)
+          .filter(
+            (r) =>
+              r.endAbs > currentAbs &&
+              !(r.startAbs <= currentAbs && r.endAbs - 1 <= currentAbs),
+          )
           .sort((a, b) => a.startAbs - b.startAbs);
       }
 
@@ -4386,7 +4442,7 @@ function setFormDevice(type) {
       function vhFieldsMatchNow(prefix) {
         const today = getSystemDate();
         const sDay = parseInt(document.getElementById(prefix + "sday")?.value);
-        const sHour = parseInt(
+        const sHour = parseHourField(
           document.getElementById(prefix + "shour")?.value,
         );
         const sMonth =
@@ -4498,14 +4554,14 @@ function setFormDevice(type) {
         document.getElementById("form-sday").value = today.day;
         document.getElementById("form-smonth").value = today.month;
         document.getElementById("form-syear").value = today.year;
-        document.getElementById("form-shour").value = today.hour;
+        document.getElementById("form-shour").value = fmtHourField(today.hour);
 
         let eHour = today.hour + 1;
         let eDay = today.day,
           eMonth = today.month,
           eYear = today.year;
         if (eHour >= 24) {
-          eHour = 0;
+          eHour -= 24;
           const daysInMonth = getDaysInMonth(eYear, eMonth);
           eDay += 1;
           if (eDay > daysInMonth) {
@@ -4520,7 +4576,7 @@ function setFormDevice(type) {
         document.getElementById("form-eday").value = eDay;
         document.getElementById("form-emonth").value = eMonth;
         document.getElementById("form-eyear").value = eYear;
-        document.getElementById("form-ehour").value = eHour;
+        document.getElementById("form-ehour").value = fmtHourField(eHour);
 
         resetVHState("form");
 
@@ -4612,9 +4668,9 @@ function setFormDevice(type) {
         document.getElementById("form-tenant").value = r.tenantName;
 
         document.getElementById("form-sday").value = r.start.day;
-        document.getElementById("form-shour").value = r.start.hour;
+        document.getElementById("form-shour").value = fmtHourField(r.start.hour);
         document.getElementById("form-eday").value = r.end.day;
-        document.getElementById("form-ehour").value = r.end.hour;
+        document.getElementById("form-ehour").value = fmtHourField(r.end.hour);
 
         document.getElementById("form-smonth").value = r.start.month;
         document.getElementById("form-emonth").value = r.end.month;
@@ -4679,9 +4735,9 @@ function setFormDevice(type) {
         let devVal = formDeviceChoice;
         const tenant = document.getElementById("form-tenant").value.trim();
         const sDay = parseInt(document.getElementById("form-sday").value);
-        const sHour = parseInt(document.getElementById("form-shour").value);
+        const sHour = parseHourField(document.getElementById("form-shour").value);
         const eDay = parseInt(document.getElementById("form-eday").value);
-        const eHour = parseInt(document.getElementById("form-ehour").value);
+        const eHour = parseHourField(document.getElementById("form-ehour").value);
         const sM =
           parseInt(document.getElementById("form-smonth").value) || today.month;
         const eM =
