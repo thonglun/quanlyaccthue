@@ -1185,7 +1185,7 @@
       id="modal-rental"
       class="fixed inset-0 bg-black/50 hidden items-center justify-center p-4 z-50"
     >
-      <div class="bg-white rounded-2xl w-full max-w-md p-6 space-y-4 shadow-xl max-h-[92vh] overflow-y-auto">
+      <div class="bg-white rounded-2xl w-full max-w-md p-6 space-y-4 shadow-xl">
         <div class="flex items-center justify-between border-b pb-2">
           <h3 id="modal-title" class="text-lg font-bold text-gray-800">
             Nhập Lịch Thuê Mới
@@ -1226,7 +1226,7 @@
                 type="button"
                 onclick="setFormDevice('LINE')"
                 id="form-device-LINE"
-                class="py-2.5 px-3 rounded-xl border font-bold text-xs transition bg-indigo-50 border-indigo-500 text-indigo-700"
+                class="py-2.5 px-3 rounded-xl border font-bold text-xs transition-all duration-200 active:scale-95 shadow-lg ring-4 ring-indigo-200 scale-[1.03] bg-indigo-50 border-indigo-500 text-indigo-700"
               >
                 LINE
               </button>
@@ -1234,7 +1234,7 @@
                 type="button"
                 onclick="setFormDevice('Google')"
                 id="form-device-Google"
-                class="py-2.5 px-3 rounded-xl border font-bold text-xs transition bg-gray-50 border-gray-200 text-gray-700"
+                class="py-2.5 px-3 rounded-xl border font-bold text-xs transition-all duration-200 active:scale-95 shadow-sm hover:border-indigo-500 hover:bg-indigo-50 bg-gray-50 border-gray-200 text-gray-700"
               >
                 Google
               </button>
@@ -1242,7 +1242,7 @@
                 type="button"
                 onclick="setFormDevice('Facebook')"
                 id="form-device-Facebook"
-                class="py-2.5 px-3 rounded-xl border font-bold text-xs transition bg-gray-50 border-gray-200 text-gray-700"
+                class="py-2.5 px-3 rounded-xl border font-bold text-xs transition-all duration-200 active:scale-95 shadow-sm hover:border-indigo-500 hover:bg-indigo-50 bg-gray-50 border-gray-200 text-gray-700"
               >
                 Facebook
               </button>
@@ -1250,7 +1250,17 @@
           </div>
 
           <div>
-            <label class="block font-medium mb-1">Tên Khách Thuê</label>
+            <div class="flex items-center justify-between gap-2 mb-1">
+              <label class="block font-medium">Tên Khách Thuê</label>
+              <div
+                class="flex items-center gap-1 -my-1 flex-shrink-0"
+                title="Đặt thời gian kết thúc = thời gian bắt đầu + 24 giờ / 7 ngày / 30 ngày (bấm lần nữa để trả về như cũ)"
+              >
+                <button type="button" id="form-qa-24h" onclick="toggleQuickAdd('24h')" class="px-2 py-1 rounded-md border text-[11px] leading-4 font-bold transition-all duration-200 active:scale-95 shadow-sm hover:border-indigo-500 hover:bg-indigo-50 bg-gray-50 border-gray-300 text-gray-700">+24h</button>
+                <button type="button" id="form-qa-7d" onclick="toggleQuickAdd('7d')" class="px-2 py-1 rounded-md border text-[11px] leading-4 font-bold transition-all duration-200 active:scale-95 shadow-sm hover:border-indigo-500 hover:bg-indigo-50 bg-gray-50 border-gray-300 text-gray-700">+7d</button>
+                <button type="button" id="form-qa-1m" onclick="toggleQuickAdd('1m')" class="px-2 py-1 rounded-md border text-[11px] leading-4 font-bold transition-all duration-200 active:scale-95 shadow-sm hover:border-indigo-500 hover:bg-indigo-50 bg-gray-50 border-gray-300 text-gray-700">+1m</button>
+              </div>
+            </div>
             <input
               type="text"
               id="form-tenant"
@@ -1387,43 +1397,6 @@
             </div>
           </div>
 
-          <!-- NÚT CỘNG NHANH THỜI GIAN KẾT THÚC (tính từ thời gian bắt đầu, bấm lần nữa để hoàn tác) -->
-          <div>
-            <label class="block text-xs font-medium mb-1 text-gray-500"
-              >Cộng nhanh từ lúc bắt đầu
-              <span class="font-normal text-gray-400">(bấm lại để hoàn tác)</span></label
-            >
-            <div class="grid grid-cols-3 gap-2">
-              <button
-                type="button"
-                id="form-ext-24h"
-                onclick="toggleFormExt('24h')"
-                title="Kết thúc = bắt đầu + 24 tiếng"
-                class="py-2 px-2 rounded-xl border font-bold text-xs transition whitespace-nowrap bg-gray-50 border-gray-200 text-gray-700"
-              >
-                +24h
-              </button>
-              <button
-                type="button"
-                id="form-ext-7d"
-                onclick="toggleFormExt('7d')"
-                title="Kết thúc = bắt đầu + 7 ngày"
-                class="py-2 px-2 rounded-xl border font-bold text-xs transition whitespace-nowrap bg-gray-50 border-gray-200 text-gray-700"
-              >
-                +7d
-              </button>
-              <button
-                type="button"
-                id="form-ext-1m"
-                onclick="toggleFormExt('1m')"
-                title="Kết thúc = bắt đầu + 30 ngày"
-                class="py-2 px-2 rounded-xl border font-bold text-xs transition whitespace-nowrap bg-gray-50 border-gray-200 text-gray-700"
-              >
-                +1m
-              </button>
-            </div>
-          </div>
-
           <div class="grid grid-cols-2 gap-2 text-xs pt-1">
             <div>
               <label class="block font-medium mb-1 text-gray-700"
@@ -1544,7 +1517,6 @@
               </div>
             </div>
           </div>
-
 
           
         </div>
@@ -2096,8 +2068,8 @@
 
         // Người dùng đã thao tác với thời gian BẮT ĐẦU của form -> cho phép tự bật giờ ảo
         if (/^form-(sday|smonth|syear|shour)$/.test(id)) vhState.form.armed = true;
-        // Người dùng tự chỉnh thời gian của form -> tắt trạng thái nút +24h/+7d/+1m
-        if (id.startsWith("form-")) clearFormExt();
+        if (/^form-(sday|smonth|syear|shour|eday|emonth|eyear|ehour)$/.test(id))
+          resetQuickAdd(); // chỉnh tay thời gian -> bỏ trạng thái +24h/+7d/+1m
 
         let min = parseInt(input.min) || 0;
         let max = parseInt(input.max) || 999;
@@ -4463,10 +4435,10 @@ function setFormDevice(type) {
     const btn = document.getElementById(`form-device-${t}`);
     if (t === type) {
             btn.className =
-              "py-2.5 px-3 rounded-xl border font-bold text-xs transition bg-indigo-50 border-indigo-500 text-indigo-700";
+              "py-2.5 px-3 rounded-xl border font-bold text-xs transition-all duration-200 active:scale-95 shadow-lg ring-4 ring-indigo-200 scale-[1.03] bg-indigo-50 border-indigo-500 text-indigo-700";
           } else {
             btn.className =
-              "py-2.5 px-3 rounded-xl border font-bold text-xs transition bg-gray-50 border-gray-200 text-gray-700";
+              "py-2.5 px-3 rounded-xl border font-bold text-xs transition-all duration-200 active:scale-95 shadow-sm hover:border-indigo-500 hover:bg-indigo-50 bg-gray-50 border-gray-200 text-gray-700";
           }
         });
       }
@@ -4582,83 +4554,6 @@ function setFormDevice(type) {
       }, 1000);
       // ===== KẾT THÚC TÍNH NĂNG NÚT GẠT "GIỜ ẢO" =====
 
-      // ===== NÚT CỘNG NHANH +24h / +7d / +1m (bật/tắt) CHO FORM NHẬP / SỬA LỊCH =====
-      // Cộng từ thời gian BẮT ĐẦU; bấm lần nữa thì thời gian KẾT THÚC trở về như cũ
-      const FORM_EXT_HOURS = { "24h": 24, "7d": 7 * 24, "1m": 30 * 24 };
-      let formExt = { active: null, orig: null };
-
-      function renderFormExt() {
-        Object.keys(FORM_EXT_HOURS).forEach((k) => {
-          const b = document.getElementById("form-ext-" + k);
-          if (!b) return;
-          b.className =
-            "py-2 px-2 rounded-xl border font-bold text-xs transition whitespace-nowrap " +
-            (formExt.active === k
-              ? "bg-indigo-50 border-indigo-500 text-indigo-700"
-              : "bg-gray-50 border-gray-200 text-gray-700");
-        });
-      }
-
-      // Tắt trạng thái bật mà KHÔNG hoàn tác thời gian (dùng khi người dùng tự sửa thời gian)
-      function clearFormExt() {
-        if (formExt.active === null) return;
-        formExt = { active: null, orig: null };
-        renderFormExt();
-      }
-
-      function toggleFormExt(key) {
-        const g = (id) => document.getElementById(id);
-
-        // Đang bật đúng nút này -> bấm lần nữa: trả thời gian kết thúc về như cũ
-        if (formExt.active === key) {
-          const o = formExt.orig;
-          g("form-eday").value = o.day;
-          g("form-emonth").value = o.month;
-          g("form-eyear").value = o.year;
-          g("form-ehour").value = o.hour;
-          formExt = { active: null, orig: null };
-          renderFormExt();
-          return;
-        }
-
-        const today = getSystemDate();
-        const sDay = parseInt(g("form-sday").value);
-        const sHour = parseHourField(g("form-shour").value);
-        const sMonth = parseInt(g("form-smonth").value) || today.month;
-        const sYear = parseInt(g("form-syear").value) || today.year;
-        if (isNaN(sDay) || isNaN(sHour)) {
-          showCustomAlert("Vui lòng nhập đầy đủ ngày và giờ BẮT ĐẦU!");
-          return;
-        }
-
-        // Lần bật đầu tiên: nhớ thời gian kết thúc gốc (chuyển qua nút khác vẫn giữ mốc gốc này)
-        if (formExt.active === null) {
-          formExt.orig = {
-            day: g("form-eday").value,
-            month: g("form-emonth").value,
-            year: g("form-eyear").value,
-            hour: g("form-ehour").value,
-          };
-        }
-
-        const end = fromEpochHours(
-          getEpochHours(sYear, sMonth, sDay, sHour) + FORM_EXT_HOURS[key],
-        );
-        g("form-eday").value = end.d;
-        g("form-emonth").value = end.m;
-        g("form-eyear").value = end.y;
-        g("form-ehour").value = fmtHourField(end.h);
-        formExt.active = key;
-        renderFormExt();
-      }
-
-      // Người dùng gõ tay vào các ô thời gian của form -> tắt trạng thái nút
-      ["sday", "smonth", "syear", "shour", "eday", "emonth", "eyear", "ehour"].forEach((f) => {
-        const el = document.getElementById("form-" + f);
-        if (el) el.addEventListener("input", clearFormExt);
-      });
-      // ===== HẾT PHẦN NÚT CỘNG NHANH =====
-
       function openAddModal() {
         const today = getSystemDate();
         document.getElementById("modal-title").innerText = "Nhập Lịch Thuê Mới";
@@ -4696,8 +4591,7 @@ function setFormDevice(type) {
         document.getElementById("form-ehour").value = fmtHourField(eHour);
 
         resetVHState("form");
-        formExt = { active: null, orig: null };
-        renderFormExt();
+        resetQuickAdd();
 
         document.getElementById("modal-rental").classList.remove("hidden");
         document.getElementById("modal-rental").classList.add("flex");
@@ -4797,8 +4691,7 @@ function setFormDevice(type) {
         document.getElementById("form-eyear").value = r.end.year;
 
         resetVHState("form");
-        formExt = { active: null, orig: null };
-        renderFormExt();
+        resetQuickAdd();
         vhState.form.armed = false; // chỉ cho tự bật giờ ảo sau khi người dùng thao tác thời gian bắt đầu
         if (r.virtualHour) {
           setVHState("form", true, "manual");
@@ -4811,7 +4704,78 @@ function setFormDevice(type) {
       function closeModal() {
         document.getElementById("modal-rental").classList.add("hidden");
         document.getElementById("modal-rental").classList.remove("flex");
+        resetQuickAdd();
       }
+
+      // ===== NÚT +24h / +7d / +1m (Nhập lịch mới & Sửa lịch) =====
+      // Kết thúc = BẮT ĐẦU + 24 giờ / 7 ngày / 30 ngày. Bấm lần nữa -> trả về giá trị cũ (bật/tắt).
+      const QUICK_ADD_HOURS = { "24h": 24, "7d": 7 * 24, "1m": 30 * 24 };
+      let quickAddState = { active: null, orig: null };
+      const QA_OFF_CLS =
+        "px-2 py-1 rounded-md border text-[11px] leading-4 font-bold transition-all duration-200 active:scale-95 shadow-sm hover:border-indigo-500 hover:bg-indigo-50 bg-gray-50 border-gray-300 text-gray-700";
+      const QA_ON_CLS =
+        "px-2 py-1 rounded-md border text-[11px] leading-4 font-bold transition-all duration-200 active:scale-95 shadow-lg ring-2 ring-indigo-200 scale-[1.03] bg-indigo-50 border-indigo-500 text-indigo-700";
+
+      function renderQuickAdd() {
+        Object.keys(QUICK_ADD_HOURS).forEach((k) => {
+          const b = document.getElementById("form-qa-" + k);
+          if (b) b.className = quickAddState.active === k ? QA_ON_CLS : QA_OFF_CLS;
+        });
+      }
+
+      function resetQuickAdd() {
+        quickAddState = { active: null, orig: null };
+        renderQuickAdd();
+      }
+
+      function toggleQuickAdd(kind) {
+        const ids = ["eday", "emonth", "eyear", "ehour"];
+
+        // Bấm lại đúng nút đang bật -> trả thời gian kết thúc về như cũ
+        if (quickAddState.active === kind) {
+          ids.forEach((k) => {
+            document.getElementById("form-" + k).value = quickAddState.orig[k];
+          });
+          resetQuickAdd();
+          return;
+        }
+
+        const today = getSystemDate();
+        const sDay = parseInt(document.getElementById("form-sday").value);
+        const sHour = parseHourField(document.getElementById("form-shour").value);
+        const sM = parseInt(document.getElementById("form-smonth").value) || today.month;
+        const sY = parseInt(document.getElementById("form-syear").value) || today.year;
+        if (isNaN(sDay) || isNaN(sHour)) {
+          showCustomAlert("Vui lòng nhập đầy đủ ngày và giờ BẮT ĐẦU trước!");
+          return;
+        }
+
+        // Lần bấm đầu tiên (chưa nút nào bật) -> ghi nhớ thời gian kết thúc hiện tại
+        if (!quickAddState.active) {
+          quickAddState.orig = {};
+          ids.forEach((k) => {
+            quickAddState.orig[k] = document.getElementById("form-" + k).value;
+          });
+        }
+
+        const e = fromEpochHours(
+          getEpochHours(sY, sM, sDay, sHour) + QUICK_ADD_HOURS[kind],
+        );
+        document.getElementById("form-eday").value = e.d;
+        document.getElementById("form-emonth").value = e.m;
+        document.getElementById("form-eyear").value = e.y;
+        document.getElementById("form-ehour").value = fmtHourField(e.h);
+
+        quickAddState.active = kind;
+        renderQuickAdd();
+      }
+
+      // Gõ tay vào các ô thời gian -> bỏ trạng thái bật của 3 nút
+      document.getElementById("modal-rental").addEventListener("input", (ev) => {
+        if (/^form-(sday|smonth|syear|shour|eday|emonth|eyear|ehour)$/.test(ev.target.id))
+          resetQuickAdd();
+      });
+      // ===== KẾT THÚC NÚT +24h / +7d / +1m =====
 
       // Quy đổi thời gian để saveRental so sánh
       function toAbsoluteHours(y, m, d, h) {
