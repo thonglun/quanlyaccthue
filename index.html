@@ -2066,8 +2066,6 @@
         const input = document.getElementById(id);
         if (!input) return;
 
-        // Người dùng đã thao tác với thời gian BẮT ĐẦU của form -> cho phép tự bật giờ ảo
-        if (/^form-(sday|smonth|syear|shour)$/.test(id)) vhState.form.armed = true;
         if (/^form-(sday|smonth|syear|shour|eday|emonth|eyear|ehour)$/.test(id))
           resetQuickAdd(); // chỉnh tay thời gian -> bỏ trạng thái +24h/+7d/+1m
 
@@ -2523,14 +2521,6 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
           if (!acc.revenueStartTime) {
             acc.revenueStartTime = `0h ngày ${today.day}/${today.month}/${today.year}`;
           }
-        });
-        // Gõ tay vào ô thời gian BẮT ĐẦU của form cũng tính là đã thao tác
-        ["sday", "smonth", "syear", "shour"].forEach((f) => {
-          const el = document.getElementById("form-" + f);
-          if (el)
-            el.addEventListener("input", () => {
-              vhState.form.armed = true;
-            });
         });
         listenToFirebase();
       }
@@ -4550,7 +4540,6 @@ function setFormDevice(type) {
 
       setInterval(() => {
         updateVHAuto("check", "check-", "modal-check");
-        updateVHAuto("form", "form-", "modal-rental");
       }, 1000);
       // ===== KẾT THÚC TÍNH NĂNG NÚT GẠT "GIỜ ẢO" =====
 
@@ -4692,7 +4681,6 @@ function setFormDevice(type) {
 
         resetVHState("form");
         resetQuickAdd();
-        vhState.form.armed = false; // chỉ cho tự bật giờ ảo sau khi người dùng thao tác thời gian bắt đầu
         if (r.virtualHour) {
           setVHState("form", true, "manual");
         }
