@@ -2150,8 +2150,8 @@
             const startAbs = getEpochHours(sYear, sMonth, sDay, sHourVal);
             const endAbs = getEpochHours(eYear, eMonth, eDay, eHourVal);
 
-            // Chỉ đồng bộ khi đang cách nhau đúng 1 nấc (30 phút), và đang kéo dãn "về sau"/"về trước" đúng chiều
-            if (endAbs - startAbs === 0.5) {
+            // Chỉ đồng bộ khi đang cách nhau đúng 1 tiếng, và đang kéo dãn "về sau"/"về trước" đúng chiều
+            if (endAbs - startAbs === 1) {
               if ((isSHour && delta > 0) || (!isSHour && delta < 0)) {
                 shouldSyncOther = true;
               }
