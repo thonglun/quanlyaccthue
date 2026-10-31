@@ -1254,11 +1254,12 @@
               <label class="block font-medium">Tên Khách Thuê</label>
               <div
                 class="flex items-center gap-1 -my-1 flex-shrink-0"
-                title="Đặt thời gian kết thúc = thời gian bắt đầu + 24 giờ / 7 ngày / 30 ngày (bấm lần nữa để trả về như cũ)"
+                title="Đặt thời gian kết thúc = thời gian bắt đầu ± 24 giờ / 7 ngày / 30 ngày (mỗi lần bấm cộng thêm hoặc trừ bớt; nút đầu tiên đổi giữa cộng và trừ)"
               >
-                <button type="button" id="form-qa-24h" onclick="toggleQuickAdd('24h')" class="px-2 py-1 rounded-md border text-[11px] leading-4 font-bold transition-all duration-200 active:scale-95 shadow-sm hover:border-indigo-500 hover:bg-indigo-50 bg-gray-50 border-gray-300 text-gray-700">+24h</button>
-                <button type="button" id="form-qa-7d" onclick="toggleQuickAdd('7d')" class="px-2 py-1 rounded-md border text-[11px] leading-4 font-bold transition-all duration-200 active:scale-95 shadow-sm hover:border-indigo-500 hover:bg-indigo-50 bg-gray-50 border-gray-300 text-gray-700">+7d</button>
-                <button type="button" id="form-qa-1m" onclick="toggleQuickAdd('1m')" class="px-2 py-1 rounded-md border text-[11px] leading-4 font-bold transition-all duration-200 active:scale-95 shadow-sm hover:border-indigo-500 hover:bg-indigo-50 bg-gray-50 border-gray-300 text-gray-700">+1m</button>
+                <button type="button" id="form-qa-sign" onclick="toggleQuickSign()" class="w-[44px] h-6 flex-shrink-0 inline-flex items-center justify-center rounded-md border text-[11px] leading-4 font-bold text-white transition-all duration-200 active:scale-95 shadow-sm bg-emerald-500 border-emerald-600 hover:bg-emerald-600"><span class="text-sm font-black leading-none">+</span></button>
+                <button type="button" id="form-qa-24h" onclick="toggleQuickAdd('24h')" class="w-[44px] h-6 flex-shrink-0 inline-flex items-center justify-center rounded-md border text-[11px] leading-4 font-bold text-white transition-all duration-200 active:scale-95 shadow-sm bg-emerald-500 border-emerald-600 hover:bg-emerald-600">+24h</button>
+                <button type="button" id="form-qa-7d" onclick="toggleQuickAdd('7d')" class="w-[44px] h-6 flex-shrink-0 inline-flex items-center justify-center rounded-md border text-[11px] leading-4 font-bold text-white transition-all duration-200 active:scale-95 shadow-sm bg-emerald-500 border-emerald-600 hover:bg-emerald-600">+7d</button>
+                <button type="button" id="form-qa-1m" onclick="toggleQuickAdd('1m')" class="w-[44px] h-6 flex-shrink-0 inline-flex items-center justify-center rounded-md border text-[11px] leading-4 font-bold text-white transition-all duration-200 active:scale-95 shadow-sm bg-emerald-500 border-emerald-600 hover:bg-emerald-600">+1m</button>
               </div>
             </div>
             <input
@@ -2305,20 +2306,9 @@
           let potStart = Math.max(gapStart, startTimelineAbs);
           let potEnd = gapEnd;
 
+          // Các lịch cách nhau tối thiểu 1 tiếng; khung trống phải có bắt đầu < kết thúc
           if (potEnd > potStart) {
-            // Nếu khung trống chỉ vỏn vẹn đúng 30 phút và bắt đầu ngay từ bây giờ
-            // -> coi như không trống, không đẩy vào slots (không hiển thị, không cho đặt)
-            if (potEnd - potStart === 0.5 && potStart === currentAbs) {
-              // Bỏ qua, không push
-            } else {
-              slots.push({ s: potStart, e: potEnd });
-            }
-          } else if (potEnd === potStart) {
-            if (potStart === currentAbs) {
-              // Bỏ qua hiển thị nếu chỉ trống 1 tiếng tính từ hiện tại và liền kề sau đó không trống
-            } else {
-              slots.push({ s: potStart, e: potEnd });
-            }
+            slots.push({ s: potStart, e: potEnd });
           }
           lastEndAbs = Math.max(lastEndAbs, r.endAbs);
         }
@@ -2382,8 +2372,6 @@ function formatPoint(targetAbs, pairAbs, isStart, currentAbs) {
       }
 
       function formatSlotT(s, e, currentAbs) {
-        // Khi mốc bắt đầu và mốc kết thúc trùng nhau 100% giờ ngày tháng năm thì không hiện
-        if (s === e) return "";
         if (e === -1) {
           return `Từ ${formatPoint(s, null, true, currentAbs)} trở đi`;
         }
@@ -3338,7 +3326,6 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
           allIdxs.map((i) =>
             getFreeSlots(i, today, currentAbs, pc)
               .map((x) => formatSlotT(x.s, x.e, currentAbs))
-              .filter((txt) => txt !== "")
               .join("\n"),
           ),
         );
@@ -3348,8 +3335,7 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
         const groups = [];
         indices.forEach((accIdx) => {
           const valid = getFreeSlots(accIdx, today, currentAbs, pc)
-            .map((x) => formatSlotT(x.s, x.e, currentAbs))
-            .filter((txt) => txt !== "");
+            .map((x) => formatSlotT(x.s, x.e, currentAbs));
           const key = valid.join("\n");
           const g = groups.find((x) => x.key === key);
           if (g) g.names.push(accounts[accIdx].accountName);
@@ -3665,6 +3651,15 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
           if (g) g.names.push(name);
           else groups.push({ norm, msg, names: [name] });
         });
+
+        // Thứ tự: acc có trống (A) -> dạng "👉 Nhưng lúc..." (B) -> còn lại (C); cùng hạng giữ thứ tự acc
+        const rankOf = (msg) =>
+          msg.includes("👉") ? 1 : /có trống ạ\.$/.test(msg) ? 0 : 2;
+        groups.forEach((g, i) => {
+          g.rank = rankOf(g.msg);
+          g.order = i;
+        });
+        groups.sort((a, b) => a.rank - b.rank || a.order - b.order);
 
         const blocks = groups.map((g, k) => {
           let m = g.msg.split(`acc ${g.names[0]}`).join(joinAccNames(g.names));
@@ -4580,7 +4575,7 @@ function setFormDevice(type) {
         document.getElementById("form-ehour").value = fmtHourField(eHour);
 
         resetVHState("form");
-        resetQuickAdd();
+        resetQuickAdd(true);
 
         document.getElementById("modal-rental").classList.remove("hidden");
         document.getElementById("modal-rental").classList.add("flex");
@@ -4680,7 +4675,7 @@ function setFormDevice(type) {
         document.getElementById("form-eyear").value = r.end.year;
 
         resetVHState("form");
-        resetQuickAdd();
+        resetQuickAdd(true);
         if (r.virtualHour) {
           setVHState("form", true, "manual");
         }
@@ -4692,42 +4687,50 @@ function setFormDevice(type) {
       function closeModal() {
         document.getElementById("modal-rental").classList.add("hidden");
         document.getElementById("modal-rental").classList.remove("flex");
-        resetQuickAdd();
+        resetQuickAdd(true);
       }
 
-      // ===== NÚT +24h / +7d / +1m (Nhập lịch mới & Sửa lịch) =====
-      // Kết thúc = BẮT ĐẦU + 24 giờ / 7 ngày / 30 ngày. Bấm lần nữa -> trả về giá trị cũ (bật/tắt).
+      // ===== NÚT ± / 24h / 7d / 1m (Nhập lịch mới & Sửa lịch) =====
+      // Nút đầu tiên đổi qua lại giữa cộng (xanh lá) và trừ (đỏ).
+      // Mỗi lần bấm 24h / 7d / 1m: thời gian kết thúc = BẮT ĐẦU + (tổng số giờ đã cộng/trừ), tối thiểu cách bắt đầu 1 tiếng.
       const QUICK_ADD_HOURS = { "24h": 24, "7d": 7 * 24, "1m": 30 * 24 };
-      let quickAddState = { active: null, orig: null };
-      const QA_OFF_CLS =
-        "px-2 py-1 rounded-md border text-[11px] leading-4 font-bold transition-all duration-200 active:scale-95 shadow-sm hover:border-indigo-500 hover:bg-indigo-50 bg-gray-50 border-gray-300 text-gray-700";
-      const QA_ON_CLS =
-        "px-2 py-1 rounded-md border text-[11px] leading-4 font-bold transition-all duration-200 active:scale-95 shadow-lg ring-2 ring-indigo-200 scale-[1.03] bg-indigo-50 border-indigo-500 text-indigo-700";
+      let quickAddState = { sign: 1, offset: null };
+      const QA_BASE_CLS =
+        "w-[44px] h-6 flex-shrink-0 inline-flex items-center justify-center rounded-md border text-[11px] leading-4 font-bold text-white transition-all duration-200 active:scale-95 shadow-sm";
+      const QA_PLUS_CLS = QA_BASE_CLS + " bg-emerald-500 border-emerald-600 hover:bg-emerald-600";
+      const QA_MINUS_CLS = QA_BASE_CLS + " bg-rose-500 border-rose-600 hover:bg-rose-600";
 
       function renderQuickAdd() {
+        const plus = quickAddState.sign > 0;
+        const cls = plus ? QA_PLUS_CLS : QA_MINUS_CLS;
+        const sg = plus ? "+" : "-";
+        const sb = document.getElementById("form-qa-sign");
+        if (sb) {
+          sb.className = cls;
+          sb.innerHTML = `<span class="text-sm font-black leading-none">${sg}</span>`;
+        }
         Object.keys(QUICK_ADD_HOURS).forEach((k) => {
           const b = document.getElementById("form-qa-" + k);
-          if (b) b.className = quickAddState.active === k ? QA_ON_CLS : QA_OFF_CLS;
+          if (b) {
+            b.className = cls;
+            b.textContent = sg + k;
+          }
         });
       }
 
-      function resetQuickAdd() {
-        quickAddState = { active: null, orig: null };
+      // full = true: về lại dấu cộng mặc định (khi mở / đóng form)
+      function resetQuickAdd(full) {
+        quickAddState.offset = null;
+        if (full === true) quickAddState.sign = 1;
+        renderQuickAdd();
+      }
+
+      function toggleQuickSign() {
+        quickAddState.sign = -quickAddState.sign;
         renderQuickAdd();
       }
 
       function toggleQuickAdd(kind) {
-        const ids = ["eday", "emonth", "eyear", "ehour"];
-
-        // Bấm lại đúng nút đang bật -> trả thời gian kết thúc về như cũ
-        if (quickAddState.active === kind) {
-          ids.forEach((k) => {
-            document.getElementById("form-" + k).value = quickAddState.orig[k];
-          });
-          resetQuickAdd();
-          return;
-        }
-
         const today = getSystemDate();
         const sDay = parseInt(document.getElementById("form-sday").value);
         const sHour = parseHourField(document.getElementById("form-shour").value);
@@ -4738,32 +4741,25 @@ function setFormDevice(type) {
           return;
         }
 
-        // Lần bấm đầu tiên (chưa nút nào bật) -> ghi nhớ thời gian kết thúc hiện tại
-        if (!quickAddState.active) {
-          quickAddState.orig = {};
-          ids.forEach((k) => {
-            quickAddState.orig[k] = document.getElementById("form-" + k).value;
-          });
-        }
+        // Cộng / trừ dồn so với thời gian bắt đầu; kết thúc luôn cách bắt đầu tối thiểu 1 tiếng
+        const base = quickAddState.offset === null ? 0 : quickAddState.offset;
+        let off = base + quickAddState.sign * QUICK_ADD_HOURS[kind];
+        if (off < 1) off = 1;
+        quickAddState.offset = off;
 
-        const e = fromEpochHours(
-          getEpochHours(sY, sM, sDay, sHour) + QUICK_ADD_HOURS[kind],
-        );
+        const e = fromEpochHours(getEpochHours(sY, sM, sDay, sHour) + off);
         document.getElementById("form-eday").value = e.d;
         document.getElementById("form-emonth").value = e.m;
         document.getElementById("form-eyear").value = e.y;
         document.getElementById("form-ehour").value = fmtHourField(e.h);
-
-        quickAddState.active = kind;
-        renderQuickAdd();
       }
 
-      // Gõ tay vào các ô thời gian -> bỏ trạng thái bật của 3 nút
+      // Gõ tay vào các ô thời gian -> bỏ mốc cộng/trừ đã dồn
       document.getElementById("modal-rental").addEventListener("input", (ev) => {
         if (/^form-(sday|smonth|syear|shour|eday|emonth|eyear|ehour)$/.test(ev.target.id))
           resetQuickAdd();
       });
-      // ===== KẾT THÚC NÚT +24h / +7d / +1m =====
+      // ===== KẾT THÚC NÚT ± / 24h / 7d / 1m =====
 
       // Quy đổi thời gian để saveRental so sánh
       function toAbsoluteHours(y, m, d, h) {
