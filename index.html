@@ -2019,17 +2019,27 @@
       }
 
       const ACC_PRICES = {
-        "4ss": { hour: 5000, day: 58000 },
-        "2ss": { hour: 6000, day: 68000 },
-        Isaac: { hour: 4000, day: 48000 },
-        White: { hour: 8000, day: 78000 },
+        "4ss": { hour: 5000, day: 58000, week: 258000, month: 1048000 },
+        "2ss": { hour: 6000, day: 68000, week: 288000, month: 1148000 },
+        Isaac: { hour: 4000, day: 48000, week: 238000, month: 948000 },
+        White: { hour: 8000, day: 78000, week: 338000, month: 1348000 },
       };
 
       function calculatePrice(accountName, hours) {
         const p = ACC_PRICES[accountName] || ACC_PRICES["2ss"];
-        const days = Math.floor(hours / 24);
-        const remHours = hours % 24;
-        return days * p.day + priceHours(p, remHours);
+        // Tách theo thứ tự: tháng (30 ngày) -> tuần (7 ngày) -> ngày -> giờ lẻ
+        const months = Math.floor(hours / 720);
+        let rest = hours - months * 720;
+        const weeks = Math.floor(rest / 168);
+        rest -= weeks * 168;
+        const days = Math.floor(rest / 24);
+        const remHours = rest - days * 24;
+        return (
+          months * p.month +
+          weeks * p.week +
+          days * p.day +
+          priceHours(p, remHours)
+        );
       }
 
       // Giá 30 phút = một nửa giá giờ, làm tròn xuống đến nghìn đồng (2.500 -> 2.000)
@@ -2053,16 +2063,25 @@
           const s = getEpochHours(r.start.year, r.start.month, r.start.day, r.start.hour);
           const e = getEpochHours(r.end.year, r.end.month, r.end.day, r.end.hour);
           const hours = billableHours(s, e);
-          const days = Math.floor(hours / 24);
-          const rem = hours % 24;
+          const months = Math.floor(hours / 720);
+          let rest = hours - months * 720;
+          const weeks = Math.floor(rest / 168);
+          rest -= weeks * 168;
+          const days = Math.floor(rest / 24);
+          const rem = rest - days * 24;
 
-          // Các khối 24 tiếng đầy đủ
-          for (let k = 0; k < days; k++) {
-            const blockStart = s + 24 * k;
-            if (blockStart >= dayStartAbs && blockStart < dayEndAbs) total += p.day;
-          }
+          // Các khối đầy đủ (tháng -> tuần -> ngày): tiền tính vào ngày BẮT ĐẦU của khối
+          let cursor = s;
+          const addBlock = (len, price) => {
+            if (cursor >= dayStartAbs && cursor < dayEndAbs) total += price;
+            cursor += len;
+          };
+          for (let k = 0; k < months; k++) addBlock(720, p.month);
+          for (let k = 0; k < weeks; k++) addBlock(168, p.week);
+          for (let k = 0; k < days; k++) addBlock(24, p.day);
+
           // Phần giờ lẻ còn lại: chia theo số giờ thực tế rơi vào hôm nay
-          const remStart = s + 24 * days;
+          const remStart = cursor;
           const remEnd = remStart + rem;
           if (rem > 0) {
             const a = Math.max(remStart, dayStartAbs) - remStart;
@@ -3614,11 +3633,13 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
         return `Dạ acc ${accName} ${timeDesc} không trống mất rồi ạ.`;
       }
 
-      // Hạng ưu tiên của 1 kết quả kiểm tra: 0 = có trống, 1 = dạng đặc biệt (lát nữa sẽ trống), 2 = không trống
+      // Hạng A (ưu tiên kết quả): 0 = acc có trống, 1 = acc không trống nhưng lát nữa sẽ trống,
+      // 2 = acc không trống từ ... đến ..., 3 = acc không trống hoàn toàn
       function checkResultRank(msg) {
-        if (msg.includes("👉")) return 1;
         if (msg.includes(" có trống ạ")) return 0;
-        return 2;
+        if (msg.includes("👉")) return 1;
+        if (msg.includes("khung giờ mà bạn đặt")) return 2;
+        return 3;
       }
 
       // Kiểm tra nhiều acc: các acc cùng 1 kết quả 100% thì gộp thành 1 khối,
@@ -3674,8 +3695,8 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
           else groups.push({ norm, msg, names: [name], first: i, rank: checkResultRank(msg) });
         });
 
-        // Thứ tự hiển thị: acc có trống (A) -> dạng "👉 Nhưng lúc ... sẽ trống" (B) -> acc không trống còn lại (C);
-        // trong cùng 1 hạng thì giữ thứ tự acc
+        // Hạng A: acc trống -> không trống nhưng sẽ trống -> không trống từ...đến... -> không trống hoàn toàn;
+        // Hạng B (cùng hạng A): theo loại acc 4ss -> 2ss -> Isaac -> White (đúng thứ tự ACC_NAMES)
         groups.sort((a, b) => a.rank - b.rank || a.first - b.first);
 
         const blocks = groups.map((g, k) => {
@@ -4755,11 +4776,19 @@ function setFormDevice(type) {
           return;
         }
 
-        quickAddState.offset =
-          (quickAddState.offset || 0) + quickAddState.sign * QUICK_ADD_HOURS[kind];
+        // offset luôn tính từ thời gian BẮT ĐẦU (không bao giờ âm, tối thiểu 0)
+        quickAddState.offset = Math.max(
+          0,
+          (quickAddState.offset || 0) + quickAddState.sign * QUICK_ADD_HOURS[kind],
+        );
+
+        // Luôn đảm bảo lịch thuê tối thiểu MIN_RENTAL_HOURS (1 tiếng):
+        // nếu giờ kết thúc <= giờ bắt đầu thì hiển thị đúng mức tối thiểu (bắt đầu + 1h),
+        // nhưng offset vẫn giữ mốc 0 nên lần bấm tăng sau vẫn tính từ thời gian bắt đầu
+        const effectiveOffset = Math.max(quickAddState.offset, MIN_RENTAL_HOURS);
 
         const e = fromEpochHours(
-          getEpochHours(sY, sM, sDay, sHour) + quickAddState.offset,
+          getEpochHours(sY, sM, sDay, sHour) + effectiveOffset,
         );
         document.getElementById("form-eday").value = e.d;
         document.getElementById("form-emonth").value = e.m;
