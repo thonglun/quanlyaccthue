@@ -80,6 +80,12 @@
       .dark .qa-plus:hover { background-color: #166534; }
       .dark .qa-minus { background-color: #7f1d1d; border-color: #ef4444; color: #f3f4f6; }
       .dark .qa-minus:hover { background-color: #991b1b; }
+      /* ===== Nút bật/tắt nhỏ: "Đặt trước" & "30mins" ===== */
+      .mini-toggle { display: inline-flex; align-items: center; justify-content: center; box-sizing: border-box; height: 26px; padding: 0 8px; border-width: 1px; border-style: solid; border-radius: 6px; font-size: 11px; line-height: 1; font-weight: 700; white-space: nowrap; background-color: #f3f4f6; border-color: #d1d5db; color: #6b7280; box-shadow: 0 1px 2px rgba(0,0,0,.08); transition: background-color .2s, border-color .2s, color .2s, transform .1s; }
+      .mini-toggle:active { transform: scale(0.95); }
+      .mini-toggle.on { background-color: #e0e7ff; border-color: #6366f1; color: #4338ca; }
+      .dark .mini-toggle { background-color: #374151; border-color: #4b5563; color: #9ca3af; }
+      .dark .mini-toggle.on { background-color: #3730a3; border-color: #818cf8; color: #f3f4f6; }
       .dark .bg-orange-50 { background-color: #431407 !important; }
       .dark [class*="hover:bg-orange-100"]:hover { background-color: #7c2d12 !important; }
       .dark .text-orange-600 { color: #fdba74 !important; }
@@ -1267,6 +1273,7 @@
                 class="flex items-center gap-1 -my-1 flex-shrink-0"
                 title="Mỗi lần bấm cộng / trừ thêm 24 giờ / 7 ngày / 30 ngày tính từ thời gian bắt đầu (nút đầu tiên để đổi giữa cộng và trừ)"
               >
+                <button type="button" id="form-preorder-toggle" onclick="toggleFormPreOrder()" aria-pressed="false" class="mini-toggle" title="Bật: kịch bản chuyển sang loại dành cho đặt trước">Đặt trước</button>
                 <button type="button" id="form-qa-sign" onclick="toggleQuickSign()" class="qa-btn qa-plus">+</button>
                 <button type="button" id="form-qa-24h" onclick="quickAdd('24h')" class="qa-btn qa-plus">+24h</button>
                 <button type="button" id="form-qa-7d" onclick="quickAdd('7d')" class="qa-btn qa-plus">+7d</button>
@@ -1283,7 +1290,10 @@
 
           <div class="grid grid-cols-2 gap-2">
             <div>
-              <label class="block font-medium mb-1">Ngày BẮT ĐẦU</label>
+              <div class="flex items-center justify-between gap-1 mb-1">
+                <label class="block font-medium">Ngày BẮT ĐẦU</label>
+                <button type="button" id="form-mins30-toggle" onclick="toggleFormMins30()" aria-pressed="true" class="mini-toggle on" title="Bật: nút +/- của giờ nhảy 30 phút. Tắt: chỉ nhảy theo giờ tròn">30mins</button>
+              </div>
               <div
                 class="flex items-center bg-white border border-gray-300 rounded-xl overflow-hidden focus-within:border-indigo-500 focus-within:ring-2 focus-within:ring-indigo-200 transition shadow-sm"
               >
@@ -2151,7 +2161,12 @@
         if (isNaN(val)) val = min; // dự phòng nếu ô lỡ bị trống, không còn phân biệt "lần đầu"
         const oldVal = val;
         const hStep = delta * 0.5; // ô giờ nhảy 30 phút
-        val += isHourId ? hStep : delta;
+        if (isHourId && prefix === "form-" && !formMins30) {
+          // Tắt "30mins": chỉ nhảy theo giờ tròn
+          val = delta > 0 ? Math.floor(val) + 1 : Math.ceil(val) - 1;
+        } else {
+          val += isHourId ? hStep : delta;
+        }
 
         // Khi ô GIỜ (shour/ehour) vượt biên 0-23 thì kéo theo ô NGÀY tương ứng +1/-1
         // + đồng bộ giờ bắt đầu/kết thúc khi đang cách nhau đúng 1 tiếng
@@ -2924,8 +2939,8 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
       // Lưu lại thông tin lịch đang xem để nút "Kịch bản" dùng
       let emailResultCtx = null;
 
-      function showEmailResult(accName, devVal, startObj) {
-        emailResultCtx = { devVal: devVal, start: startObj || null };
+      function showEmailResult(accName, devVal, startObj, preOrder) {
+        emailResultCtx = { devVal: devVal, start: startObj || null, preOrder: !!preOrder };
         const email = getRentalEmail(accName, devVal);
         const pw = getLatestResetPassword(accName);
         document.getElementById("email-result-title").innerText =
@@ -2967,13 +2982,8 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
         const ctx = emailResultCtx;
         if (!ctx || !ctx.start) return;
 
-        const now = getSystemDate(); // giờ hiện tại Việt Nam
         const s = ctx.start;
-        const isNow =
-          s.year === now.year &&
-          s.month === now.month &&
-          s.day === now.day &&
-          s.hour === now.hour;
+        const isNow = isInstantStart(s, ctx.preOrder);
         const isLine = ctx.devVal === "LINE";
 
         let text = "";
@@ -3184,11 +3194,7 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
         );
         const s = rental.start;
         const startAbs = getEpochHours(s.year, s.month, s.day, s.hour);
-        const isNow =
-          s.year === t.year &&
-          s.month === t.month &&
-          s.day === t.day &&
-          s.hour === t.hour;
+        const isNow = isInstantStart(s, rental.preOrder);
 
         // Cả Google lẫn Facebook đều đã có người dùng và lịch này đứng sau lịch gần nhất
         if (u.google && u.facebook && startAbs > u.nearest.startAbs) {
@@ -4452,6 +4458,42 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
 
       // --- Chọn Cách đăng nhập cho Nhập Lịch Mới ---
       let formDeviceChoice = "LINE";
+
+      // ===== "Đặt trước" & "30mins" (Nhập lịch mới / Sửa lịch) =====
+      let formMins30 = true; // mặc định bật
+      let formPreOrder = false; // mặc định tắt
+
+      function setFormMins30(on) {
+        formMins30 = !!on;
+        const b = document.getElementById("form-mins30-toggle");
+        if (b) {
+          b.classList.toggle("on", formMins30);
+          b.setAttribute("aria-pressed", formMins30 ? "true" : "false");
+        }
+      }
+      function toggleFormMins30() {
+        setFormMins30(!formMins30);
+      }
+      function setFormPreOrder(on) {
+        formPreOrder = !!on;
+        const b = document.getElementById("form-preorder-toggle");
+        if (b) {
+          b.classList.toggle("on", formPreOrder);
+          b.setAttribute("aria-pressed", formPreOrder ? "true" : "false");
+        }
+      }
+      function toggleFormPreOrder() {
+        setFormPreOrder(!formPreOrder);
+      }
+
+      // "Loại kịch bản thuê ngay": giờ bắt đầu trùng giờ hiện tại VN hoặc cách 30 phút về tương lai.
+      // Nếu lịch được đánh dấu "Đặt trước" thì luôn dùng loại kịch bản đặt trước.
+      function isInstantStart(s, preOrder) {
+        if (preOrder) return false;
+        const cur = getCurrentAbs();
+        const sa = getEpochHours(s.year, s.month, s.day, s.hour);
+        return sa === cur || sa === cur + 0.5;
+      }
 function setFormDevice(type) {
   formDeviceChoice = type;
   ["LINE", "Google", "Facebook"].forEach((t) => {
@@ -4584,6 +4626,8 @@ function setFormDevice(type) {
 
         setFormAcc("");
         setFormDevice("LINE");
+        setFormMins30(true);
+        setFormPreOrder(false);
         document.getElementById("form-tenant").value = "";
         document.getElementById("form-sday").value = today.day;
         document.getElementById("form-smonth").value = today.month;
@@ -4670,7 +4714,7 @@ function setFormDevice(type) {
           openGoogleFbScript(accIdx, r);
           return;
         }
-        showEmailResult(accName, r.deviceType, r.start);
+        showEmailResult(accName, r.deviceType, r.start, r.preOrder);
       }
 
       function editRentalByKey(accIdx, encKey) {
@@ -4700,6 +4744,8 @@ function setFormDevice(type) {
 
         setFormAcc(String(accIdx));
         setFormDevice(r.deviceType);
+        setFormMins30(true);
+        setFormPreOrder(!!r.preOrder);
         document.getElementById("form-tenant").value = r.tenantName;
 
         document.getElementById("form-sday").value = r.start.day;
@@ -4985,6 +5031,7 @@ function setFormDevice(type) {
           end: { year: eY, month: eM, day: eDay, hour: eHour },
           deviceType: devVal,
           virtualHour: vhOn,
+          preOrder: formPreOrder,
         };
         acc.schedule.push(newRental);
 
@@ -5008,7 +5055,7 @@ function setFormDevice(type) {
               month: sM,
               day: sDay,
               hour: sHour,
-            });
+            }, formPreOrder);
           }
         }
       }
