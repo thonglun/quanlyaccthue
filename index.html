@@ -72,6 +72,26 @@
       /* ===== 4 nút +/- , 24h, 7d, 1m (kích thước cố định, chỉ đổi màu xanh/đỏ) ===== */
       .qa-btn { display: inline-flex; align-items: center; justify-content: center; box-sizing: border-box; width: 44px; height: 26px; border-width: 1px; border-style: solid; border-radius: 6px; font-size: 11px; line-height: 1; font-weight: 700; box-shadow: 0 1px 2px rgba(0,0,0,.08); transition: background-color .2s, border-color .2s, color .2s, transform .1s; }
       .qa-btn:active { transform: scale(0.95); }
+      /* Bản to rõ của 4 nút thao tác nhanh (dùng trong Kiểm tra) */
+      .qa-btn.qa-btn-lg { width: 100%; height: 38px; border-radius: 10px; font-size: 14px; }
+      /* Hàng nhãn + nút gạt nhỏ (no30 / Đặt trước): 2 nút luôn cùng kích thước */
+      .tg-row { display: flex; align-items: center; gap: 6px; min-width: 0; margin-bottom: 0.25rem; }
+      .tg-row label { margin: 0; white-space: nowrap; }
+      .tg-chip { flex: none; box-sizing: border-box; width: 52px; height: 20px; padding: 0; border: 1px solid #d1d5db; border-radius: 9999px; background-color: #f3f4f6; color: #6b7280; font-size: 10px; line-height: 1; font-weight: 700; white-space: nowrap; transition: background-color .2s, border-color .2s, color .2s, transform .1s; }
+      .tg-chip:active { transform: scale(0.95); }
+      .tg-chip.on-no30 { background-color: #fef3c7; border-color: #f59e0b; color: #b45309; }
+      .tg-chip.on-pre { background-color: #ede9fe; border-color: #8b5cf6; color: #6d28d9; }
+      .dark .tg-chip { background-color: #374151; border-color: #4b5563; color: #d1d5db; }
+      .dark .tg-chip.on-no30 { background-color: #78350f; border-color: #f59e0b; color: #fef3c7; }
+      .dark .tg-chip.on-pre { background-color: #4c1d95; border-color: #8b5cf6; color: #ede9fe; }
+      @media (max-width: 399px) {
+        .tg-row { gap: 4px; }
+        .tg-row label { font-size: 11px; }
+        .tg-chip { width: 46px; font-size: 9px; }
+      }
+      @media (max-width: 349px) {
+        .tg-row { flex-direction: column; align-items: flex-start; gap: 2px; }
+      }
       .qa-plus { background-color: #dcfce7; border-color: #22c55e; color: #15803d; }
       .qa-plus:hover { background-color: #bbf7d0; }
       .qa-minus { background-color: #fee2e2; border-color: #ef4444; color: #b91c1c; }
@@ -80,19 +100,6 @@
       .dark .qa-plus:hover { background-color: #166534; }
       .dark .qa-minus { background-color: #7f1d1d; border-color: #ef4444; color: #f3f4f6; }
       .dark .qa-minus:hover { background-color: #991b1b; }
-      /* Nút bản to của 4 nút thao tác nhanh (dùng ở phần Kiểm tra) */
-      .qa-btn-lg { width: 100%; height: 40px; font-size: 14px; border-radius: 10px; }
-      /* Nút gạt dạng chữ: "Đặt trước" và "no30" (cùng chiều rộng, cùng cỡ chữ) */
-      .tg-btn { display: inline-flex; align-items: center; justify-content: center; box-sizing: border-box; width: 56px; height: 22px; flex-shrink: 0; border-width: 1px; border-style: solid; border-radius: 6px; font-size: 10px; line-height: 1; font-weight: 700; white-space: nowrap; transition: background-color .2s, border-color .2s, color .2s, transform .1s; }
-      .tg-btn:active { transform: scale(0.95); }
-      .tg-off { background-color: #f3f4f6; border-color: #d1d5db; color: #6b7280; }
-      .tg-on { background-color: #fef3c7; border-color: #f59e0b; color: #b45309; }
-      .dark .tg-off { background-color: #374151; border-color: #4b5563; color: #d1d5db; }
-      .dark .tg-on { background-color: #78350f; border-color: #f59e0b; color: #f3f4f6; }
-      /* Hàng nhãn "Ngày BẮT ĐẦU / KẾT THÚC": nhãn + nút no30, luôn cùng chiều cao để 2 cột thẳng hàng */
-      .dt-row { display: flex; align-items: center; justify-content: space-between; gap: 4px; min-height: 22px; margin-bottom: 4px; }
-      .dt-lbl { font-size: 11px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
-      @media (min-width: 440px) { .dt-lbl { font-size: 14px; } }
       .dark .bg-orange-50 { background-color: #431407 !important; }
       .dark [class*="hover:bg-orange-100"]:hover { background-color: #7c2d12 !important; }
       .dark .text-orange-600 { color: #fdba74 !important; }
@@ -750,7 +757,10 @@
 
           <div class="grid grid-cols-2 gap-2">
             <div>
-              <div class="dt-row"><label class="dt-lbl">Ngày BẮT ĐẦU</label><button type="button" id="check-no30-toggle" onclick="toggleNo30('check')" class="tg-btn tg-off" title="Bật: bấm +/- giờ sẽ không đi qua các mốc 30 phút">no30</button></div>
+              <div class="tg-row">
+                <label class="font-medium">Ngày BẮT ĐẦU</label>
+                <button type="button" id="check-no30-toggle" onclick="toggleNo30('check')" class="tg-chip" title="Bật: bấm +/- ở ô giờ sẽ nhảy 1 tiếng, không dừng ở phút 30">no30</button>
+              </div>
               <div
                 class="flex items-center bg-white border border-gray-300 rounded-xl overflow-hidden focus-within:border-cyan-500 focus-within:ring-2 focus-within:ring-cyan-200 transition shadow-sm"
               >
@@ -779,7 +789,10 @@
               </div>
             </div>
             <div>
-              <div class="dt-row"><label class="dt-lbl">Ngày KẾT THÚC</label></div>
+              <div class="tg-row">
+                <label class="font-medium">Ngày KẾT THÚC</label>
+                <button type="button" id="check-preorder-toggle" onclick="togglePreorder('check')" class="tg-chip" title="Bật: dùng kịch bản dành cho đặt trước">Đặt trước</button>
+              </div>
               <div
                 class="flex items-center bg-white border border-gray-300 rounded-xl overflow-hidden focus-within:border-cyan-500 focus-within:ring-2 focus-within:ring-cyan-200 transition shadow-sm"
               >
@@ -1254,16 +1267,7 @@
           </div>
 
           <div>
-            <div class="flex items-center justify-between gap-2 mb-1">
-              <label class="block font-medium">Cách Đăng Nhập</label>
-              <button
-                type="button"
-                id="form-preorder-toggle"
-                onclick="togglePreOrder()"
-                class="tg-btn tg-off"
-                title="Bật: kịch bản chuyển sang loại dành cho đặt trước"
-              >Đặt trước</button>
-            </div>
+            <label class="block font-medium mb-1">Cách Đăng Nhập</label>
             <div class="grid grid-cols-3 gap-2">
               <button
                 type="button"
@@ -1315,7 +1319,10 @@
 
           <div class="grid grid-cols-2 gap-2">
             <div>
-              <div class="dt-row"><label class="dt-lbl">Ngày BẮT ĐẦU</label><button type="button" id="form-no30-toggle" onclick="toggleNo30('form')" class="tg-btn tg-off" title="Bật: bấm +/- giờ sẽ không đi qua các mốc 30 phút">no30</button></div>
+              <div class="tg-row">
+                <label class="font-medium">Ngày BẮT ĐẦU</label>
+                <button type="button" id="form-no30-toggle" onclick="toggleNo30('form')" class="tg-chip" title="Bật: bấm +/- ở ô giờ sẽ nhảy 1 tiếng, không dừng ở phút 30">no30</button>
+              </div>
               <div
                 class="flex items-center bg-white border border-gray-300 rounded-xl overflow-hidden focus-within:border-indigo-500 focus-within:ring-2 focus-within:ring-indigo-200 transition shadow-sm"
               >
@@ -1344,7 +1351,10 @@
               </div>
             </div>
             <div>
-              <div class="dt-row"><label class="dt-lbl">Ngày KẾT THÚC</label></div>
+              <div class="tg-row">
+                <label class="font-medium">Ngày KẾT THÚC</label>
+                <button type="button" id="form-preorder-toggle" onclick="togglePreorder('form')" class="tg-chip" title="Bật: dùng kịch bản dành cho đặt trước">Đặt trước</button>
+              </div>
               <div
                 class="flex items-center bg-white border border-gray-300 rounded-xl overflow-hidden focus-within:border-indigo-500 focus-within:ring-2 focus-within:ring-indigo-200 transition shadow-sm"
               >
@@ -2124,29 +2134,74 @@
         return total;
       }
 
-      // ===== NÚT "no30" (Nhập lịch mới / Sửa / Kiểm tra) =====
-      // Tắt (mặc định): +/- giờ nhảy 30 phút. Bật: +/- giờ không đi qua các mốc 30 phút.
-      let no30State = { form: false, check: false };
+      // ===== NÚT GẠT NHỎ "no30" & "Đặt trước" (Kiểm tra / Nhập lịch mới / Sửa) =====
+      // key: 'check' (Modal Kiểm tra) hoặc 'form' (Modal Nhập lịch mới / Sửa). Mặc định luôn TẮT.
+      const no30State = { check: false, form: false };
+      const preorderState = { check: false, form: false };
+
       function renderNo30(key) {
         const b = document.getElementById(key + "-no30-toggle");
-        if (b) b.className = "tg-btn " + (no30State[key] ? "tg-on" : "tg-off");
+        if (!b) return;
+        b.classList.toggle("on-no30", no30State[key]);
+        b.setAttribute("aria-pressed", no30State[key] ? "true" : "false");
+      }
+      function renderPreorder(key) {
+        const b = document.getElementById(key + "-preorder-toggle");
+        if (!b) return;
+        b.classList.toggle("on-pre", preorderState[key]);
+        b.setAttribute("aria-pressed", preorderState[key] ? "true" : "false");
       }
       function toggleNo30(key) {
         no30State[key] = !no30State[key];
         renderNo30(key);
       }
-      function resetNo30(key) {
-        no30State[key] = false;
-        renderNo30(key);
+      function togglePreorder(key) {
+        preorderState[key] = !preorderState[key];
+        renderPreorder(key);
       }
+
+      // "Loại kịch bản dành cho thuê ngay": thời gian bắt đầu trùng giờ hiện tại VN
+      // HOẶC cách giờ hiện tại VN đúng 30 phút về tương lai. Bật "Đặt trước" thì luôn là kịch bản đặt trước.
+      function isRentNowScenario(startAbs, currentAbs, preorder) {
+        if (preorder) return false;
+        const diff = startAbs - currentAbs;
+        return diff === 0 || diff === 0.5;
+      }
+
+      // Hiển thị năm bằng 2 chữ số cuối (26), giá trị thật đọc ra vẫn là 2026 nên mọi logic cũ giữ nguyên
+      function initYear2Digits(id) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        const desc = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value");
+        Object.defineProperty(el, "value", {
+          configurable: true,
+          get() {
+            const raw = desc.get.call(el);
+            const n = parseInt(raw, 10);
+            if (isNaN(n)) return raw;
+            return String(n < 100 ? 2000 + n : n);
+          },
+          set(v) {
+            const n = parseInt(v, 10);
+            desc.set.call(el, isNaN(n) ? v : String(n % 100).padStart(2, "0"));
+          },
+        });
+        el.addEventListener("blur", () => {
+          el.value = el.value; // chuẩn hóa lại thành 2 chữ số cuối
+        });
+      }
+      ["check-syear", "check-eyear", "form-syear", "form-eyear"].forEach(initYear2Digits);
+      // ===== HẾT NÚT GẠT "no30" & "Đặt trước" =====
 
       // Logic tăng giảm input số
       function stepInput(id, delta) {
         const input = document.getElementById(id);
         if (!input) return;
 
-        if (/^(form|check)-(sday|smonth|syear|shour|eday|emonth|eyear|ehour)$/.test(id))
-          resetQuickAdd(false, id.split("-")[0]); // chỉnh tay thời gian -> bỏ trạng thái +24h/+7d/+1m
+        if (/^form-(sday|smonth|syear|shour|eday|emonth|eyear|ehour)$/.test(id))
+          resetQuickAdd(false, "form"); // chỉnh tay thời gian -> bỏ trạng thái +24h/+7d/+1m
+        else if (/^check-(sday|smonth|syear|shour|eday|emonth|eyear|ehour)$/.test(id))
+          resetQuickAdd(false, "check");
 
         let min = parseInt(input.min) || 0;
         let max = parseInt(input.max) || 999;
@@ -2198,12 +2253,16 @@
         const today = getSystemDate();
         if (isNaN(val)) val = min; // dự phòng nếu ô lỡ bị trống, không còn phân biệt "lần đầu"
         const oldVal = val;
-        let hStep = delta * 0.5; // ô giờ nhảy 30 phút
-        // Nút "no30" bật: đang ở giờ tròn thì nhảy cả tiếng (không đi qua các mốc 30 phút);
-        // đang ở giờ lẻ 30 phút thì nhảy 30 phút để về giờ tròn gần nhất
-        if (isHourId && no30State[prefix.slice(0, -1)] && Number.isInteger(oldVal))
-          hStep = delta;
-        val += isHourId ? hStep : delta;
+        if (isHourId) {
+          if (no30State[prefix === "check-" ? "check" : "form"]) {
+            // no30 BẬT: nhảy theo từng giờ tròn, không đi qua các mốc 30 phút
+            val = delta > 0 ? Math.floor(val) + 1 : Math.ceil(val) - 1;
+          } else {
+            val += delta * 0.5; // no30 TẮT: ô giờ nhảy 30 phút
+          }
+        } else {
+          val += delta;
+        }
 
         // Khi ô GIỜ (shour/ehour) vượt biên 0-23 thì kéo theo ô NGÀY tương ứng +1/-1
         // + đồng bộ giờ bắt đầu/kết thúc khi đang cách nhau đúng 1 tiếng
@@ -2976,12 +3035,8 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
       // Lưu lại thông tin lịch đang xem để nút "Kịch bản" dùng
       let emailResultCtx = null;
 
-      function showEmailResult(accName, devVal, startObj, preOrder) {
-        emailResultCtx = {
-          devVal: devVal,
-          start: startObj || null,
-          preOrder: !!preOrder,
-        };
+      function showEmailResult(accName, devVal, startObj, preorder) {
+        emailResultCtx = { devVal: devVal, start: startObj || null, preorder: !!preorder };
         const email = getRentalEmail(accName, devVal);
         const pw = getLatestResetPassword(accName);
         document.getElementById("email-result-title").innerText =
@@ -3018,22 +3073,17 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
         copyText(text);
         flashKichBan(btn);
       }
-      // Thời gian bắt đầu trùng giờ hiện tại VN, hoặc cách giờ hiện tại 30 phút về tương lai
-      function isStartNowOrSoon(s) {
-        const t = getSystemDate();
-        const nowAbs = getEpochHours(t.year, t.month, t.day, t.hour);
-        const sAbs = getEpochHours(s.year, s.month, s.day, s.hour);
-        return sAbs === nowAbs || sAbs === nowAbs + 0.5;
-      }
-
       // Kịch bản của trang Email (nhập lịch mới / nút Email ở Tình trạng & Tất cả lịch)
       function openKichBanEmail(btn) {
         const ctx = emailResultCtx;
         if (!ctx || !ctx.start) return;
 
         const s = ctx.start;
-        // "Loại thuê ngay": bắt đầu trùng / cách 30 phút so với giờ VN và KHÔNG bật "Đặt trước"
-        const isNow = isStartNowOrSoon(s) && !ctx.preOrder;
+        const isNow = isRentNowScenario(
+          getEpochHours(s.year, s.month, s.day, s.hour),
+          getCurrentAbs(), // giờ hiện tại Việt Nam
+          ctx.preorder,
+        );
         const isLine = ctx.devVal === "LINE";
 
         let text = "";
@@ -3244,8 +3294,7 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
         );
         const s = rental.start;
         const startAbs = getEpochHours(s.year, s.month, s.day, s.hour);
-        // "Loại thuê ngay": bắt đầu trùng / cách 30 phút so với giờ VN và KHÔNG bật "Đặt trước"
-        const isNow = isStartNowOrSoon(s) && !rental.preOrder;
+        const isNow = isRentNowScenario(startAbs, currentAbs, rental.preorder);
 
         // Cả Google lẫn Facebook đều đã có người dùng và lịch này đứng sau lịch gần nhất
         if (u.google && u.facebook && startAbs > u.nearest.startAbs) {
@@ -3497,7 +3546,10 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
         document.getElementById("check-ehour").value = fmtHourField(ceHour);
 
         resetVHState("check");
-        resetNo30("check");
+        no30State.check = false;
+        preorderState.check = false;
+        renderNo30("check");
+        renderPreorder("check");
         resetQuickAdd(true, "check");
 
         document.getElementById("modal-check").classList.remove("hidden");
@@ -3565,6 +3617,7 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
           inE,
           currentAbs,
           pcState.check,
+          preorderState.check,
         );
 
         closeCheckModal();
@@ -3619,10 +3672,13 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
         inE,
         currentAbs,
         pc,
+        preorder,
       ) {
         const accName = accounts[accIdx].accountName;
         const res = getCoverage(accIdx, checkS, checkE, currentAbs, pc);
-        const timeDesc = inS === currentAbs ? "hiện tại" : "lúc đó";
+        const timeDesc = isRentNowScenario(inS, currentAbs, preorder)
+          ? "hiện tại"
+          : "lúc đó";
 
         if (res.covered === durationCheck) {
           return `Dạ acc ${accName} ${timeDesc} có trống ạ.`;
@@ -3712,6 +3768,7 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
         inE,
         currentAbs,
         pc,
+        preorder,
       ) {
                 // Nếu cả 4 acc cùng 1 kết quả 100% thì dù chọn acc nào cũng trả về "tất cả 4 acc"
         const allIdxs = ACC_NAMES.map((_, i) => i);
@@ -3727,6 +3784,7 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
               inE,
               currentAbs,
               pc,
+              preorder,
             )
               .split(`acc ${n}`)
               .join("")
@@ -3747,6 +3805,7 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
             inE,
             currentAbs,
             pc,
+            preorder,
           );
           const norm = msg.split(`acc ${name}`).join("").trim();
           const g = groups.find((x) => x.norm === norm);
@@ -3997,7 +4056,7 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
           { key: "Isaac", label: "Acc Isaac", color: "#f59e0b" },
           { key: "White", label: "Acc White", color: "#ec4899" },
         ];
-        // Reset trạng thái "TB theo ngày" mỗi lần vẽ lại (mặc định 1 → cuối tháng)
+        // Reset trạng thái "Lương tùy chọn" mỗi lần vẽ lại (mặc định 1 → cuối tháng)
         chartSeries = series;
         chartDays = days;
         chartRange = {};
@@ -4009,13 +4068,13 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
           .map((df) => {
             const arr = series[df.key];
             const sum = arr.reduce((a, b) => a + b, 0);
-            const avgAll = fmtAvgK(salaryPerDay(df.key)); // Lương 1 ngày: từ đầu tháng hiện tại VN đến hết hôm qua
+            const avgAll = fmtSalaryPerDay(df.key); // Lương 1 ngày: ngày 1 -> hết hôm qua của tháng hiện tại VN
             const r = chartRange[df.key];
             return `<div class="border border-gray-200 rounded-xl p-3">
               <div class="flex flex-wrap justify-between items-center mb-1 gap-2">
                 <div class="flex flex-wrap items-center gap-2">
                   <span class="font-bold text-gray-800 text-base uppercase">${df.label}</span>
-                  <span class="text-sm font-bold px-2.5 py-1 rounded-lg border border-transparent bg-gray-100 text-gray-700" title="Trung bình từ ngày đầu tháng hiện tại đến hết ngày hôm qua">Lương 1 ngày: ${avgAll}</span>
+                  <span class="text-sm font-bold px-2.5 py-1 rounded-lg border border-transparent bg-gray-100 text-gray-700" title="Trung bình từ ngày đầu tháng đến hết hôm qua (tháng hiện tại Việt Nam)">Lương 1 ngày: ${avgAll}</span>
                   <button type="button" onclick="toggleRangeAvg('${df.key}')" class="text-sm font-bold px-2.5 py-1 rounded-lg bg-orange-50 text-orange-600 border border-orange-200 hover:bg-orange-100 transition" title="Tính trung bình theo khoảng ngày tự chọn">
                     <i class="fa-solid fa-calendar-days mr-1"></i> Lương tùy chọn
                   </button>
@@ -4027,7 +4086,7 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
                 ${rangeStepperHtml(df.key, "s", r.s)}
                 <span class="font-medium text-gray-600">đến ngày</span>
                 ${rangeStepperHtml(df.key, "e", r.e)}
-                <span class="font-bold text-gray-800">→ TB: <span id="range-result-${df.key}" style="color:${df.color}">${fmtAvgK(avgOfRange(arr, r.s, r.e))}</span></span>
+                <span class="font-bold text-gray-800">→ Lương 1 ngày: <span id="range-result-${df.key}" style="color:${df.color}">${fmtAvgK(avgOfRange(arr, r.s, r.e))}</span></span>
               </div>
               <div class="overflow-x-auto">${buildBarChartSvg(arr, df.color)}</div>
               <div class="text-[11px] text-gray-400 text-center">Trục hoành: ngày trong tháng • Trục tung: doanh thu (VNĐ) • Số trên cột: nghìn đồng</div>
@@ -4048,18 +4107,19 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
         return sum / (e - s + 1);
       }
 
-      // Lương 1 ngày: trung bình doanh thu từ ngày 1 của tháng hiện tại (VN) đến hết hôm qua
-      function salaryPerDay(key) {
+      // "Lương 1 ngày": trung bình doanh thu từ hết ngày 1 của tháng hiện tại VN
+      // đến hết ngày hôm qua của tháng hiện tại VN (không tính hôm nay). Mùng 1 chưa có ngày nào -> "—"
+      function fmtSalaryPerDay(key) {
         const t = getSystemDate();
-        const pastDays = t.day - 1;
-        if (pastDays < 1) return 0;
-        let total = 0;
-        for (let d = 1; d <= pastDays; d++) {
+        const lastDay = t.day - 1;
+        if (lastDay < 1) return "—";
+        let sum = 0;
+        for (let d = 1; d <= lastDay; d++) {
           const v = revenueHistory[revDateKey(t.year, t.month, d)] || {};
-          if (key === "total") ACC_NAMES.forEach((n) => (total += v[n] || 0));
-          else total += v[key] || 0;
+          if (key === "total") ACC_NAMES.forEach((n) => (sum += v[n] || 0));
+          else sum += v[key] || 0;
         }
-        return total / pastDays;
+        return fmtAvgK(sum / lastDay);
       }
 
       // Chia 1000, làm tròn XUỐNG (8678 -> "8k")
@@ -4075,7 +4135,7 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
         </div>`;
       }
 
-      // Bấm nút "TB theo ngày" để mở / đóng khung chọn ngày
+      // Bấm nút "Lương tùy chọn" để mở / đóng khung chọn ngày
       function toggleRangeAvg(key) {
         const el = document.getElementById("range-panel-" + key);
         if (!el) return;
@@ -4539,18 +4599,6 @@ function setFormDevice(type) {
         });
       }
 
-      // ===== NÚT "ĐẶT TRƯỚC" (Nhập lịch mới / Sửa) =====
-      // Bật: kịch bản của lịch chuyển sang loại dành cho đặt trước
-      let formPreOrder = false;
-      function setPreOrder(on) {
-        formPreOrder = !!on;
-        const b = document.getElementById("form-preorder-toggle");
-        if (b) b.className = "tg-btn " + (formPreOrder ? "tg-on" : "tg-off");
-      }
-      function togglePreOrder() {
-        setPreOrder(!formPreOrder);
-      }
-
       // ===== TÍNH NĂNG NÚT GẠT "GIỜ ẢO" =====
       // key: 'check' (Modal Kiểm tra) hoặc 'form' (Modal Nhập lịch mới / Sửa)
       let vhState = {
@@ -4698,9 +4746,11 @@ function setFormDevice(type) {
         document.getElementById("form-ehour").value = fmtHourField(eHour);
 
         resetVHState("form");
-        resetQuickAdd(true);
-        resetNo30("form");
-        setPreOrder(false);
+        resetQuickAdd(true, "form");
+        no30State.form = false;
+        preorderState.form = false;
+        renderNo30("form");
+        renderPreorder("form");
 
         document.getElementById("modal-rental").classList.remove("hidden");
         document.getElementById("modal-rental").classList.add("flex");
@@ -4757,7 +4807,7 @@ function setFormDevice(type) {
           openGoogleFbScript(accIdx, r);
           return;
         }
-        showEmailResult(accName, r.deviceType, r.start, r.preOrder);
+        showEmailResult(accName, r.deviceType, r.start, r.preorder);
       }
 
       function editRentalByKey(accIdx, encKey) {
@@ -4800,12 +4850,14 @@ function setFormDevice(type) {
         document.getElementById("form-eyear").value = r.end.year;
 
         resetVHState("form");
-        resetQuickAdd(true);
-        resetNo30("form");
-        setPreOrder(!!r.preOrder);
+        resetQuickAdd(true, "form");
         if (r.virtualHour) {
           setVHState("form", true, "manual");
         }
+        no30State.form = false;
+        preorderState.form = !!r.preorder;
+        renderNo30("form");
+        renderPreorder("form");
 
         document.getElementById("modal-rental").classList.remove("hidden");
         document.getElementById("modal-rental").classList.add("flex");
@@ -4814,7 +4866,7 @@ function setFormDevice(type) {
       function closeModal() {
         document.getElementById("modal-rental").classList.add("hidden");
         document.getElementById("modal-rental").classList.remove("flex");
-        resetQuickAdd(true);
+        resetQuickAdd(true, "form");
       }
 
       // ===== NÚT +/- , 24h , 7d , 1m (Nhập lịch mới & Sửa lịch) =====
@@ -4822,26 +4874,25 @@ function setFormDevice(type) {
       // Mỗi lần bấm 24h / 7d / 1m thì giờ KẾT THÚC tăng (hoặc giảm) thêm 24 giờ / 7 ngày / 30 ngày,
       // cộng dồn tính từ thời gian BẮT ĐẦU.
       const QUICK_ADD_HOURS = { "24h": 24, "7d": 7 * 24, "1m": 30 * 24 };
-      // Mỗi phần (form = Nhập lịch mới/Sửa, check = Kiểm tra) có trạng thái riêng
-      let quickAddStates = {
+      // key: 'form' (Nhập lịch mới & Sửa) hoặc 'check' (Kiểm tra) - mỗi nơi giữ trạng thái riêng
+      const quickAddStates = {
         form: { sign: 1, offset: null },
         check: { sign: 1, offset: null },
       };
 
-      function renderQuickAdd(prefix) {
-        prefix = prefix || "form";
-        const st = quickAddStates[prefix];
+      function renderQuickAdd(key = "form") {
+        const st = quickAddStates[key];
         const plus = st.sign > 0;
         const cls =
-          "qa-btn" + (prefix === "check" ? " qa-btn-lg" : "") + " " + (plus ? "qa-plus" : "qa-minus");
+          "qa-btn " + (key === "check" ? "qa-btn-lg " : "") + (plus ? "qa-plus" : "qa-minus");
         const mark = plus ? "+" : "-";
-        const sb = document.getElementById(prefix + "-qa-sign");
+        const sb = document.getElementById(key + "-qa-sign");
         if (sb) {
           sb.className = cls;
           sb.textContent = mark;
         }
         Object.keys(QUICK_ADD_HOURS).forEach((k) => {
-          const b = document.getElementById(prefix + "-qa-" + k);
+          const b = document.getElementById(key + "-qa-" + k);
           if (b) {
             b.className = cls;
             b.textContent = mark + k;
@@ -4850,38 +4901,33 @@ function setFormDevice(type) {
       }
 
       // Xóa phần cộng dồn (nhập tay thời gian thì tính lại từ đầu); resetSign = true thì đưa dấu về cộng
-      function resetQuickAdd(resetSign, prefix) {
-        prefix = prefix || "form";
-        const st = quickAddStates[prefix];
+      function resetQuickAdd(resetSign, key = "form") {
+        const st = quickAddStates[key];
         st.offset = null;
         if (resetSign) st.sign = 1;
-        renderQuickAdd(prefix);
+        renderQuickAdd(key);
       }
 
-      function toggleQuickSign(prefix) {
-        prefix = prefix || "form";
-        quickAddStates[prefix].sign = -quickAddStates[prefix].sign;
-        renderQuickAdd(prefix);
+      function toggleQuickSign(key = "form") {
+        quickAddStates[key].sign = -quickAddStates[key].sign;
+        renderQuickAdd(key);
       }
 
-      function quickAdd(kind, prefix) {
-        prefix = prefix || "form";
-        const st = quickAddStates[prefix];
+      function quickAdd(kind, key = "form") {
+        const st = quickAddStates[key];
+        const p = key + "-";
         const today = getSystemDate();
-        const sDay = parseInt(document.getElementById(prefix + "-sday").value);
-        const sHour = parseHourField(document.getElementById(prefix + "-shour").value);
-        const sM = parseInt(document.getElementById(prefix + "-smonth").value) || today.month;
-        const sY = parseInt(document.getElementById(prefix + "-syear").value) || today.year;
+        const sDay = parseInt(document.getElementById(p + "sday").value);
+        const sHour = parseHourField(document.getElementById(p + "shour").value);
+        const sM = parseInt(document.getElementById(p + "smonth").value) || today.month;
+        const sY = parseInt(document.getElementById(p + "syear").value) || today.year;
         if (isNaN(sDay) || isNaN(sHour)) {
           showCustomAlert("Vui lòng nhập đầy đủ ngày và giờ BẮT ĐẦU trước!");
           return;
         }
 
         // offset luôn tính từ thời gian BẮT ĐẦU (không bao giờ âm, tối thiểu 0)
-        st.offset = Math.max(
-          0,
-          (st.offset || 0) + st.sign * QUICK_ADD_HOURS[kind],
-        );
+        st.offset = Math.max(0, (st.offset || 0) + st.sign * QUICK_ADD_HOURS[kind]);
 
         // Luôn đảm bảo lịch thuê tối thiểu MIN_RENTAL_HOURS (1 tiếng):
         // nếu giờ kết thúc <= giờ bắt đầu thì hiển thị đúng mức tối thiểu (bắt đầu + 1h),
@@ -4891,10 +4937,10 @@ function setFormDevice(type) {
         const e = fromEpochHours(
           getEpochHours(sY, sM, sDay, sHour) + effectiveOffset,
         );
-        document.getElementById(prefix + "-eday").value = e.d;
-        document.getElementById(prefix + "-emonth").value = e.m;
-        document.getElementById(prefix + "-eyear").value = e.y;
-        document.getElementById(prefix + "-ehour").value = fmtHourField(e.h);
+        document.getElementById(p + "eday").value = e.d;
+        document.getElementById(p + "emonth").value = e.m;
+        document.getElementById(p + "eyear").value = e.y;
+        document.getElementById(p + "ehour").value = fmtHourField(e.h);
       }
 
       // Gõ tay vào các ô thời gian -> bỏ phần cộng dồn, lần bấm sau tính lại từ thời gian bắt đầu
@@ -5090,7 +5136,7 @@ function setFormDevice(type) {
           end: { year: eY, month: eM, day: eDay, hour: eHour },
           deviceType: devVal,
           virtualHour: vhOn,
-          preOrder: formPreOrder,
+          preorder: preorderState.form,
         };
         acc.schedule.push(newRental);
 
@@ -5118,7 +5164,7 @@ function setFormDevice(type) {
                 day: sDay,
                 hour: sHour,
               },
-              formPreOrder,
+              preorderState.form,
             );
           }
         }
@@ -5193,29 +5239,6 @@ function setFormDevice(type) {
           saveData();
         });
       }
-
-      // Ô năm chỉ HIỂN THỊ 2 chữ số cuối (26); phần còn lại của chương trình vẫn đọc/ghi năm đầy đủ (2026)
-      (function () {
-        const desc = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value");
-        ["form-syear", "form-eyear", "check-syear", "check-eyear"].forEach((id) => {
-          const el = document.getElementById(id);
-          if (!el) return;
-          Object.defineProperty(el, "value", {
-            configurable: true,
-            get() {
-              const raw = desc.get.call(el);
-              return /^\d{1,2}$/.test(raw) ? String(2000 + parseInt(raw, 10)) : raw;
-            },
-            set(v) {
-              const s = String(v == null ? "" : v);
-              desc.set.call(el, /^\d{4}$/.test(s) ? s.slice(2) : s);
-            },
-          });
-          el.addEventListener("blur", () => {
-            el.value = el.value; // chuẩn hóa lại về hiển thị 2 chữ số
-          });
-        });
-      })();
 
       window.onload = initApp;
     </script>
