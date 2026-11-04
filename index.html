@@ -4111,11 +4111,18 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
       // đến hết ngày hôm qua của tháng hiện tại VN (không tính hôm nay). Mùng 1 chưa có ngày nào -> "—"
       function fmtSalaryPerDay(key) {
         const t = getSystemDate();
-        const lastDay = t.day - 1;
+        let lastDay;
+        if (chartYear === t.year && chartMonth === t.month) {
+          lastDay = t.day - 1; // tháng hiện tại: đến hết hôm qua
+        } else if (chartYear * 12 + chartMonth < t.year * 12 + t.month) {
+          lastDay = getDaysInMonth(chartYear, chartMonth); // tháng đã qua: cả tháng
+        } else {
+          return "—"; // tháng tương lai
+        }
         if (lastDay < 1) return "—";
         let sum = 0;
         for (let d = 1; d <= lastDay; d++) {
-          const v = revenueHistory[revDateKey(t.year, t.month, d)] || {};
+          const v = revenueHistory[revDateKey(chartYear, chartMonth, d)] || {};
           if (key === "total") ACC_NAMES.forEach((n) => (sum += v[n] || 0));
           else sum += v[key] || 0;
         }
