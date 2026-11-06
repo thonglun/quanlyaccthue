@@ -122,6 +122,532 @@
       .dark #daily-revenue-body .sticky-col { box-shadow: 1px 0 0 #4b5563; }
       .dark #daily-revenue-body thead th.sticky-col, .dark #daily-revenue-body tfoot td.sticky-col { background-color: #1f2937; }
     </style>
+      <style id="ui-redesign">
+      /* =====================================================================
+         GIAO DIỆN MỚI - chỉ là lớp CSS phủ lên, không đổi logic / cấu trúc
+         ===================================================================== */
+      :root {
+        --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+        --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+        --glass: rgba(255, 255, 255, 0.72);
+        --glass-strong: rgba(255, 255, 255, 0.9);
+        --glass-border: rgba(255, 255, 255, 0.85);
+        --card-shadow: 0 10px 30px -12px rgba(79, 70, 229, 0.25), 0 2px 6px rgba(15, 23, 42, 0.05);
+        --card-shadow-hover: 0 18px 40px -14px rgba(79, 70, 229, 0.4), 0 4px 10px rgba(15, 23, 42, 0.08);
+      }
+      html.dark {
+        --glass: rgba(17, 24, 39, 0.72);
+        --glass-strong: rgba(17, 24, 39, 0.92);
+        --glass-border: rgba(99, 102, 241, 0.22);
+        --card-shadow: 0 12px 34px -14px rgba(0, 0, 0, 0.7), 0 2px 6px rgba(0, 0, 0, 0.4);
+        --card-shadow-hover: 0 20px 44px -14px rgba(99, 102, 241, 0.45), 0 4px 10px rgba(0, 0, 0, 0.5);
+      }
+
+      html { scroll-behavior: smooth; }
+      body {
+        font-family: "Inter", "Be Vietnam Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        -webkit-font-smoothing: antialiased;
+        position: relative;
+        background: transparent !important;
+        animation: pageFade 0.7s var(--ease-out) both;
+      }
+      /* Nền aurora chuyển động */
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        z-index: -2;
+        background:
+          radial-gradient(900px 500px at 8% 6%, rgba(99, 102, 241, 0.28), transparent 60%),
+          radial-gradient(800px 520px at 95% 12%, rgba(236, 72, 153, 0.20), transparent 60%),
+          radial-gradient(900px 600px at 50% 105%, rgba(20, 184, 166, 0.22), transparent 60%),
+          linear-gradient(180deg, #eef2ff 0%, #f5f3ff 50%, #ecfeff 100%);
+        background-size: 140% 140%, 140% 140%, 140% 140%, 100% 100%;
+        animation: auroraShift 22s ease-in-out infinite alternate;
+      }
+      html.dark body::before {
+        background:
+          radial-gradient(900px 500px at 8% 6%, rgba(99, 102, 241, 0.30), transparent 60%),
+          radial-gradient(800px 520px at 95% 12%, rgba(168, 85, 247, 0.22), transparent 60%),
+          radial-gradient(900px 600px at 50% 105%, rgba(20, 184, 166, 0.16), transparent 60%),
+          linear-gradient(180deg, #060a18 0%, #0b1120 60%, #0a1322 100%);
+      }
+      html.dark body { background: transparent !important; }
+      .dark .bg-slate-100 { background-color: transparent !important; }
+      .bg-slate-100 { background-color: transparent !important; }
+
+      @keyframes auroraShift {
+        0%   { background-position: 0% 0%, 100% 0%, 50% 100%, 0 0; }
+        100% { background-position: 12% 18%, 85% 14%, 40% 90%, 0 0; }
+      }
+      @keyframes pageFade {
+        from { opacity: 0; }
+        to { opacity: 1; }
+      }
+      @keyframes riseIn {
+        from { opacity: 0; transform: translateY(22px) scale(0.985); }
+        to { opacity: 1; transform: translateY(0) scale(1); }
+      }
+      @keyframes popIn {
+        0% { opacity: 0; transform: translateY(24px) scale(0.92); }
+        60% { opacity: 1; }
+        100% { opacity: 1; transform: translateY(0) scale(1); }
+      }
+      @keyframes backdropIn {
+        from { opacity: 0; backdrop-filter: blur(0); }
+        to { opacity: 1; backdrop-filter: blur(8px); }
+      }
+      @keyframes tabFade {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      @keyframes itemIn {
+        from { opacity: 0; transform: translateX(-8px); }
+        to { opacity: 1; transform: translateX(0); }
+      }
+      @keyframes shine {
+        from { transform: translateX(-130%) skewX(-18deg); }
+        to { transform: translateX(260%) skewX(-18deg); }
+      }
+      @keyframes floatGlow {
+        0%, 100% { transform: translate(0, 0) scale(1); }
+        50% { transform: translate(20px, -14px) scale(1.12); }
+      }
+      @keyframes gradientFlow {
+        0% { background-position: 0% 50%; }
+        100% { background-position: 200% 50%; }
+      }
+
+      /* ---------- Khung chính: xuất hiện lần lượt ---------- */
+      .max-w-7xl > div:first-child { animation: riseIn 0.8s var(--ease-out) both; }
+      .max-w-7xl > .grid > .space-y-6 > :nth-child(1) { animation: riseIn 0.8s var(--ease-out) 0.12s both; }
+      .max-w-7xl > .grid > .space-y-6 > :nth-child(2) { animation: riseIn 0.8s var(--ease-out) 0.24s both; }
+
+      /* ---------- Header ---------- */
+      .max-w-7xl > div:first-child {
+        position: relative;
+        overflow: hidden;
+        background: linear-gradient(120deg, #4f46e5, #7c3aed, #db2777, #4f46e5) !important;
+        background-size: 250% 100% !important;
+        animation: riseIn 0.8s var(--ease-out) both, gradientFlow 14s linear infinite;
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        border-radius: 1.75rem !important;
+        box-shadow: 0 24px 50px -18px rgba(124, 58, 237, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.35) !important;
+      }
+      .max-w-7xl > div:first-child::before {
+        content: "";
+        position: absolute;
+        width: 260px; height: 260px;
+        right: -60px; top: -110px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.35), transparent 70%);
+        animation: floatGlow 9s ease-in-out infinite;
+        pointer-events: none;
+      }
+      .max-w-7xl > div:first-child h1 {
+        font-size: 1.75rem;
+        letter-spacing: 0.06em;
+        text-shadow: 0 2px 14px rgba(0, 0, 0, 0.25);
+      }
+      #system-date { color: rgba(255, 255, 255, 0.8) !important; }
+
+      /* ---------- Nút bấm: nâng nhẹ + vệt sáng quét ---------- */
+      button {
+        transition: transform 0.25s var(--ease-spring), box-shadow 0.3s var(--ease-out),
+          background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease, opacity 0.2s ease;
+        -webkit-tap-highlight-color: transparent;
+      }
+      button:active { transform: scale(0.95) !important; }
+      .max-w-7xl button.rounded-xl.shadow,
+      .max-w-7xl button.rounded-xl.font-bold.shadow {
+        position: relative;
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.28);
+        box-shadow: 0 8px 18px -8px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
+      }
+      .max-w-7xl button.rounded-xl.shadow::after {
+        content: "";
+        position: absolute;
+        top: 0; left: 0;
+        width: 40%; height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.45), transparent);
+        transform: translateX(-130%) skewX(-18deg);
+        pointer-events: none;
+      }
+      .max-w-7xl button.rounded-xl.shadow:hover { transform: translateY(-3px) scale(1.03); }
+      .max-w-7xl button.rounded-xl.shadow:hover::after { animation: shine 0.9s var(--ease-out); }
+      .max-w-7xl button.rounded-xl.shadow i { transition: transform 0.35s var(--ease-spring); }
+      .max-w-7xl button.rounded-xl.shadow:hover i { transform: rotate(-12deg) scale(1.2); }
+
+      /* Nút gạt sáng/tối */
+      #theme-toggle {
+        background: rgba(255, 255, 255, 0.18) !important;
+        border: 1px solid rgba(255, 255, 255, 0.45) !important;
+        backdrop-filter: blur(8px);
+      }
+      #theme-toggle:hover { transform: scale(1.06); }
+      #theme-knob { transition: transform 0.5s var(--ease-spring) !important; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3); }
+      #theme-knob-icon { transition: transform 0.6s var(--ease-spring); }
+      #theme-toggle:hover #theme-knob-icon { transform: rotate(180deg); }
+
+      /* ---------- Thẻ tổng doanh thu ---------- */
+      .bg-indigo-700.text-white.rounded-2xl {
+        position: relative;
+        background: linear-gradient(135deg, #312e81 0%, #4338ca 45%, #6d28d9 100%) !important;
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        border-radius: 1.75rem !important;
+        box-shadow: 0 28px 55px -22px rgba(67, 56, 202, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.25) !important;
+      }
+      .bg-indigo-700.text-white.rounded-2xl::before,
+      .bg-indigo-700.text-white.rounded-2xl::after {
+        content: "";
+        position: absolute;
+        border-radius: 50%;
+        pointer-events: none;
+        filter: blur(6px);
+      }
+      .bg-indigo-700.text-white.rounded-2xl::before {
+        width: 280px; height: 280px;
+        left: -90px; bottom: -140px;
+        background: radial-gradient(circle, rgba(34, 211, 238, 0.4), transparent 70%);
+        animation: floatGlow 11s ease-in-out infinite;
+      }
+      .bg-indigo-700.text-white.rounded-2xl::after {
+        width: 240px; height: 240px;
+        right: 30%; top: -120px;
+        background: radial-gradient(circle, rgba(244, 114, 182, 0.35), transparent 70%);
+        animation: floatGlow 13s ease-in-out infinite reverse;
+      }
+      .bg-indigo-700.text-white.rounded-2xl > * { position: relative; z-index: 1; }
+      #total-revenue {
+        font-size: 2.75rem;
+        background: linear-gradient(90deg, #ffffff, #fde68a, #ffffff);
+        background-size: 200% 100%;
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        animation: gradientFlow 6s linear infinite;
+        filter: drop-shadow(0 4px 14px rgba(0, 0, 0, 0.25));
+      }
+      .bg-indigo-700 .grid.grid-cols-2 > div {
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        border-radius: 1rem;
+        padding: 0.75rem 0.9rem;
+        backdrop-filter: blur(6px);
+        transition: transform 0.35s var(--ease-spring), background-color 0.3s ease, box-shadow 0.3s ease;
+      }
+      .bg-indigo-700 .grid.grid-cols-2 > div:hover {
+        transform: translateY(-4px);
+        background: rgba(255, 255, 255, 0.16);
+        box-shadow: 0 12px 24px -12px rgba(0, 0, 0, 0.5);
+      }
+
+      /* Đồng hồ */
+      #clock-time { filter: drop-shadow(0 0 18px rgba(165, 180, 252, 0.45)); }
+      #clock-time + #clock-date, #clock-date { transition: transform 0.3s var(--ease-out); }
+      .lg\:w-\[340px\] {
+        border-radius: 1.5rem !important;
+        box-shadow: 0 20px 40px -18px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.12) !important;
+        transition: transform 0.4s var(--ease-out), box-shadow 0.4s var(--ease-out);
+      }
+      .lg\:w-\[340px\]:hover { transform: translateY(-4px); }
+
+      /* ---------- Khung tab ---------- */
+      .bg-white.rounded-2xl.shadow-sm.border {
+        background: var(--glass) !important;
+        backdrop-filter: blur(16px) saturate(1.4);
+        -webkit-backdrop-filter: blur(16px) saturate(1.4);
+        border: 1px solid var(--glass-border) !important;
+        border-radius: 1.75rem !important;
+        box-shadow: var(--card-shadow) !important;
+      }
+      .flex.border-b.text-sm.font-bold {
+        background: transparent !important;
+        position: relative;
+        padding: 0.4rem 0.4rem 0;
+        gap: 0.25rem;
+      }
+      [id^="tab-btn-"] {
+        position: relative;
+        border-radius: 1rem 1rem 0 0;
+        border-bottom-width: 0 !important;
+        transition: color 0.3s ease, background-color 0.3s ease, transform 0.3s var(--ease-spring) !important;
+      }
+      [id^="tab-btn-"]:hover { background: rgba(99, 102, 241, 0.08); transform: translateY(-1px); }
+      [id^="tab-btn-"].border-indigo-600 {
+        background: linear-gradient(180deg, rgba(99, 102, 241, 0.14), rgba(99, 102, 241, 0)) !important;
+        color: #4f46e5 !important;
+      }
+      [id^="tab-btn-"].border-indigo-600::after {
+        content: "";
+        position: absolute;
+        left: 18%; right: 18%; bottom: 0;
+        height: 3px;
+        border-radius: 3px;
+        background: linear-gradient(90deg, #6366f1, #a855f7, #ec4899);
+        animation: tabLine 0.5s var(--ease-out) both;
+      }
+      @keyframes tabLine { from { left: 50%; right: 50%; opacity: 0; } to { left: 18%; right: 18%; opacity: 1; } }
+      html.dark [id^="tab-btn-"].border-indigo-600 { color: #c7d2fe !important; }
+
+      #tab-upcoming, #tab-all, #tab-notes { animation: tabFade 0.5s var(--ease-out) both; }
+      #tab-upcoming:not(.hidden) > *, #tab-all:not(.hidden) > * {
+        animation: riseIn 0.6s var(--ease-out) both;
+      }
+      #tab-upcoming > :nth-child(2), #tab-all > :nth-child(2) { animation-delay: 0.07s; }
+      #tab-upcoming > :nth-child(3), #tab-all > :nth-child(3) { animation-delay: 0.14s; }
+      #tab-upcoming > :nth-child(4), #tab-all > :nth-child(4) { animation-delay: 0.21s; }
+
+      /* ---------- Thẻ từng acc ---------- */
+      #tab-upcoming > div, #tab-all > div {
+        background: var(--glass-strong) !important;
+        border: 1px solid rgba(99, 102, 241, 0.14) !important;
+        border-radius: 1.5rem !important;
+        box-shadow: var(--card-shadow);
+        transition: transform 0.4s var(--ease-out), box-shadow 0.4s var(--ease-out), border-color 0.3s ease;
+        position: relative;
+        overflow: hidden;
+      }
+      #tab-upcoming > div::before, #tab-all > div::before {
+        content: "";
+        position: absolute;
+        left: 0; top: 0; right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #6366f1, #a855f7, #ec4899, #6366f1);
+        background-size: 200% 100%;
+        animation: gradientFlow 5s linear infinite;
+        opacity: 0.9;
+      }
+      #tab-upcoming > div:hover, #tab-all > div:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--card-shadow-hover);
+        border-color: rgba(99, 102, 241, 0.4) !important;
+      }
+      #tab-upcoming h3, #tab-all h3 { letter-spacing: 0.08em; }
+
+      /* Thẻ lịch thuê */
+      [id^="list-"] > div.bg-gradient-to-r {
+        position: relative;
+        border-radius: 1rem !important;
+        background: linear-gradient(120deg, rgba(255, 255, 255, 0.95), rgba(238, 242, 255, 0.9)) !important;
+        border: 1px solid rgba(99, 102, 241, 0.16) !important;
+        box-shadow: 0 6px 16px -10px rgba(79, 70, 229, 0.35) !important;
+        transition: transform 0.35s var(--ease-spring), box-shadow 0.3s ease, border-color 0.3s ease;
+        animation: itemIn 0.5s var(--ease-out) both;
+      }
+      [id^="list-"] > div.bg-gradient-to-r:hover {
+        transform: translateX(5px) translateY(-2px);
+        border-color: rgba(99, 102, 241, 0.5) !important;
+        box-shadow: 0 14px 26px -12px rgba(79, 70, 229, 0.5) !important;
+      }
+      html.dark [id^="list-"] > div.bg-gradient-to-r {
+        background: linear-gradient(120deg, #1f2937, #1e1b4b) !important;
+      }
+      [id^="list-"] > div.bg-gradient-to-r button {
+        border-radius: 0.7rem !important;
+      }
+      [id^="list-"] > div.bg-gradient-to-r button:hover { transform: translateY(-2px) scale(1.06); }
+      [id^="list-"] > div.bg-gradient-to-r .bg-indigo-600 {
+        background: linear-gradient(135deg, #6366f1, #8b5cf6) !important;
+        box-shadow: 0 4px 10px -3px rgba(99, 102, 241, 0.6);
+      }
+
+      /* Biểu tượng "đang trong ca" nhấp nháy nhẹ */
+      .fa-circle-play { animation: livePulse 1.8s ease-in-out infinite; }
+      @keyframes livePulse {
+        0%, 100% { transform: scale(1); filter: drop-shadow(0 0 0 rgba(16, 185, 129, 0)); }
+        50% { transform: scale(1.25); filter: drop-shadow(0 0 6px rgba(16, 185, 129, 0.9)); }
+      }
+      .fa-hourglass-half { animation: hourglass 3s ease-in-out infinite; }
+      @keyframes hourglass { 0%, 100% { transform: rotate(0); } 50% { transform: rotate(180deg); } }
+
+      /* Nút sổ xuống ở "Tất cả lịch" */
+      [id^="all-toggle-"], [id^="all-filter-btn-"], [id^="reset36-btn-"] {
+        border-radius: 0.9rem !important;
+        transition: transform 0.3s var(--ease-spring), background-color 0.3s ease, box-shadow 0.3s ease !important;
+      }
+      [id^="all-toggle-"]:hover, [id^="all-filter-btn-"]:hover, [id^="reset36-btn-"]:hover { transform: scale(1.1); box-shadow: 0 8px 18px -8px rgba(79, 70, 229, 0.6); }
+      /* Trạng thái đang kích hoạt của nút lọc thời gian / nút giới hạn 36 tiếng */
+      html button.filter-on.filter-on {
+        background-color: #4f46e5 !important;
+        border-color: #4338ca !important;
+        color: #ffffff !important;
+      }
+      [id^="list-all-"]:not(.hidden) { animation: tabFade 0.4s var(--ease-out) both; }
+
+      /* Ghi chú */
+      #list-notes > div {
+        border-radius: 1rem !important;
+        transition: transform 0.3s var(--ease-spring), box-shadow 0.3s ease;
+        animation: itemIn 0.5s var(--ease-out) both;
+      }
+      #list-notes > div:hover { transform: translateX(6px); box-shadow: 0 10px 22px -12px rgba(79, 70, 229, 0.5); }
+
+      /* ---------- MODAL ---------- */
+      [id^="modal-"].flex {
+        animation: backdropIn 0.35s ease both;
+        background: rgba(15, 23, 42, 0.5) !important;
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+      }
+      [id^="modal-"].flex > div {
+        animation: popIn 0.5s var(--ease-spring) both;
+        background: var(--glass-strong) !important;
+        border: 1px solid var(--glass-border);
+        border-radius: 1.75rem !important;
+        box-shadow: 0 40px 80px -24px rgba(30, 27, 75, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.5) !important;
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        position: relative;
+        overflow-x: hidden;
+      }
+      [id^="modal-"].flex > div::before {
+        content: "";
+        position: absolute;
+        left: 0; top: 0; right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #6366f1, #a855f7, #ec4899, #6366f1);
+        background-size: 200% 100%;
+        animation: gradientFlow 5s linear infinite;
+        z-index: 2;
+      }
+      [id^="modal-"] h3.text-lg { letter-spacing: 0.01em; }
+      [id^="modal-"] .border-b { border-color: rgba(99, 102, 241, 0.18) !important; }
+
+      /* Ô nhập liệu */
+      input[type="text"], input[type="number"] { transition: box-shadow 0.25s ease, border-color 0.25s ease, background-color 0.25s ease; }
+      #modal-rental input#form-tenant,
+      #custom-prompt-input {
+        border-radius: 0.9rem !important;
+        border: 1.5px solid rgba(99, 102, 241, 0.25) !important;
+        background: rgba(255, 255, 255, 0.6);
+      }
+      html.dark #modal-rental input#form-tenant,
+      html.dark #custom-prompt-input { background: rgba(31, 41, 55, 0.8); }
+      #modal-rental input#form-tenant:focus,
+      #custom-prompt-input:focus { box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.2); border-color: #6366f1 !important; }
+      .rounded-xl.overflow-hidden.shadow-sm, .rounded-lg.overflow-hidden.shadow-sm {
+        transition: box-shadow 0.3s ease, border-color 0.3s ease, transform 0.3s var(--ease-out);
+      }
+      .rounded-xl.overflow-hidden.shadow-sm:focus-within { transform: translateY(-1px); }
+      .rounded-xl.overflow-hidden.shadow-sm button:hover i,
+      .rounded-lg.overflow-hidden.shadow-sm button:hover i { transform: scale(1.35); }
+      .rounded-xl.overflow-hidden.shadow-sm button i,
+      .rounded-lg.overflow-hidden.shadow-sm button i { transition: transform 0.25s var(--ease-spring); }
+
+      /* Nút chọn acc / đăng nhập */
+      [id$="-acc-picker"] button { border-radius: 1rem !important; }
+      [id$="-acc-picker"] button:hover { transform: translateY(-2px); }
+      [id^="form-device-"] { border-radius: 0.9rem !important; }
+      [id^="form-device-"]:hover { transform: translateY(-2px); }
+
+      /* Nút Hủy / Lưu / Đồng ý ở chân modal */
+      [id^="modal-"] .flex.gap-2 > button {
+        position: relative;
+        overflow: hidden;
+        border-radius: 1rem !important;
+        box-shadow: 0 10px 20px -10px rgba(0, 0, 0, 0.4);
+      }
+      [id^="modal-"] .flex.gap-2 > button:hover { transform: translateY(-3px); box-shadow: 0 16px 26px -12px rgba(0, 0, 0, 0.5); }
+      [id^="modal-"] .flex.gap-2 > button::after {
+        content: "";
+        position: absolute;
+        top: 0; left: 0;
+        width: 40%; height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+        transform: translateX(-130%) skewX(-18deg);
+        pointer-events: none;
+      }
+      [id^="modal-"] .flex.gap-2 > button:hover::after { animation: shine 0.8s var(--ease-out); }
+
+      /* Ô email / mật khẩu / kịch bản */
+      [id^="modal-"] .bg-slate-50.border {
+        border-radius: 1rem !important;
+        transition: transform 0.3s var(--ease-out), box-shadow 0.3s ease, border-color 0.3s ease;
+      }
+      [id^="modal-"] .bg-slate-50.border:hover {
+        transform: translateY(-2px);
+        border-color: rgba(99, 102, 241, 0.5);
+        box-shadow: 0 10px 20px -12px rgba(79, 70, 229, 0.5);
+      }
+      [id^="modal-"] .bg-slate-50.border button { border-radius: 0.8rem !important; }
+      [id^="modal-"] .bg-slate-50.border button:hover { transform: scale(1.08) rotate(-4deg); }
+      #script-lines > div { animation: itemIn 0.5s var(--ease-out) both; }
+      #script-lines > div:nth-child(2) { animation-delay: 0.08s; }
+      #script-lines > div:nth-child(3) { animation-delay: 0.16s; }
+
+      /* Lựa chọn trong hộp thoại prompt */
+      #custom-prompt-options button { animation: itemIn 0.45s var(--ease-out) both; border-radius: 1rem !important; }
+      #custom-prompt-options button:nth-child(2) { animation-delay: 0.05s; }
+      #custom-prompt-options button:nth-child(3) { animation-delay: 0.1s; }
+      #custom-prompt-options button:nth-child(4) { animation-delay: 0.15s; }
+      #custom-prompt-options button:nth-child(5) { animation-delay: 0.2s; }
+      #custom-prompt-options button:nth-child(6) { animation-delay: 0.25s; }
+      #custom-prompt-options button:hover { transform: translateX(6px); }
+
+      /* Công tắc nhỏ (PC / Giờ ảo) */
+      #free-pc-toggle, #check-pc-toggle, #check-vh-toggle, #form-vh-toggle {
+        box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2);
+      }
+      #free-pc-toggle > span, #check-pc-toggle > span, #check-vh-toggle > span, #form-vh-toggle > span {
+        transition: transform 0.4s var(--ease-spring) !important;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+      }
+
+      /* Các chip no30 / Đặt trước & nút nhanh */
+      .tg-chip { transition: all 0.3s var(--ease-spring); }
+      .tg-chip:hover { transform: translateY(-1px) scale(1.05); }
+      .qa-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 12px -6px rgba(0, 0, 0, 0.35); }
+
+      /* Bảng doanh thu mỗi ngày */
+      #daily-revenue-body tbody tr { transition: background-color 0.2s ease, transform 0.25s var(--ease-out); }
+      #daily-revenue-body tbody tr:hover { background-color: #e0e7ff !important; }
+      html.dark #daily-revenue-body tbody tr:hover { background-color: #312e81 !important; }
+      #daily-revenue-body tbody tr { animation: itemIn 0.45s var(--ease-out) both; }
+      #daily-revenue-body thead th { backdrop-filter: blur(6px); }
+
+      /* Biểu đồ: cột mọc lên */
+      #revenue-chart-body > div {
+        border-radius: 1.25rem !important;
+        transition: transform 0.35s var(--ease-out), box-shadow 0.35s ease;
+        animation: riseIn 0.6s var(--ease-out) both;
+      }
+      #revenue-chart-body > div:hover { transform: translateY(-3px); box-shadow: var(--card-shadow-hover); }
+      #revenue-chart-body svg rect {
+        transform-box: fill-box;
+        transform-origin: bottom;
+        animation: barGrow 0.8s var(--ease-out) both;
+        transition: filter 0.25s ease, opacity 0.25s ease;
+      }
+      #revenue-chart-body svg rect:hover { filter: brightness(1.2) drop-shadow(0 4px 8px rgba(0, 0, 0, 0.25)); }
+      @keyframes barGrow { from { transform: scaleY(0); opacity: 0; } to { transform: scaleY(1); opacity: 1; } }
+
+      /* Logo đăng nhập (Google / Facebook) bật nảy */
+      [id^="login-badges-"] > span { animation: popIn 0.5s var(--ease-spring) both; transition: transform 0.3s var(--ease-spring); }
+      [id^="login-badges-"] > span:hover { transform: scale(1.2) rotate(8deg); }
+
+      /* Thanh cuộn */
+      * { scrollbar-width: thin; scrollbar-color: rgba(99, 102, 241, 0.5) transparent; }
+      ::-webkit-scrollbar { width: 9px; height: 9px; }
+      ::-webkit-scrollbar-track { background: transparent; }
+      ::-webkit-scrollbar-thumb {
+        background: linear-gradient(180deg, #818cf8, #a855f7);
+        border-radius: 9999px;
+        border: 2px solid transparent;
+        background-clip: content-box;
+      }
+      ::selection { background: rgba(99, 102, 241, 0.35); }
+
+      /* Tôn trọng người dùng tắt hiệu ứng chuyển động */
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after {
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.01ms !important;
+        }
+      }
+    </style>
   </head>
   <body class="bg-slate-100 min-h-screen text-gray-800 p-4 md:p-6">
     <div class="max-w-7xl mx-auto space-y-6">
@@ -503,6 +1029,17 @@
                       Acc: 4ss
                     <span id="login-badges-all-4ss" class="inline-flex items-center gap-1 ml-1.5"></span>
                     </h3>
+                    <div class="flex items-center gap-2">
+                      <button
+                        type="button"
+                        id="all-filter-btn-4ss"
+                        aria-pressed="false"
+                        onclick="event.stopPropagation(); openAllFilter('4ss')"
+                        title="Lọc lịch theo thời gian"
+                        class="w-11 h-11 flex items-center justify-center rounded-xl bg-white border-2 border-indigo-200 text-indigo-600 hover:bg-indigo-50 active:scale-95 transition shadow-sm"
+                      >
+                        <i class="fa-solid fa-filter text-lg"></i>
+                      </button>
                     <button
                       type="button"
                       id="all-toggle-4ss"
@@ -516,6 +1053,7 @@
                         style="transform: rotate(-90deg)"
                       ></i>
                     </button>
+                    </div>
                   </div>
                   <div id="list-all-4ss" class="hidden space-y-2 mt-3">
                     <p class="text-gray-400 text-sm italic">
@@ -535,6 +1073,17 @@
                       Acc: 2ss
                     <span id="login-badges-all-2ss" class="inline-flex items-center gap-1 ml-1.5"></span>
                     </h3>
+                    <div class="flex items-center gap-2">
+                      <button
+                        type="button"
+                        id="all-filter-btn-2ss"
+                        aria-pressed="false"
+                        onclick="event.stopPropagation(); openAllFilter('2ss')"
+                        title="Lọc lịch theo thời gian"
+                        class="w-11 h-11 flex items-center justify-center rounded-xl bg-white border-2 border-indigo-200 text-indigo-600 hover:bg-indigo-50 active:scale-95 transition shadow-sm"
+                      >
+                        <i class="fa-solid fa-filter text-lg"></i>
+                      </button>
                     <button
                       type="button"
                       id="all-toggle-2ss"
@@ -548,6 +1097,7 @@
                         style="transform: rotate(-90deg)"
                       ></i>
                     </button>
+                    </div>
                   </div>
                   <div id="list-all-2ss" class="hidden space-y-2 mt-3">
                     <p class="text-gray-400 text-sm italic">
@@ -567,6 +1117,17 @@
                       Acc: Isaac
                     <span id="login-badges-all-Isaac" class="inline-flex items-center gap-1 ml-1.5"></span>
                     </h3>
+                    <div class="flex items-center gap-2">
+                      <button
+                        type="button"
+                        id="all-filter-btn-Isaac"
+                        aria-pressed="false"
+                        onclick="event.stopPropagation(); openAllFilter('Isaac')"
+                        title="Lọc lịch theo thời gian"
+                        class="w-11 h-11 flex items-center justify-center rounded-xl bg-white border-2 border-indigo-200 text-indigo-600 hover:bg-indigo-50 active:scale-95 transition shadow-sm"
+                      >
+                        <i class="fa-solid fa-filter text-lg"></i>
+                      </button>
                     <button
                       type="button"
                       id="all-toggle-Isaac"
@@ -580,6 +1141,7 @@
                         style="transform: rotate(-90deg)"
                       ></i>
                     </button>
+                    </div>
                   </div>
                   <div id="list-all-Isaac" class="hidden space-y-2 mt-3">
                     <p class="text-gray-400 text-sm italic">
@@ -599,6 +1161,17 @@
                       Acc: White
                     <span id="login-badges-all-White" class="inline-flex items-center gap-1 ml-1.5"></span>
                     </h3>
+                    <div class="flex items-center gap-2">
+                      <button
+                        type="button"
+                        id="all-filter-btn-White"
+                        aria-pressed="false"
+                        onclick="event.stopPropagation(); openAllFilter('White')"
+                        title="Lọc lịch theo thời gian"
+                        class="w-11 h-11 flex items-center justify-center rounded-xl bg-white border-2 border-indigo-200 text-indigo-600 hover:bg-indigo-50 active:scale-95 transition shadow-sm"
+                      >
+                        <i class="fa-solid fa-filter text-lg"></i>
+                      </button>
                     <button
                       type="button"
                       id="all-toggle-White"
@@ -612,6 +1185,7 @@
                         style="transform: rotate(-90deg)"
                       ></i>
                     </button>
+                    </div>
                   </div>
                   <div id="list-all-White" class="hidden space-y-2 mt-3">
                     <p class="text-gray-400 text-sm italic">
@@ -1227,6 +1801,65 @@
       </div>
     </div>
 
+    <!-- MODAL LỌC LỊCH THEO THỜI GIAN (Tất cả lịch) -->
+    <div
+      id="modal-all-filter"
+      class="fixed inset-0 bg-black/50 hidden items-center justify-center p-4 z-50"
+    >
+      <div class="bg-white rounded-2xl w-full max-w-sm p-6 space-y-4 shadow-xl">
+        <h3
+          id="all-filter-title"
+          class="text-lg font-bold text-gray-800 border-b pb-2"
+        >
+          Lọc lịch theo thời gian
+        </h3>
+        <div class="space-y-3">
+          <label class="block text-xs font-bold text-gray-600 uppercase tracking-wider">
+            Từ
+            <input
+              type="datetime-local"
+              id="all-filter-from"
+              step="1800"
+              class="mt-1 w-full border rounded-lg p-2.5 bg-white text-gray-800 focus:ring-2 focus:ring-indigo-500 outline-none text-sm normal-case"
+            />
+          </label>
+          <label class="block text-xs font-bold text-gray-600 uppercase tracking-wider">
+            Đến
+            <input
+              type="datetime-local"
+              id="all-filter-to"
+              step="1800"
+              class="mt-1 w-full border rounded-lg p-2.5 bg-white text-gray-800 focus:ring-2 focus:ring-indigo-500 outline-none text-sm normal-case"
+            />
+          </label>
+          <p class="text-xs text-gray-500">
+            Chỉ hiện những lịch có thời gian nằm trong (giao với) khoảng đã chọn.
+          </p>
+        </div>
+        <div class="flex gap-2 pt-2">
+          <button
+            onclick="closeAllFilter()"
+            class="flex-1 py-2.5 rounded-xl bg-rose-500 hover:bg-rose-600 font-semibold text-white transition"
+          >
+            Hủy
+          </button>
+          <button
+            id="all-filter-off"
+            onclick="clearAllFilter()"
+            class="hidden flex-1 py-2.5 rounded-xl bg-gray-500 hover:bg-gray-600 font-semibold text-white transition"
+          >
+            Tắt lọc
+          </button>
+          <button
+            onclick="applyAllFilter()"
+            class="flex-1 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 font-semibold text-white transition"
+          >
+            Áp dụng
+          </button>
+        </div>
+      </div>
+    </div>
+
     <!-- MODAL THÊM / SỬA LỊCH THUÊ -->
     <div
       id="modal-rental"
@@ -1719,6 +2352,16 @@
                 Acc: Isaac
                 <span id="login-badges-reset-now-Isaac" class="inline-flex items-center gap-1 ml-1.5"></span>
               </h3>
+              <button
+                type="button"
+                id="reset36-btn-reset-now-Isaac"
+                aria-pressed="false"
+                onclick="toggleReset36('reset-now','Isaac')"
+                title="Chỉ hiện lịch trong vòng 36 tiếng kể từ lúc reset"
+                class="w-11 h-11 flex items-center justify-center rounded-xl bg-white border-2 border-indigo-200 text-indigo-600 hover:bg-indigo-50 active:scale-95 transition shadow-sm"
+              >
+                <span class="text-sm font-black leading-none">36h</span>
+              </button>
             </div>
             <div class="flex items-center gap-2 mb-3 bg-slate-50 border border-indigo-100 rounded-xl p-2 pl-3">
               <span id="pw-reset-now-Isaac" class="flex-1 font-mono text-sm font-bold text-slate-800 tracking-wider break-all select-all">—</span>
@@ -1738,6 +2381,16 @@
                 Acc: White
                 <span id="login-badges-reset-now-White" class="inline-flex items-center gap-1 ml-1.5"></span>
               </h3>
+              <button
+                type="button"
+                id="reset36-btn-reset-now-White"
+                aria-pressed="false"
+                onclick="toggleReset36('reset-now','White')"
+                title="Chỉ hiện lịch trong vòng 36 tiếng kể từ lúc reset"
+                class="w-11 h-11 flex items-center justify-center rounded-xl bg-white border-2 border-indigo-200 text-indigo-600 hover:bg-indigo-50 active:scale-95 transition shadow-sm"
+              >
+                <span class="text-sm font-black leading-none">36h</span>
+              </button>
             </div>
             <div class="flex items-center gap-2 mb-3 bg-slate-50 border border-indigo-100 rounded-xl p-2 pl-3">
               <span id="pw-reset-now-White" class="flex-1 font-mono text-sm font-bold text-slate-800 tracking-wider break-all select-all">—</span>
@@ -1757,6 +2410,16 @@
                 Acc: 4ss
                 <span id="login-badges-reset-now-4ss" class="inline-flex items-center gap-1 ml-1.5"></span>
               </h3>
+              <button
+                type="button"
+                id="reset36-btn-reset-now-4ss"
+                aria-pressed="false"
+                onclick="toggleReset36('reset-now','4ss')"
+                title="Chỉ hiện lịch trong vòng 36 tiếng kể từ lúc reset"
+                class="w-11 h-11 flex items-center justify-center rounded-xl bg-white border-2 border-indigo-200 text-indigo-600 hover:bg-indigo-50 active:scale-95 transition shadow-sm"
+              >
+                <span class="text-sm font-black leading-none">36h</span>
+              </button>
             </div>
             <div class="flex items-center gap-2 mb-3 bg-slate-50 border border-indigo-100 rounded-xl p-2 pl-3">
               <span id="pw-reset-now-4ss" class="flex-1 font-mono text-sm font-bold text-slate-800 tracking-wider break-all select-all">—</span>
@@ -1776,6 +2439,16 @@
                 Acc: 2ss
                 <span id="login-badges-reset-now-2ss" class="inline-flex items-center gap-1 ml-1.5"></span>
               </h3>
+              <button
+                type="button"
+                id="reset36-btn-reset-now-2ss"
+                aria-pressed="false"
+                onclick="toggleReset36('reset-now','2ss')"
+                title="Chỉ hiện lịch trong vòng 36 tiếng kể từ lúc reset"
+                class="w-11 h-11 flex items-center justify-center rounded-xl bg-white border-2 border-indigo-200 text-indigo-600 hover:bg-indigo-50 active:scale-95 transition shadow-sm"
+              >
+                <span class="text-sm font-black leading-none">36h</span>
+              </button>
             </div>
             <div class="flex items-center gap-2 mb-3 bg-slate-50 border border-indigo-100 rounded-xl p-2 pl-3">
               <span id="pw-reset-now-2ss" class="flex-1 font-mono text-sm font-bold text-slate-800 tracking-wider break-all select-all">—</span>
@@ -1832,6 +2505,16 @@
                 Acc: Isaac
                 <span id="login-badges-reset-history-detail-Isaac" class="inline-flex items-center gap-1 ml-1.5"></span>
               </h3>
+              <button
+                type="button"
+                id="reset36-btn-reset-history-detail-Isaac"
+                aria-pressed="false"
+                onclick="toggleReset36('reset-history-detail','Isaac')"
+                title="Chỉ hiện lịch trong vòng 36 tiếng kể từ lúc reset"
+                class="w-11 h-11 flex items-center justify-center rounded-xl bg-white border-2 border-indigo-200 text-indigo-600 hover:bg-indigo-50 active:scale-95 transition shadow-sm"
+              >
+                <span class="text-sm font-black leading-none">36h</span>
+              </button>
             </div>
             <div class="flex items-center gap-2 mb-3 bg-slate-50 border border-indigo-100 rounded-xl p-2 pl-3">
               <span id="pw-reset-history-detail-Isaac" class="flex-1 font-mono text-sm font-bold text-slate-800 tracking-wider break-all select-all">—</span>
@@ -1851,6 +2534,16 @@
                 Acc: White
                 <span id="login-badges-reset-history-detail-White" class="inline-flex items-center gap-1 ml-1.5"></span>
               </h3>
+              <button
+                type="button"
+                id="reset36-btn-reset-history-detail-White"
+                aria-pressed="false"
+                onclick="toggleReset36('reset-history-detail','White')"
+                title="Chỉ hiện lịch trong vòng 36 tiếng kể từ lúc reset"
+                class="w-11 h-11 flex items-center justify-center rounded-xl bg-white border-2 border-indigo-200 text-indigo-600 hover:bg-indigo-50 active:scale-95 transition shadow-sm"
+              >
+                <span class="text-sm font-black leading-none">36h</span>
+              </button>
             </div>
             <div class="flex items-center gap-2 mb-3 bg-slate-50 border border-indigo-100 rounded-xl p-2 pl-3">
               <span id="pw-reset-history-detail-White" class="flex-1 font-mono text-sm font-bold text-slate-800 tracking-wider break-all select-all">—</span>
@@ -1870,6 +2563,16 @@
                 Acc: 4ss
                 <span id="login-badges-reset-history-detail-4ss" class="inline-flex items-center gap-1 ml-1.5"></span>
               </h3>
+              <button
+                type="button"
+                id="reset36-btn-reset-history-detail-4ss"
+                aria-pressed="false"
+                onclick="toggleReset36('reset-history-detail','4ss')"
+                title="Chỉ hiện lịch trong vòng 36 tiếng kể từ lúc reset"
+                class="w-11 h-11 flex items-center justify-center rounded-xl bg-white border-2 border-indigo-200 text-indigo-600 hover:bg-indigo-50 active:scale-95 transition shadow-sm"
+              >
+                <span class="text-sm font-black leading-none">36h</span>
+              </button>
             </div>
             <div class="flex items-center gap-2 mb-3 bg-slate-50 border border-indigo-100 rounded-xl p-2 pl-3">
               <span id="pw-reset-history-detail-4ss" class="flex-1 font-mono text-sm font-bold text-slate-800 tracking-wider break-all select-all">—</span>
@@ -1889,6 +2592,16 @@
                 Acc: 2ss
                 <span id="login-badges-reset-history-detail-2ss" class="inline-flex items-center gap-1 ml-1.5"></span>
               </h3>
+              <button
+                type="button"
+                id="reset36-btn-reset-history-detail-2ss"
+                aria-pressed="false"
+                onclick="toggleReset36('reset-history-detail','2ss')"
+                title="Chỉ hiện lịch trong vòng 36 tiếng kể từ lúc reset"
+                class="w-11 h-11 flex items-center justify-center rounded-xl bg-white border-2 border-indigo-200 text-indigo-600 hover:bg-indigo-50 active:scale-95 transition shadow-sm"
+              >
+                <span class="text-sm font-black leading-none">36h</span>
+              </button>
             </div>
             <div class="flex items-center gap-2 mb-3 bg-slate-50 border border-indigo-100 rounded-xl p-2 pl-3">
               <span id="pw-reset-history-detail-2ss" class="flex-1 font-mono text-sm font-bold text-slate-800 tracking-wider break-all select-all">—</span>
@@ -1957,6 +2670,22 @@
       let revenueHistory = {};
       let activeTab = "upcoming";
 
+      // Giờ Việt Nam (UTC+7, không có giờ mùa hè) tính trực tiếp từ đồng hồ máy.
+      // KHÔNG còn dùng toLocaleString() rồi new Date(chuỗi): cách cũ có thể ra "Invalid Date" (NaN)
+      // ở một số trình duyệt/ngôn ngữ, đặc biệt đúng lúc 0h (12:00 AM / 24:00) -> NaN làm bộ dọn dữ liệu xóa sạch.
+      function getVNNow() {
+        const d = new Date(Date.now() + 7 * 3600000);
+        return {
+          getHours: () => d.getUTCHours(),
+          getMinutes: () => d.getUTCMinutes(),
+          getSeconds: () => d.getUTCSeconds(),
+          getDate: () => d.getUTCDate(),
+          getMonth: () => d.getUTCMonth(),
+          getFullYear: () => d.getUTCFullYear(),
+          getDay: () => d.getUTCDay(),
+        };
+      }
+
       // Hàm tính số ngày trong tháng dựa vào Năm và Tháng
       function getDaysInMonth(year, month) {
         return new Date(year, month, 0).getDate();
@@ -1964,10 +2693,7 @@
 
       // Cập nhật đồng hồ thời gian thực Việt Nam
       function updateClock() {
-        const nowString = new Date().toLocaleString("en-US", {
-          timeZone: "Asia/Ho_Chi_Minh",
-        });
-        const now = new Date(nowString);
+        const now = getVNNow();
 
         const hours = String(now.getHours()).padStart(2, "0");
         const minutes = String(now.getMinutes()).padStart(2, "0");
@@ -1999,10 +2725,7 @@
       setInterval(updateClock, 1000);
 
       function getSystemDate() {
-        const nowString = new Date().toLocaleString("en-US", {
-          timeZone: "Asia/Ho_Chi_Minh",
-        });
-        const now = new Date(nowString);
+        const now = getVNNow();
         return {
           day: now.getDate(),
           month: now.getMonth() + 1,
@@ -2542,7 +3265,22 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
   return `Từ ${formatPoint(sAbs, eAbs, true, currentAbs)} ➔ ${formatPoint(eAbs, sAbs, false, currentAbs)}`;
 }
 
+      // Kiểm tra giờ hệ thống hợp lệ: hữu hạn (không NaN) và khớp với đồng đồ máy (lệch tối đa 2 tiếng).
+      // Nếu giờ sai thì TUYỆT ĐỐI không dọn dữ liệu và không ghi lên Firebase.
+      function isTimeSane() {
+        try {
+          const t = getSystemDate();
+          const abs = getEpochHours(t.year, t.month, t.day, t.hour);
+          if (!Number.isFinite(abs)) return false;
+          const ref = (Date.now() + 7 * 3600000) / 3600000;
+          return Math.abs(abs - ref) <= 2;
+        } catch (e) {
+          return false;
+        }
+      }
+
             function cleanOldData(acc, activeDayObj) {
+        if (!isTimeSane()) return; // giờ sai -> không xóa gì cả
         const limitAbs = getEpochHours(
           activeDayObj.year,
           activeDayObj.month,
@@ -2557,6 +3295,7 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
 
             // Dọn lịch sử reset mật khẩu quá hạn: giữ dữ liệu 15 ngày, cách hiện tại từ 16 ngày trở lên thì xóa
       function pruneResetHistory(activeDayObj) {
+        if (!isTimeSane()) return; // giờ sai -> không xóa gì cả
         const limitAbs = getEpochHours(
           activeDayObj.year,
           activeDayObj.month,
@@ -2617,9 +3356,44 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
         return changed;
       }
 
+      // Cờ an toàn: chỉ cho phép ghi lên Firebase SAU KHI đã nhận dữ liệu lần đầu từ server
+      let firebaseLoaded = false;
+      let _backupDoneKey = "";
+
+      // Sao lưu dữ liệu server tối đa 1 lần/ngày vào "rental_backup/YYYY-MM-DD" (giữ 14 bản gần nhất).
+      // Không bao giờ ghi đè bản đã có, lỗi quyền ghi (nếu rules chặn) sẽ bị bỏ qua êm, không ảnh hưởng app.
+      function backupDailyOnce(data) {
+        try {
+          if (!data || !isTimeSane()) return;
+          const t = getSystemDate();
+          const key = `${t.year}-${String(t.month).padStart(2, "0")}-${String(t.day).padStart(2, "0")}`;
+          if (_backupDoneKey === key) return;
+          _backupDoneKey = key;
+          const snapshotCopy = JSON.parse(JSON.stringify(data));
+          const ref = db.ref("rental_backup/" + key);
+          ref
+            .once("value")
+            .then((s) => (s.exists() ? null : ref.set(snapshotCopy)))
+            .then(() => db.ref("rental_backup").once("value"))
+            .then((all) => {
+              const keys = [];
+              all.forEach((c) => {
+                keys.push(c.key);
+              });
+              keys.sort();
+              keys
+                .slice(0, Math.max(0, keys.length - 14))
+                .forEach((k) => db.ref("rental_backup/" + k).remove());
+            })
+            .catch(() => {});
+        } catch (e) {}
+      }
+
       function listenToFirebase() {
         db.ref("rental_data").on("value", (snapshot) => {
+          firebaseLoaded = true;
           const data = snapshot.val();
+          backupDailyOnce(data); // sao lưu bản gốc từ server TRƯỚC khi render có thể chỉnh sửa bộ nhớ
           if (data) {
             if (data.accounts) accounts = data.accounts;
             if (data.notes) notes = data.notes;
@@ -2638,6 +3412,15 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
       }
 
       function saveData() {
+        // CHỐT AN TOÀN: chưa tải xong dữ liệu hoặc giờ hệ thống không hợp lệ thì không ghi đè Firebase
+        if (!firebaseLoaded) {
+          console.error("saveData bị chặn: chưa tải dữ liệu từ Firebase.");
+          return;
+        }
+        if (!isTimeSane()) {
+          console.error("saveData bị chặn: giờ hệ thống không hợp lệ.");
+          return;
+        }
         db.ref("rental_data").set({
           accounts: accounts,
           notes: notes,
@@ -2819,24 +3602,132 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
             : `<p class="text-gray-400 text-sm italic">(Không có lịch sắp lên ca)</p>`;
 
           // All
-          const allContainer = document.getElementById(`list-all-${accName}`);
-          if (effSched.length === 0) {
-            allContainer.innerHTML = `<p class="text-gray-400 text-sm italic">(Chưa có lịch thuê)</p>`;
-          } else {
-            let allHtml = "";
-            effSched.forEach((r, rIdx) => {
-              allHtml += createRentalCardHtml(
-                r,
-                idx,
-                rIdx,
-                formatCardTime(r.startAbs, r.endAbs, currentAbs),
-              );
-            });
-            allContainer.innerHTML = allHtml;
-          }
+          renderAllListFor(accName, idx, currentAbs);
         });
         renderNotesTab();
       }
+
+      // ===== LỌC THỜI GIAN Ở "TẤT CẢ LỊCH" (riêng từng acc, mặc định TẮT) =====
+      const allFilterState = {}; // { [accName]: { fromAbs, toAbs } }
+      let allFilterEditing = null;
+
+      function renderAllListFor(accName, idx, currentAbs) {
+        const allContainer = document.getElementById(`list-all-${accName}`);
+        if (!allContainer) return;
+        const acc = accounts[idx];
+        const effSched = getEffectiveSchedule(acc);
+        const f = allFilterState[accName];
+
+        const fbtn = document.getElementById(`all-filter-btn-${accName}`);
+        if (fbtn) {
+          fbtn.classList.toggle("filter-on", !!f);
+          fbtn.setAttribute("aria-pressed", f ? "true" : "false");
+        }
+
+        if (effSched.length === 0) {
+          allContainer.innerHTML = `<p class="text-gray-400 text-sm italic">(Chưa có lịch thuê)</p>`;
+          return;
+        }
+        let allHtml = "";
+        let shown = 0;
+        if (f) {
+          allHtml += `<p class="text-xs font-bold text-indigo-600"><i class="fa-solid fa-filter mr-1"></i>Đang lọc: ${formatTimeT(f.fromAbs, currentAbs)} ➔ ${formatTimeT(f.toAbs, currentAbs)}</p>`;
+        }
+        effSched.forEach((r, rIdx) => {
+          if (f && !(r.startAbs < f.toAbs && r.endAbs > f.fromAbs)) return;
+          shown++;
+          allHtml += createRentalCardHtml(
+            r,
+            idx,
+            rIdx,
+            formatCardTime(r.startAbs, r.endAbs, currentAbs),
+          );
+        });
+        if (f && shown === 0) {
+          allHtml += `<p class="text-gray-400 text-sm italic">(Không có lịch trong khoảng thời gian đã chọn)</p>`;
+        }
+        allContainer.innerHTML = allHtml;
+      }
+
+      function absToLocalInput(abs) {
+        const t = fromEpochHours(abs);
+        const h = Math.floor(t.h);
+        const mi = Math.round((t.h - h) * 60);
+        const p = (n) => String(n).padStart(2, "0");
+        return `${t.y}-${p(t.m)}-${p(t.d)}T${p(h)}:${p(mi)}`;
+      }
+
+      function localInputToAbs(v) {
+        const m = String(v || "").match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/);
+        if (!m) return NaN;
+        return getEpochHours(
+          parseInt(m[1], 10),
+          parseInt(m[2], 10),
+          parseInt(m[3], 10),
+          parseInt(m[4], 10) + parseInt(m[5], 10) / 60,
+        );
+      }
+
+      function openAllFilter(name) {
+        allFilterEditing = name;
+        const f = allFilterState[name];
+        let fromAbs, toAbs;
+        if (f) {
+          fromAbs = f.fromAbs;
+          toAbs = f.toAbs;
+        } else {
+          const t = getSystemDate();
+          fromAbs = getEpochHours(t.year, t.month, t.day, 0); // mặc định: cả ngày hôm nay
+          toAbs = fromAbs + 24;
+        }
+        document.getElementById("all-filter-title").innerText =
+          `Lọc lịch theo thời gian - Acc: ${name}`;
+        document.getElementById("all-filter-from").value = absToLocalInput(fromAbs);
+        document.getElementById("all-filter-to").value = absToLocalInput(toAbs);
+        document
+          .getElementById("all-filter-off")
+          .classList.toggle("hidden", !f);
+        const m = document.getElementById("modal-all-filter");
+        m.classList.remove("hidden");
+        m.classList.add("flex");
+      }
+
+      function closeAllFilter() {
+        const m = document.getElementById("modal-all-filter");
+        m.classList.add("hidden");
+        m.classList.remove("flex");
+      }
+
+      function refreshAllFilterList(name) {
+        const idx = ACC_NAMES.indexOf(name);
+        if (idx < 0) return;
+        renderAllListFor(name, idx, getCurrentAbs());
+      }
+
+      function applyAllFilter() {
+        const name = allFilterEditing;
+        if (!name) return;
+        const fromAbs = localInputToAbs(document.getElementById("all-filter-from").value);
+        const toAbs = localInputToAbs(document.getElementById("all-filter-to").value);
+        if (!Number.isFinite(fromAbs) || !Number.isFinite(toAbs) || toAbs <= fromAbs) {
+          showCustomAlert("Vui lòng chọn đủ thời gian và thời gian kết thúc phải sau thời gian bắt đầu.");
+          return;
+        }
+        allFilterState[name] = { fromAbs, toAbs };
+        closeAllFilter();
+        refreshAllFilterList(name);
+        const list = document.getElementById(`list-all-${name}`);
+        if (list && list.classList.contains("hidden")) toggleAllList(name); // tự sổ xuống để thấy kết quả
+      }
+
+      function clearAllFilter() {
+        const name = allFilterEditing;
+        if (!name) return;
+        delete allFilterState[name];
+        closeAllFilter();
+        refreshAllFilterList(name);
+      }
+      // ===== HẾT LỌC THỜI GIAN "TẤT CẢ LỊCH" =====
 
       function renderNotesTab() {
         const container = document.getElementById("list-notes");
@@ -3873,6 +4764,7 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
 
       // Lưu doanh thu "Hôm nay" vào lịch sử (và bù các ngày còn thiếu trong 14 ngày trước theo lịch còn lưu)
       function recordRevenueHistory(today) {
+        if (!isTimeSane()) return; // giờ sai -> không ghi khóa ngày "NaN" vào lịch sử doanh thu
         let changed = false;
         const todayAbs = getEpochHours(today.year, today.month, today.day, 0);
         for (let back = 14; back >= 0; back--) {
@@ -4305,6 +5197,29 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
         };
       }
 
+      // ===== GIỚI HẠN 36 TIẾNG Ở RESET MẬT KHẨU (riêng từng acc, mặc định TẮT) =====
+      const reset36State = {}; // key: `${prefix}-${accName}`
+      function renderReset36Btn(prefix, name) {
+        const b = document.getElementById(`reset36-btn-${prefix}-${name}`);
+        if (!b) return;
+        const on = !!reset36State[`${prefix}-${name}`];
+        b.classList.toggle("filter-on", on);
+        b.setAttribute("aria-pressed", on ? "true" : "false");
+      }
+      function resetReset36(prefix) {
+        ACC_NAMES.forEach((n) => (reset36State[`${prefix}-${n}`] = false));
+      }
+      function toggleReset36(prefix, name) {
+        const k = `${prefix}-${name}`;
+        reset36State[k] = !reset36State[k];
+        if (prefix === "reset-now") {
+          if (resetNowTs !== null) renderResetNowLists(resetNowTs, "reset-now");
+        } else {
+          const item = resetPasswordHistory.find((x) => x.id === resetDetailId);
+          if (item) renderResetNowLists(item.ts, "reset-history-detail");
+        }
+      }
+
       function renderResetNowLists(filterAbs, prefix = "reset-now") {
         // filterAbs = mốc reset (cố định) để chọn lịch; nowAbs = giờ VN hiện tại để hiển thị
         const _t = getSystemDate();
@@ -4314,7 +5229,12 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
           const container = document.getElementById(
             `list-${prefix}-${accName}`,
           );
-          const list = getResetNowSchedule(acc, filterAbs);
+          let list = getResetNowSchedule(acc, filterAbs);
+          // THÊM giới hạn (mặc định tắt): chỉ giữ lịch bắt đầu trong vòng 36 tiếng tính từ lúc reset
+          if (reset36State[`${prefix}-${accName}`]) {
+            list = list.filter((r) => r.startAbs <= filterAbs + 36);
+          }
+          renderReset36Btn(prefix, accName);
           const badgeEl = document.getElementById(
             `login-badges-${prefix}-${accName}`,
           );
@@ -4389,6 +5309,7 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
         resetPasswordHistory.push(item);
         saveData();
         resetNowTs = ts;
+        resetReset36("reset-now"); // mỗi lần reset mới: giới hạn 36h luôn bắt đầu ở trạng thái tắt
         setResetPasswords("reset-now", item);
         renderResetNowLists(ts, "reset-now");
         document.getElementById("modal-reset-now").classList.remove("hidden");
@@ -4477,6 +5398,7 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
         const item = resetPasswordHistory.find((x) => x.id === id);
         if (!item) return;
         resetDetailId = id;
+        resetReset36("reset-history-detail"); // mở mốc mới: giới hạn 36h bắt đầu ở trạng thái tắt
         setResetPasswords("reset-history-detail", item); // mật khẩu cố định theo lần reset
         refreshResetHistoryDetail();
 
