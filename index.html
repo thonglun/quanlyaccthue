@@ -121,12 +121,6 @@
       .dark #daily-revenue-body tbody tr.dr-today { background-color: #1e1b4b; }
       .dark #daily-revenue-body .sticky-col { box-shadow: 1px 0 0 #4b5563; }
       .dark #daily-revenue-body thead th.sticky-col, .dark #daily-revenue-body tfoot td.sticky-col { background-color: #1f2937; }
-      /* ===== Nút lọc thời gian / nút 36h (giống nút sổ xuống) ===== */
-      .tf-btn.tf-active, .dark .tf-btn.tf-active {
-        background-color: #4f46e5 !important;
-        border-color: #4338ca !important;
-        color: #ffffff !important;
-      }
     </style>
       <style id="ui-redesign" media="(hover: hover) and (pointer: fine)">
       /* =====================================================================
@@ -469,11 +463,11 @@
       @keyframes hourglass { 0%, 100% { transform: rotate(0); } 50% { transform: rotate(180deg); } }
 
       /* Nút sổ xuống ở "Tất cả lịch" */
-      [id^="all-toggle-"], [id^="tf-btn-"], [id^="reset36-"] {
+      [id^="all-toggle-"] {
         border-radius: 0.9rem !important;
         transition: transform 0.3s var(--ease-spring), background-color 0.3s ease, box-shadow 0.3s ease !important;
       }
-      [id^="all-toggle-"]:hover, [id^="tf-btn-"]:hover, [id^="reset36-"]:hover { transform: scale(1.1); box-shadow: 0 8px 18px -8px rgba(79, 70, 229, 0.6); }
+      [id^="all-toggle-"]:hover { transform: scale(1.1); box-shadow: 0 8px 18px -8px rgba(79, 70, 229, 0.6); }
       [id^="list-all-"]:not(.hidden) { animation: tabFade 0.4s var(--ease-out) both; }
 
       /* Ghi chú */
@@ -1030,8 +1024,8 @@
                     <span id="login-badges-all-4ss" class="inline-flex items-center gap-1 ml-1.5"></span>
                     </h3>
                     <div class="flex items-center gap-2">
-                    <button type="button" id="tf-btn-4ss" onclick="event.stopPropagation(); openTimeFilter('4ss')" title="Lọc theo thời gian" class="tf-btn w-11 h-11 flex items-center justify-center rounded-xl bg-white border-2 border-indigo-200 text-indigo-600 hover:bg-indigo-50 active:scale-95 transition shadow-sm"><i class="fa-regular fa-clock text-xl"></i></button>
-                    <button
+<button type="button" id="all-filter-4ss" onclick="event.stopPropagation(); openTimeFilter('4ss')" title="Lọc theo thời gian" class="w-11 h-11 flex items-center justify-center rounded-xl bg-white border-2 border-indigo-200 text-indigo-600 hover:bg-indigo-50 active:scale-95 transition shadow-sm"><i class="fa-solid fa-filter text-lg"></i></button>
+<button
                       type="button"
                       id="all-toggle-4ss"
                       aria-expanded="false"
@@ -1044,7 +1038,7 @@
                         style="transform: rotate(-90deg)"
                       ></i>
                     </button>
-                    </div>
+</div>
                   </div>
                   <div id="list-all-4ss" class="hidden space-y-2 mt-3">
                     <p class="text-gray-400 text-sm italic">
@@ -1065,8 +1059,8 @@
                     <span id="login-badges-all-2ss" class="inline-flex items-center gap-1 ml-1.5"></span>
                     </h3>
                     <div class="flex items-center gap-2">
-                    <button type="button" id="tf-btn-2ss" onclick="event.stopPropagation(); openTimeFilter('2ss')" title="Lọc theo thời gian" class="tf-btn w-11 h-11 flex items-center justify-center rounded-xl bg-white border-2 border-indigo-200 text-indigo-600 hover:bg-indigo-50 active:scale-95 transition shadow-sm"><i class="fa-regular fa-clock text-xl"></i></button>
-                    <button
+<button type="button" id="all-filter-2ss" onclick="event.stopPropagation(); openTimeFilter('2ss')" title="Lọc theo thời gian" class="w-11 h-11 flex items-center justify-center rounded-xl bg-white border-2 border-indigo-200 text-indigo-600 hover:bg-indigo-50 active:scale-95 transition shadow-sm"><i class="fa-solid fa-filter text-lg"></i></button>
+<button
                       type="button"
                       id="all-toggle-2ss"
                       aria-expanded="false"
@@ -1079,7 +1073,7 @@
                         style="transform: rotate(-90deg)"
                       ></i>
                     </button>
-                    </div>
+</div>
                   </div>
                   <div id="list-all-2ss" class="hidden space-y-2 mt-3">
                     <p class="text-gray-400 text-sm italic">
@@ -1100,8 +1094,8 @@
                     <span id="login-badges-all-Isaac" class="inline-flex items-center gap-1 ml-1.5"></span>
                     </h3>
                     <div class="flex items-center gap-2">
-                    <button type="button" id="tf-btn-Isaac" onclick="event.stopPropagation(); openTimeFilter('Isaac')" title="Lọc theo thời gian" class="tf-btn w-11 h-11 flex items-center justify-center rounded-xl bg-white border-2 border-indigo-200 text-indigo-600 hover:bg-indigo-50 active:scale-95 transition shadow-sm"><i class="fa-regular fa-clock text-xl"></i></button>
-                    <button
+<button type="button" id="all-filter-Isaac" onclick="event.stopPropagation(); openTimeFilter('Isaac')" title="Lọc theo thời gian" class="w-11 h-11 flex items-center justify-center rounded-xl bg-white border-2 border-indigo-200 text-indigo-600 hover:bg-indigo-50 active:scale-95 transition shadow-sm"><i class="fa-solid fa-filter text-lg"></i></button>
+<button
                       type="button"
                       id="all-toggle-Isaac"
                       aria-expanded="false"
@@ -1114,7 +1108,7 @@
                         style="transform: rotate(-90deg)"
                       ></i>
                     </button>
-                    </div>
+</div>
                   </div>
                   <div id="list-all-Isaac" class="hidden space-y-2 mt-3">
                     <p class="text-gray-400 text-sm italic">
@@ -1135,8 +1129,8 @@
                     <span id="login-badges-all-White" class="inline-flex items-center gap-1 ml-1.5"></span>
                     </h3>
                     <div class="flex items-center gap-2">
-                    <button type="button" id="tf-btn-White" onclick="event.stopPropagation(); openTimeFilter('White')" title="Lọc theo thời gian" class="tf-btn w-11 h-11 flex items-center justify-center rounded-xl bg-white border-2 border-indigo-200 text-indigo-600 hover:bg-indigo-50 active:scale-95 transition shadow-sm"><i class="fa-regular fa-clock text-xl"></i></button>
-                    <button
+<button type="button" id="all-filter-White" onclick="event.stopPropagation(); openTimeFilter('White')" title="Lọc theo thời gian" class="w-11 h-11 flex items-center justify-center rounded-xl bg-white border-2 border-indigo-200 text-indigo-600 hover:bg-indigo-50 active:scale-95 transition shadow-sm"><i class="fa-solid fa-filter text-lg"></i></button>
+<button
                       type="button"
                       id="all-toggle-White"
                       aria-expanded="false"
@@ -1149,7 +1143,7 @@
                         style="transform: rotate(-90deg)"
                       ></i>
                     </button>
-                    </div>
+</div>
                   </div>
                   <div id="list-all-White" class="hidden space-y-2 mt-3">
                     <p class="text-gray-400 text-sm italic">
@@ -2226,6 +2220,39 @@
       </div>
     </div>
 
+    <!-- MODAL LỌC THỜI GIAN (Tất cả lịch) -->
+    <div id="modal-time-filter" class="fixed inset-0 bg-black/50 hidden items-center justify-center p-4 z-50">
+      <div class="bg-white rounded-2xl w-full max-w-md p-6 space-y-4 shadow-xl">
+        <h3 class="text-lg font-bold text-gray-800 border-b pb-2">
+          Lọc Lịch Theo Thời Gian - Acc <span id="tf-acc-name"></span>
+        </h3>
+        <div class="space-y-1">
+          <p class="text-sm font-bold text-slate-600">Từ (mặc định: hiện tại)</p>
+          <div class="flex items-center gap-2">
+            <input id="tf-sday" type="text" inputmode="numeric" placeholder="Ngày" class="w-full border-2 border-gray-200 rounded-xl p-2 text-center font-bold" />
+            <input id="tf-smonth" type="text" inputmode="numeric" placeholder="Tháng" class="w-full border-2 border-gray-200 rounded-xl p-2 text-center font-bold" />
+            <input id="tf-syear" type="text" inputmode="numeric" placeholder="Năm" class="w-full border-2 border-gray-200 rounded-xl p-2 text-center font-bold" />
+            <input id="tf-shour" type="text" placeholder="Giờ" class="w-full border-2 border-gray-200 rounded-xl p-2 text-center font-bold" />
+          </div>
+        </div>
+        <div class="space-y-1">
+          <p class="text-sm font-bold text-slate-600">Đến (để trống tất cả = vô tận)</p>
+          <div class="flex items-center gap-2">
+            <input id="tf-eday" type="text" inputmode="numeric" placeholder="Ngày" class="w-full border-2 border-gray-200 rounded-xl p-2 text-center font-bold" />
+            <input id="tf-emonth" type="text" inputmode="numeric" placeholder="Tháng" class="w-full border-2 border-gray-200 rounded-xl p-2 text-center font-bold" />
+            <input id="tf-eyear" type="text" inputmode="numeric" placeholder="Năm" class="w-full border-2 border-gray-200 rounded-xl p-2 text-center font-bold" />
+            <input id="tf-ehour" type="text" placeholder="Giờ" class="w-full border-2 border-gray-200 rounded-xl p-2 text-center font-bold" />
+          </div>
+        </div>
+        <p id="tf-error" class="text-sm font-bold text-rose-600 hidden"></p>
+        <div class="flex gap-2 pt-2">
+          <button onclick="clearTimeFilter()" class="flex-1 py-2.5 rounded-xl bg-rose-500 hover:bg-rose-600 font-semibold text-white transition text-sm">Bỏ lọc</button>
+          <button onclick="closeTimeFilter()" class="flex-1 py-2.5 rounded-xl bg-gray-200 hover:bg-gray-300 font-semibold text-gray-800 transition text-sm">Hủy</button>
+          <button onclick="applyTimeFilter()" class="flex-1 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 font-semibold text-white transition text-sm">Áp dụng</button>
+        </div>
+      </div>
+    </div>
+
     <!-- MODAL RESET MẬT KHẨU - XEM LỊCH TRƯỚC KHI RESET -->
     <div
       id="modal-reset-now"
@@ -2257,6 +2284,7 @@
                 Acc: Isaac
                 <span id="login-badges-reset-now-Isaac" class="inline-flex items-center gap-1 ml-1.5"></span>
               </h3>
+              <button type="button" id="reset36-btn-reset-now-Isaac" onclick="toggleReset36('reset-now','Isaac')" aria-pressed="false" title="Chỉ hiện lịch trong vòng 36 tiếng tính từ lúc reset" class="w-11 h-11 flex items-center justify-center rounded-xl bg-white border-2 border-indigo-200 text-indigo-600 hover:bg-indigo-50 active:scale-95 transition shadow-sm"><i class="fa-solid fa-hourglass-half text-xl"></i></button>
             </div>
             <div class="flex items-center gap-2 mb-3 bg-slate-50 border border-indigo-100 rounded-xl p-2 pl-3">
               <span id="pw-reset-now-Isaac" class="flex-1 font-mono text-sm font-bold text-slate-800 tracking-wider break-all select-all">—</span>
@@ -2276,6 +2304,7 @@
                 Acc: White
                 <span id="login-badges-reset-now-White" class="inline-flex items-center gap-1 ml-1.5"></span>
               </h3>
+              <button type="button" id="reset36-btn-reset-now-White" onclick="toggleReset36('reset-now','White')" aria-pressed="false" title="Chỉ hiện lịch trong vòng 36 tiếng tính từ lúc reset" class="w-11 h-11 flex items-center justify-center rounded-xl bg-white border-2 border-indigo-200 text-indigo-600 hover:bg-indigo-50 active:scale-95 transition shadow-sm"><i class="fa-solid fa-hourglass-half text-xl"></i></button>
             </div>
             <div class="flex items-center gap-2 mb-3 bg-slate-50 border border-indigo-100 rounded-xl p-2 pl-3">
               <span id="pw-reset-now-White" class="flex-1 font-mono text-sm font-bold text-slate-800 tracking-wider break-all select-all">—</span>
@@ -2295,6 +2324,7 @@
                 Acc: 4ss
                 <span id="login-badges-reset-now-4ss" class="inline-flex items-center gap-1 ml-1.5"></span>
               </h3>
+              <button type="button" id="reset36-btn-reset-now-4ss" onclick="toggleReset36('reset-now','4ss')" aria-pressed="false" title="Chỉ hiện lịch trong vòng 36 tiếng tính từ lúc reset" class="w-11 h-11 flex items-center justify-center rounded-xl bg-white border-2 border-indigo-200 text-indigo-600 hover:bg-indigo-50 active:scale-95 transition shadow-sm"><i class="fa-solid fa-hourglass-half text-xl"></i></button>
             </div>
             <div class="flex items-center gap-2 mb-3 bg-slate-50 border border-indigo-100 rounded-xl p-2 pl-3">
               <span id="pw-reset-now-4ss" class="flex-1 font-mono text-sm font-bold text-slate-800 tracking-wider break-all select-all">—</span>
@@ -2314,6 +2344,7 @@
                 Acc: 2ss
                 <span id="login-badges-reset-now-2ss" class="inline-flex items-center gap-1 ml-1.5"></span>
               </h3>
+              <button type="button" id="reset36-btn-reset-now-2ss" onclick="toggleReset36('reset-now','2ss')" aria-pressed="false" title="Chỉ hiện lịch trong vòng 36 tiếng tính từ lúc reset" class="w-11 h-11 flex items-center justify-center rounded-xl bg-white border-2 border-indigo-200 text-indigo-600 hover:bg-indigo-50 active:scale-95 transition shadow-sm"><i class="fa-solid fa-hourglass-half text-xl"></i></button>
             </div>
             <div class="flex items-center gap-2 mb-3 bg-slate-50 border border-indigo-100 rounded-xl p-2 pl-3">
               <span id="pw-reset-now-2ss" class="flex-1 font-mono text-sm font-bold text-slate-800 tracking-wider break-all select-all">—</span>
@@ -2370,6 +2401,7 @@
                 Acc: Isaac
                 <span id="login-badges-reset-history-detail-Isaac" class="inline-flex items-center gap-1 ml-1.5"></span>
               </h3>
+              <button type="button" id="reset36-btn-reset-history-detail-Isaac" onclick="toggleReset36('reset-history-detail','Isaac')" aria-pressed="false" title="Chỉ hiện lịch trong vòng 36 tiếng tính từ lúc reset" class="w-11 h-11 flex items-center justify-center rounded-xl bg-white border-2 border-indigo-200 text-indigo-600 hover:bg-indigo-50 active:scale-95 transition shadow-sm"><i class="fa-solid fa-hourglass-half text-xl"></i></button>
             </div>
             <div class="flex items-center gap-2 mb-3 bg-slate-50 border border-indigo-100 rounded-xl p-2 pl-3">
               <span id="pw-reset-history-detail-Isaac" class="flex-1 font-mono text-sm font-bold text-slate-800 tracking-wider break-all select-all">—</span>
@@ -2389,6 +2421,7 @@
                 Acc: White
                 <span id="login-badges-reset-history-detail-White" class="inline-flex items-center gap-1 ml-1.5"></span>
               </h3>
+              <button type="button" id="reset36-btn-reset-history-detail-White" onclick="toggleReset36('reset-history-detail','White')" aria-pressed="false" title="Chỉ hiện lịch trong vòng 36 tiếng tính từ lúc reset" class="w-11 h-11 flex items-center justify-center rounded-xl bg-white border-2 border-indigo-200 text-indigo-600 hover:bg-indigo-50 active:scale-95 transition shadow-sm"><i class="fa-solid fa-hourglass-half text-xl"></i></button>
             </div>
             <div class="flex items-center gap-2 mb-3 bg-slate-50 border border-indigo-100 rounded-xl p-2 pl-3">
               <span id="pw-reset-history-detail-White" class="flex-1 font-mono text-sm font-bold text-slate-800 tracking-wider break-all select-all">—</span>
@@ -2408,6 +2441,7 @@
                 Acc: 4ss
                 <span id="login-badges-reset-history-detail-4ss" class="inline-flex items-center gap-1 ml-1.5"></span>
               </h3>
+              <button type="button" id="reset36-btn-reset-history-detail-4ss" onclick="toggleReset36('reset-history-detail','4ss')" aria-pressed="false" title="Chỉ hiện lịch trong vòng 36 tiếng tính từ lúc reset" class="w-11 h-11 flex items-center justify-center rounded-xl bg-white border-2 border-indigo-200 text-indigo-600 hover:bg-indigo-50 active:scale-95 transition shadow-sm"><i class="fa-solid fa-hourglass-half text-xl"></i></button>
             </div>
             <div class="flex items-center gap-2 mb-3 bg-slate-50 border border-indigo-100 rounded-xl p-2 pl-3">
               <span id="pw-reset-history-detail-4ss" class="flex-1 font-mono text-sm font-bold text-slate-800 tracking-wider break-all select-all">—</span>
@@ -2427,6 +2461,7 @@
                 Acc: 2ss
                 <span id="login-badges-reset-history-detail-2ss" class="inline-flex items-center gap-1 ml-1.5"></span>
               </h3>
+              <button type="button" id="reset36-btn-reset-history-detail-2ss" onclick="toggleReset36('reset-history-detail','2ss')" aria-pressed="false" title="Chỉ hiện lịch trong vòng 36 tiếng tính từ lúc reset" class="w-11 h-11 flex items-center justify-center rounded-xl bg-white border-2 border-indigo-200 text-indigo-600 hover:bg-indigo-50 active:scale-95 transition shadow-sm"><i class="fa-solid fa-hourglass-half text-xl"></i></button>
             </div>
             <div class="flex items-center gap-2 mb-3 bg-slate-50 border border-indigo-100 rounded-xl p-2 pl-3">
               <span id="pw-reset-history-detail-2ss" class="flex-1 font-mono text-sm font-bold text-slate-800 tracking-wider break-all select-all">—</span>
@@ -2450,41 +2485,6 @@
           >
             Đồng ý
           </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- MODAL LỌC THỜI GIAN (Tất cả lịch) -->
-    <div
-      id="modal-time-filter"
-      class="fixed inset-0 bg-black/50 hidden items-center justify-center p-4 z-50"
-    >
-      <div class="bg-white rounded-2xl w-full max-w-md p-6 space-y-4 shadow-xl">
-        <h3 id="tf-title" class="text-lg font-bold text-gray-800 border-b pb-2">Lọc theo thời gian</h3>
-        <p class="text-xs text-gray-500">Chỉ hiện các lịch có thời gian giao với khoảng được chọn. Giờ nhập dạng 8, 8h hoặc 8h30.</p>
-          <div>
-            <div class="text-xs font-bold text-gray-600 mb-1">Từ</div>
-            <div class="grid grid-cols-4 gap-2">
-              <input id="tf-sday" type="number" min="1" max="31" placeholder="Ngày" class="w-full p-2 border border-gray-300 rounded-lg text-center font-bold" />
-              <input id="tf-smonth" type="number" min="1" max="12" placeholder="Tháng" class="w-full p-2 border border-gray-300 rounded-lg text-center font-bold" />
-              <input id="tf-syear" type="number" placeholder="Năm" class="w-full p-2 border border-gray-300 rounded-lg text-center font-bold" />
-              <input id="tf-shour" type="text" placeholder="Giờ" onblur="normalizeHourField(this)" class="w-full p-2 border border-gray-300 rounded-lg text-center font-bold" />
-            </div>
-          </div>
-          <div>
-            <div class="text-xs font-bold text-gray-600 mb-1">Đến</div>
-            <div class="grid grid-cols-4 gap-2">
-              <input id="tf-eday" type="number" min="1" max="31" placeholder="Ngày" class="w-full p-2 border border-gray-300 rounded-lg text-center font-bold" />
-              <input id="tf-emonth" type="number" min="1" max="12" placeholder="Tháng" class="w-full p-2 border border-gray-300 rounded-lg text-center font-bold" />
-              <input id="tf-eyear" type="number" placeholder="Năm" class="w-full p-2 border border-gray-300 rounded-lg text-center font-bold" />
-              <input id="tf-ehour" type="text" placeholder="Giờ" onblur="normalizeHourField(this)" class="w-full p-2 border border-gray-300 rounded-lg text-center font-bold" />
-            </div>
-          </div>
-        <p id="tf-error" class="text-sm font-semibold text-rose-600 hidden"></p>
-        <div class="flex gap-2 pt-2">
-          <button onclick="closeTimeFilter()" class="flex-1 py-2.5 rounded-xl bg-gray-200 hover:bg-gray-300 font-semibold text-gray-700 transition">Hủy</button>
-          <button onclick="clearTimeFilter()" class="flex-1 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 font-semibold text-white transition">Bỏ lọc</button>
-          <button onclick="applyTimeFilter()" class="flex-1 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 font-semibold text-white transition">Áp dụng</button>
         </div>
       </div>
     </div>
@@ -3190,144 +3190,138 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
         return changed;
       }
 
-      // ===== BẢO VỆ DỮ LIỆU: tuyệt đối không để một lần ghi sai làm mất dữ liệu =====
-      // 1) Không ghi gì lên Firebase trước khi đã nhận dữ liệu từ server ít nhất 1 lần.
-      // 2) Các lần ghi TỰ ĐỘNG (tạo acc thiếu, lưu lịch sử doanh thu) chỉ chạy khi server thực sự đang có danh sách acc,
-      //    để dữ liệu mặc định/trống không bao giờ đè lên dữ liệu thật.
-      // 3) Chặn mọi lần ghi làm số dữ liệu còn hiệu lực tụt hơn một nửa (trừ thao tác "Xóa sạch lịch" do người dùng chủ động).
-      // 4) Dùng update() thay vì set() ở gốc nên không xóa các trường lạ; có sao lưu theo ngày ở rental_backup/d0..d6.
-      let dataLoadedOnce = false;
-      let serverHasAccounts = false;
-      let lastServerData = null;
-      let backedUpDayKey = null;
+      // ===== BẢO VỆ DỮ LIỆU: không bao giờ ghi đè Firebase khi chưa tải được dữ liệu thật =====
+      let dataLoaded = false; // chỉ true sau khi đã đọc dữ liệu từ Firebase thành công
+      const BACKUP_KEY = "rental_backup_latest";
+      const BACKUP_PREV_KEY = "rental_backup_prev";
 
-      function getRetentionLimitAbs() {
-        const t = getSystemDate();
-        return getEpochHours(t.year, t.month, t.day - 15, t.hour);
-      }
-      function asList(x) {
-        if (!x) return [];
-        return Array.isArray(x) ? x : Object.values(x);
-      }
-      // Đếm dữ liệu còn trong thời hạn lưu giữ (dữ liệu quá 15 ngày bị dọn tự nhiên thì không tính)
-      function countLiveData(d) {
-        if (!d) return 0;
-        const limit = getRetentionLimitAbs();
-        let n = 0;
-        asList(d.accounts).forEach((a) => {
-          asList(a && a.schedule).forEach((r) => {
-            if (!r || !r.end) return;
-            if (getEpochHours(r.end.year, r.end.month, r.end.day, r.end.hour) >= limit) n++;
-          });
-        });
-        n += asList(d.notes).length;
-        asList(d.resetPasswordHistory).forEach((h) => {
-          if (h && h.ts >= limit) n++;
-        });
-        n += d.revenueHistory ? Object.keys(d.revenueHistory).length : 0;
-        return n;
-      }
-
-      function applyServerData(data) {
-        if (!data) return;
-        const hasAcc = !!data.accounts && asList(data.accounts).some((a) => a && a.accountName);
-        // Đã từng tải dữ liệu đầy đủ mà nay server báo thiếu danh sách acc => bỏ qua, giữ nguyên dữ liệu đang có
-        if (dataLoadedOnce && serverHasAccounts && !hasAcc) {
-          console.warn("Bỏ qua bản dữ liệu thiếu danh sách acc từ server.");
-          return;
+      function showDataBanner(msg) {
+        let b = document.getElementById("data-safety-banner");
+        if (!b) {
+          b = document.createElement("div");
+          b.id = "data-safety-banner";
+          b.style.cssText =
+            "position:fixed;left:0;right:0;top:0;z-index:99999;background:#e11d48;color:#fff;font-weight:700;font-size:14px;padding:10px 14px;text-align:center;box-shadow:0 4px 14px rgba(0,0,0,.3)";
+          document.body.appendChild(b);
         }
-        dataLoadedOnce = true;
-        serverHasAccounts = hasAcc;
-        if (hasAcc) lastServerData = JSON.parse(JSON.stringify(data));
-
-        if (data.accounts) accounts = data.accounts;
-        if (data.notes) notes = data.notes;
-        if (data.resetPasswordHistory)
-          resetPasswordHistory = data.resetPasswordHistory;
-        if (data.revenueHistory) revenueHistory = data.revenueHistory;
-
-        accounts.forEach((acc) => {
-          if (!acc.schedule) acc.schedule = [];
-        });
-        const addedAcc = ensureAccounts();
-        renderUI();
-        if (addedAcc) saveData({ auto: true });
+        b.innerText = msg;
+      }
+      function hideDataBanner() {
+        const b = document.getElementById("data-safety-banner");
+        if (b) b.remove();
+      }
+      // Sao lưu bản sao trên trình duyệt mỗi lần tải được dữ liệu thật (giữ 2 bản, bản cũ xoay vòng mỗi giờ)
+      function backupLocal(payload) {
+        try {
+          const now = Date.now();
+          const cur = localStorage.getItem(BACKUP_KEY);
+          if (cur) {
+            const old = JSON.parse(cur);
+            if (!old.t || now - old.t > 3600000) localStorage.setItem(BACKUP_PREV_KEY, cur);
+          }
+          localStorage.setItem(BACKUP_KEY, JSON.stringify({ t: now, data: payload }));
+        } catch (e) {}
+      }
+      function readBackupLocal() {
+        try {
+          const raw = localStorage.getItem(BACKUP_KEY);
+          if (!raw) return null;
+          const o = JSON.parse(raw);
+          return o && o.data && o.data.accounts ? o : null;
+        } catch (e) {
+          return null;
+        }
       }
 
       function listenToFirebase() {
-        db.ref("rental_data").on("value", (snapshot) => {
-          const data = snapshot.val();
-          if (data) applyServerData(data);
-          else dataLoadedOnce = true; // server trống: cho phép người dùng chủ động nhập, không tự ghi gì
-        });
+        db.ref("rental_data").on(
+          "value",
+          (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+              hideDataBanner();
+              dataLoaded = true;
+              if (data.accounts) accounts = data.accounts;
+              if (data.notes) notes = data.notes;
+              if (data.resetPasswordHistory)
+                resetPasswordHistory = data.resetPasswordHistory;
+              if (data.revenueHistory) revenueHistory = data.revenueHistory;
+
+              accounts.forEach((acc) => {
+                if (!acc.schedule) acc.schedule = [];
+              });
+              const addedAcc = ensureAccounts();
+              backupLocal({
+                accounts: accounts,
+                notes: notes,
+                resetPasswordHistory: resetPasswordHistory,
+                revenueHistory: revenueHistory,
+              });
+              renderUI();
+              if (addedAcc) saveData();
+            } else if (!dataLoaded) {
+              // Firebase trả về RỖNG: có thể là DB mới, cũng có thể là dữ liệu bị mất -> KHÔNG tự ghi đè
+              const bk = readBackupLocal();
+              if (bk) {
+                showDataBanner(
+                  "Firebase đang trống nhưng máy này có bản sao lưu dữ liệu. Hệ thống tạm KHÔNG ghi dữ liệu để tránh mất thêm.",
+                );
+                showCustomConfirm(
+                  "Firebase đang trống nhưng máy này còn bản sao lưu dữ liệu cũ. Khôi phục dữ liệu từ bản sao lưu lên Firebase?",
+                  () => {
+                    const d = bk.data;
+                    accounts = d.accounts || accounts;
+                    notes = d.notes || [];
+                    resetPasswordHistory = d.resetPasswordHistory || [];
+                    revenueHistory = d.revenueHistory || {};
+                    dataLoaded = true;
+                    hideDataBanner();
+                    ensureAccounts();
+                    saveData();
+                    renderUI();
+                  },
+                );
+              } else {
+                dataLoaded = true; // DB mới hoàn toàn và không có bản sao lưu
+              }
+            }
+          },
+          (err) => {
+            // Lỗi đọc (vd: Rules Firebase hết hạn / bị chặn quyền) -> KHÔNG coi là dữ liệu trống, KHÔNG ghi gì lên Firebase
+            console.error("Firebase read error:", err);
+            showDataBanner(
+              "Không đọc được dữ liệu từ Firebase (" +
+                (err && err.code ? err.code : "lỗi") +
+                "). Dữ liệu trên server KHÔNG bị xóa - hãy kiểm tra Rules của Realtime Database. Hệ thống tạm khóa ghi dữ liệu.",
+            );
+          },
+        );
       }
 
-      function resyncFromServer() {
-        db.ref("rental_data")
-          .once("value")
-          .then((s) => applyServerData(s.val()))
-          .catch((e) => console.error(e));
-      }
-
-      // Sao lưu bản dữ liệu server hiện có trước khi ghi (mỗi ngày 1 lần, xoay vòng 7 ô theo thứ trong tuần)
-      function backupBeforeWrite() {
-        try {
-          if (!lastServerData || countLiveData(lastServerData) < 1) return;
-          const t = getSystemDate();
-          const key = `${t.year}-${String(t.month).padStart(2, "0")}-${String(t.day).padStart(2, "0")}`;
-          if (backedUpDayKey === key) return;
-          backedUpDayKey = key;
-          const slot = "d" + new Date(Date.UTC(t.year, t.month - 1, t.day)).getUTCDay();
-          const ref = db.ref("rental_backup/" + slot);
-          const snap = lastServerData;
-          ref.once("value")
-            .then((s) => {
-              const v = s.val();
-              if (v && v.savedDate === key) return;
-              return ref.set({ savedDate: key, savedAt: Date.now(), data: snap });
-            })
-            .catch(() => {});
-        } catch (e) {}
-      }
-
-      // opts.auto: lần ghi tự động | opts.force: thao tác xóa hàng loạt do người dùng chủ động
-      function saveData(opts) {
-        opts = opts || {};
-        if (!dataLoadedOnce) {
-          console.warn("Chưa tải dữ liệu từ server, không ghi.");
+      function saveData() {
+        if (!dataLoaded) {
+          console.warn("saveData bị chặn: chưa tải được dữ liệu thật từ Firebase");
+          showDataBanner(
+            "Chưa tải được dữ liệu từ Firebase nên KHÔNG thể lưu (để tránh ghi đè mất dữ liệu). Tải lại trang hoặc kiểm tra Rules.",
+          );
           return;
         }
-        if (opts.auto && !serverHasAccounts) {
-          console.warn("Server chưa có dữ liệu acc, bỏ qua lần ghi tự động.");
-          return;
-        }
-        const payload = {
-          accounts: accounts,
-          notes: notes,
-          resetPasswordHistory: resetPasswordHistory,
-          revenueHistory: revenueHistory,
-        };
-        if (!opts.force && lastServerData) {
-          const oldN = countLiveData(lastServerData);
-          const newN = countLiveData(payload);
-          if (oldN >= 6 && newN < oldN * 0.5) {
-            console.error("Đã chặn lần ghi làm mất dữ liệu:", oldN, "->", newN);
-            if (!opts.auto)
-              showCustomAlert(
-                "Đã chặn một thao tác lưu vì sẽ làm mất phần lớn dữ liệu. Hệ thống đã tải lại dữ liệu từ server.",
-              );
-            resyncFromServer();
-            return;
-          }
-        }
-        backupBeforeWrite();
         db.ref("rental_data")
-          .update(payload)
-          .catch((e) => console.error("Lỗi ghi dữ liệu:", e));
+          .set({
+            accounts: accounts,
+            notes: notes,
+            resetPasswordHistory: resetPasswordHistory,
+            revenueHistory: revenueHistory,
+          })
+          .catch((err) => {
+            console.error("Firebase write error:", err);
+            showDataBanner(
+              "Ghi dữ liệu lên Firebase thất bại (" + (err && err.code ? err.code : "lỗi") + "). Kiểm tra Rules / kết nối.",
+            );
+          });
       }
 
       function initApp() {
-        initReset36Buttons();
         applyTheme(document.documentElement.classList.contains("dark"));
         updateClock();
         const today = getSystemDate();
@@ -3338,6 +3332,101 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
         });
         listenToFirebase();
       }
+
+      // ===== LỌC THỜI GIAN Ở "TẤT CẢ LỊCH" (mỗi acc một bộ lọc riêng) =====
+      // Chưa kích hoạt => hiện như cũ. Mặc định khi mở hộp lọc: từ giờ hiện tại đến vô tận.
+      const allTimeFilter = {};
+      let timeFilterAcc = null;
+
+      function parseTfYear(v) {
+        const n = parseInt(v, 10);
+        if (isNaN(n)) return NaN;
+        return n < 100 ? 2000 + n : n;
+      }
+      function fillTfFields(prefix, p) {
+        document.getElementById(`tf-${prefix}day`).value = p ? p.d : "";
+        document.getElementById(`tf-${prefix}month`).value = p ? p.m : "";
+        document.getElementById(`tf-${prefix}year`).value = p ? String(p.y % 100).padStart(2, "0") : "";
+        document.getElementById(`tf-${prefix}hour`).value = p ? fmtHourField(p.h) : "";
+      }
+      function openTimeFilter(name) {
+        timeFilterAcc = name;
+        document.getElementById("tf-acc-name").innerText = name;
+        document.getElementById("tf-error").classList.add("hidden");
+        const f = allTimeFilter[name];
+        if (f) {
+          fillTfFields("s", fromEpochHours(f.from));
+          fillTfFields("e", f.to === null ? null : fromEpochHours(f.to));
+        } else {
+          const t = getSystemDate();
+          fillTfFields("s", { y: t.year, m: t.month, d: t.day, h: t.hour });
+          fillTfFields("e", null);
+        }
+        const m = document.getElementById("modal-time-filter");
+        m.classList.remove("hidden");
+        m.classList.add("flex");
+      }
+      function closeTimeFilter() {
+        const m = document.getElementById("modal-time-filter");
+        m.classList.add("hidden");
+        m.classList.remove("flex");
+      }
+      function readTfPoint(prefix) {
+        const g = (k) => document.getElementById(`tf-${prefix}${k}`).value.trim();
+        if (!g("day") && !g("month") && !g("year") && !g("hour")) return { empty: true };
+        const d = parseInt(g("day"), 10), mo = parseInt(g("month"), 10);
+        const y = parseTfYear(g("year")), h = parseHourField(g("hour"));
+        if ([d, mo, y, h].some((x) => isNaN(x)) || mo < 1 || mo > 12 || d < 1 || d > getDaysInMonth(y, mo))
+          return { bad: true };
+        return { abs: getEpochHours(y, mo, d, h) };
+      }
+      function applyTimeFilter() {
+        const err = document.getElementById("tf-error");
+        const a = readTfPoint("s"), b = readTfPoint("e");
+        if (a.bad || b.bad || a.empty) {
+          err.innerText = "Thời gian chưa hợp lệ. Vui lòng nhập đủ Ngày, Tháng, Năm, Giờ (ô 'Từ' không được để trống).";
+          err.classList.remove("hidden");
+          return;
+        }
+        const to = b.empty ? null : b.abs;
+        if (to !== null && to < a.abs) {
+          err.innerText = "Mốc 'Đến' phải sau mốc 'Từ'.";
+          err.classList.remove("hidden");
+          return;
+        }
+        allTimeFilter[timeFilterAcc] = { from: a.abs, to: to };
+        closeTimeFilter();
+        renderUI();
+      }
+      function clearTimeFilter() {
+        delete allTimeFilter[timeFilterAcc];
+        closeTimeFilter();
+        renderUI();
+      }
+      function updateAllFilterBtn(name) {
+        const b = document.getElementById(`all-filter-${name}`);
+        if (!b) return;
+        const on = !!allTimeFilter[name];
+        b.className = on
+          ? "w-11 h-11 flex items-center justify-center rounded-xl bg-indigo-600 border-2 border-indigo-700 text-white hover:bg-indigo-700 active:scale-95 transition shadow-sm"
+          : "w-11 h-11 flex items-center justify-center rounded-xl bg-white border-2 border-indigo-200 text-indigo-600 hover:bg-indigo-50 active:scale-95 transition shadow-sm";
+      }
+      // ===== HẾT LỌC THỜI GIAN =====
+
+      // ===== GIỚI HẠN 36 TIẾNG Ở MODAL RESET MẬT KHẨU (mỗi acc một nút, mặc định TẮT) =====
+      const reset36State = {};
+      const resetFilterAbsByPrefix = {};
+      const RESET_LIMIT_HOURS = 36;
+      function clearReset36(prefix) {
+        ACC_NAMES.forEach((n) => delete reset36State[`${prefix}:${n}`]);
+      }
+      function toggleReset36(prefix, name) {
+        const k = `${prefix}:${name}`;
+        reset36State[k] = !reset36State[k];
+        if (resetFilterAbsByPrefix[prefix] !== undefined)
+          renderResetNowLists(resetFilterAbsByPrefix[prefix], prefix);
+      }
+      // ===== HẾT GIỚI HẠN 36 TIẾNG =====
 
       function switchTab(tabName) {
         activeTab = tabName;
@@ -3501,21 +3590,16 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
 
           // All
           const allContainer = document.getElementById(`list-all-${accName}`);
+          const tFlt = allTimeFilter[accName];
+          updateAllFilterBtn(accName);
           if (effSched.length === 0) {
             allContainer.innerHTML = `<p class="text-gray-400 text-sm italic">(Chưa có lịch thuê)</p>`;
           } else {
-            // Lọc thời gian: mặc định (chưa chọn) = từ thời gian hiện tại trở đi; đã chọn = các lịch giao với khoảng đã chọn
-            const tf = timeFilterState[accName];
             let allHtml = "";
-            if (tf) {
-              allHtml += `<p class="text-xs font-bold text-indigo-600 mb-1"><i class="fa-regular fa-clock"></i> Đang lọc: ${fmtAbsPoint(tf.fromAbs)} ➔ ${fmtAbsPoint(tf.toAbs)}</p>`;
-            }
             let shown = 0;
             effSched.forEach((r, rIdx) => {
-              const ok = tf
-                ? r.startAbs < tf.toAbs && r.endAbs > tf.fromAbs
-                : r.endAbs > currentAbs;
-              if (!ok) return;
+              if (tFlt && !(r.endAbs > tFlt.from && (tFlt.to === null || r.startAbs < tFlt.to)))
+                return;
               shown++;
               allHtml += createRentalCardHtml(
                 r,
@@ -3524,14 +3608,12 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
                 formatCardTime(r.startAbs, r.endAbs, currentAbs),
               );
             });
-            if (shown === 0)
-              allHtml += tf
-                ? `<p class="text-gray-400 text-sm italic">(Không có lịch trong khoảng thời gian đã chọn)</p>`
-                : `<p class="text-gray-400 text-sm italic">(Không có lịch từ hiện tại trở đi)</p>`;
-            allContainer.innerHTML = allHtml;
+            allContainer.innerHTML =
+              shown > 0
+                ? allHtml
+                : `<p class="text-gray-400 text-sm italic">(Không có lịch trong khoảng thời gian đã chọn)</p>`;
           }
         });
-        renderTimeFilterButtons();
         renderNotesTab();
       }
 
@@ -4070,124 +4152,6 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
         );
       }
 
-      // --- LỌC THỜI GIAN Ở "TẤT CẢ LỊCH" (mỗi acc một bộ lọc riêng) ---
-      const timeFilterState = {}; // { accName: { fromAbs, toAbs } } - không có = mặc định từ hiện tại trở đi
-      let tfAcc = null;
-
-      function fmtAbsPoint(abs) {
-        const d = fromEpochHours(abs);
-        return `${fmtH(d.h)} ${d.d}/${d.m}/${d.y}`;
-      }
-      function tfFill(p, abs) {
-        const d = fromEpochHours(abs);
-        document.getElementById(`tf-${p}day`).value = d.d;
-        document.getElementById(`tf-${p}month`).value = d.m;
-        document.getElementById(`tf-${p}year`).value = d.y;
-        document.getElementById(`tf-${p}hour`).value = fmtHourField(d.h);
-      }
-      function tfRead(p) {
-        const d = parseInt(document.getElementById(`tf-${p}day`).value, 10);
-        const m = parseInt(document.getElementById(`tf-${p}month`).value, 10);
-        const y = parseInt(document.getElementById(`tf-${p}year`).value, 10);
-        const h = parseHourField(document.getElementById(`tf-${p}hour`).value);
-        if (isNaN(d) || isNaN(m) || isNaN(y) || isNaN(h)) return NaN;
-        const chk = new Date(Date.UTC(y, m - 1, d));
-        if (chk.getUTCFullYear() !== y || chk.getUTCMonth() !== m - 1 || chk.getUTCDate() !== d) return NaN;
-        return getEpochHours(y, m, d, h);
-      }
-      function tfShowError(msg) {
-        const el = document.getElementById("tf-error");
-        el.innerText = msg || "";
-        el.classList.toggle("hidden", !msg);
-      }
-      function openTimeFilter(name) {
-        tfAcc = name;
-        const tf = timeFilterState[name];
-        const t = getSystemDate();
-        const nowAbs = getEpochHours(t.year, t.month, t.day, t.hour);
-        tfFill("s", tf ? tf.fromAbs : nowAbs);
-        tfFill("e", tf ? tf.toAbs : nowAbs + 24);
-        document.getElementById("tf-title").innerText = `Lọc thời gian - Acc ${name}`;
-        tfShowError("");
-        const m = document.getElementById("modal-time-filter");
-        m.classList.remove("hidden");
-        m.classList.add("flex");
-      }
-      function closeTimeFilter() {
-        const m = document.getElementById("modal-time-filter");
-        m.classList.add("hidden");
-        m.classList.remove("flex");
-      }
-      function applyTimeFilter() {
-        const a = tfRead("s");
-        const b = tfRead("e");
-        if (isNaN(a) || isNaN(b)) return tfShowError("Ngày hoặc giờ không hợp lệ.");
-        if (b <= a) return tfShowError("Thời gian kết thúc phải sau thời gian bắt đầu.");
-        timeFilterState[tfAcc] = { fromAbs: a, toAbs: b };
-        closeTimeFilter();
-        renderUI();
-      }
-      function clearTimeFilter() {
-        delete timeFilterState[tfAcc];
-        closeTimeFilter();
-        renderUI();
-      }
-      function renderTimeFilterButtons() {
-        ACC_NAMES.forEach((n) => {
-          const b = document.getElementById(`tf-btn-${n}`);
-          if (!b) return;
-          const tf = timeFilterState[n];
-          b.classList.toggle("tf-active", !!tf);
-          b.title = tf
-            ? `Đang lọc: ${fmtAbsPoint(tf.fromAbs)} ➔ ${fmtAbsPoint(tf.toAbs)}`
-            : "Lọc theo thời gian (mặc định: từ hiện tại trở đi)";
-        });
-      }
-
-      // --- GIỚI HẠN 36 TIẾNG Ở MODAL RESET MẬT KHẨU (mỗi acc một nút, mặc định TẮT = như cũ) ---
-      const reset36State = { "reset-now": {}, "reset-history-detail": {} };
-      const resetLastFilter = {};
-
-      function toggleReset36(prefix, accName) {
-        reset36State[prefix][accName] = !reset36State[prefix][accName];
-        syncReset36Buttons(prefix);
-        if (resetLastFilter[prefix] != null)
-          renderResetNowLists(resetLastFilter[prefix], prefix);
-      }
-      function syncReset36Buttons(prefix) {
-        ACC_NAMES.forEach((n) => {
-          const b = document.getElementById(`reset36-${prefix}-${n}`);
-          if (!b) return;
-          const on = !!reset36State[prefix][n];
-          b.classList.toggle("tf-active", on);
-          b.setAttribute("aria-pressed", on ? "true" : "false");
-        });
-      }
-      function resetReset36(prefix) {
-        reset36State[prefix] = {};
-        syncReset36Buttons(prefix);
-      }
-      function initReset36Buttons() {
-        ["reset-now", "reset-history-detail"].forEach((prefix) => {
-          ACC_NAMES.forEach((n) => {
-            const badge = document.getElementById(`login-badges-${prefix}-${n}`);
-            if (!badge || document.getElementById(`reset36-${prefix}-${n}`)) return;
-            const row = badge.closest("div");
-            if (!row) return;
-            const b = document.createElement("button");
-            b.type = "button";
-            b.id = `reset36-${prefix}-${n}`;
-            b.setAttribute("aria-pressed", "false");
-            b.title = "Chỉ hiện lịch trong vòng 36 tiếng tính từ lúc reset";
-            b.className =
-              "tf-btn w-11 h-11 flex items-center justify-center rounded-xl bg-white border-2 border-indigo-200 text-indigo-600 hover:bg-indigo-50 active:scale-95 transition shadow-sm font-black text-sm";
-            b.innerText = "36h";
-            b.onclick = () => toggleReset36(prefix, n);
-            row.appendChild(b);
-          });
-        });
-      }
-
       // --- THU GỌN / SỔ XUỐNG DANH SÁCH Ở "TẤT CẢ LỊCH" ---
       function toggleAllList(name) {
         const list = document.getElementById(`list-all-${name}`);
@@ -4665,7 +4629,7 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
                 if (parseInt(choice) >= ACC_NAMES.length)
                   accounts.forEach((a) => (a.schedule = []));
                 else accounts[parseInt(choice)].schedule = [];
-                saveData({ force: true });
+                saveData();
               },
               openClearAllDataModal,
             );
@@ -4703,7 +4667,7 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
             changed = true;
           }
         }
-        if (changed) saveData({ auto: true });
+        if (changed) saveData();
       }
 
       function fmtVnd(n) {
@@ -5122,17 +5086,26 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
 
       function renderResetNowLists(filterAbs, prefix = "reset-now") {
         // filterAbs = mốc reset (cố định) để chọn lịch; nowAbs = giờ VN hiện tại để hiển thị
-        resetLastFilter[prefix] = filterAbs;
         const _t = getSystemDate();
         const nowAbs = getEpochHours(_t.year, _t.month, _t.day, _t.hour);
+        resetFilterAbsByPrefix[prefix] = filterAbs;
         ACC_NAMES.forEach((accName, idx) => {
           const acc = accounts[idx];
           const container = document.getElementById(
             `list-${prefix}-${accName}`,
           );
           let list = getResetNowSchedule(acc, filterAbs);
-          if (reset36State[prefix] && reset36State[prefix][accName])
-            list = list.filter((r) => r.startAbs < filterAbs + 36);
+          // CHỈ THÊM: nút giới hạn 36 tiếng (tắt thì giữ nguyên logic cũ)
+          const limitOn = !!reset36State[`${prefix}:${accName}`];
+          if (limitOn)
+            list = list.filter((r) => r.startAbs <= filterAbs + RESET_LIMIT_HOURS);
+          const limitBtn = document.getElementById(`reset36-btn-${prefix}-${accName}`);
+          if (limitBtn) {
+            limitBtn.setAttribute("aria-pressed", limitOn ? "true" : "false");
+            limitBtn.className = limitOn
+              ? "w-11 h-11 flex items-center justify-center rounded-xl bg-indigo-600 border-2 border-indigo-700 text-white hover:bg-indigo-700 active:scale-95 transition shadow-sm"
+              : "w-11 h-11 flex items-center justify-center rounded-xl bg-white border-2 border-indigo-200 text-indigo-600 hover:bg-indigo-50 active:scale-95 transition shadow-sm";
+          }
           const badgeEl = document.getElementById(
             `login-badges-${prefix}-${accName}`,
           );
@@ -5207,8 +5180,8 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
         resetPasswordHistory.push(item);
         saveData();
         resetNowTs = ts;
+        clearReset36("reset-now");
         setResetPasswords("reset-now", item);
-        resetReset36("reset-now");
         renderResetNowLists(ts, "reset-now");
         document.getElementById("modal-reset-now").classList.remove("hidden");
         document.getElementById("modal-reset-now").classList.add("flex");
@@ -5296,8 +5269,8 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
         const item = resetPasswordHistory.find((x) => x.id === id);
         if (!item) return;
         resetDetailId = id;
+        clearReset36("reset-history-detail");
         setResetPasswords("reset-history-detail", item); // mật khẩu cố định theo lần reset
-        resetReset36("reset-history-detail");
         refreshResetHistoryDetail();
 
         closeResetHistoryModal();
