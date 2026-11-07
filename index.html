@@ -104,6 +104,9 @@
       .tf-input { flex: 1 1 auto; min-width: 0; width: 100%; background: transparent; outline: none; text-align: center; font-weight: 700; font-size: 18px; color: #1f2937; }
       .tf-lock .tf-step { opacity: .35; pointer-events: none; }
       .tf-lock .tf-input { font-size: 26px; pointer-events: none; }
+      .tf-label { font-weight: 700; font-size: 18px; line-height: 1.2; color: #4f46e5; }
+      .dark .tf-label { color: #a5b4fc; }
+      #tf-inf-toggle { width: auto; height: 34px; padding: 0 14px; font-size: 18px; border-radius: 9999px; }
       .tg-chip.on-inf { background-color: #dbeafe; border-color: #3b82f6; color: #1d4ed8; }
       .dark .tf-cell { background-color: #111827; border-color: #4b5563; }
       .dark .tf-step { background-color: #1f2937; color: #d1d5db; }
@@ -1968,13 +1971,13 @@
         </div>
         <div>
           <div class="tg-row mb-1">
-            <label class="font-bold text-sm text-indigo-600">TỪ</label>
+            <label class="tf-label">TỪ</label>
           </div>
           <div id="tf-grid-s" class="grid grid-cols-2 gap-2"></div>
         </div>
         <div>
           <div class="tg-row mb-1">
-            <label class="font-bold text-sm text-indigo-600">ĐẾN</label>
+            <label class="tf-label">ĐẾN</label>
             <button type="button" id="tf-inf-toggle" onclick="tfToggleInf()" class="tg-chip" title="Bật: không giới hạn thời gian kết thúc">Vô hạn</button>
           </div>
           <div id="tf-grid-e" class="grid grid-cols-2 gap-2"></div>
