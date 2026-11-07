@@ -84,6 +84,34 @@
       .dark .tg-chip { background-color: #374151; border-color: #4b5563; color: #d1d5db; }
       .dark .tg-chip.on-no30 { background-color: #78350f; border-color: #f59e0b; color: #fef3c7; }
       .dark .tg-chip.on-pre { background-color: #4c1d95; border-color: #8b5cf6; color: #ede9fe; }
+
+      /* ===== BỘ LỌC THỜI GIAN (TẤT CẢ LỊCH) ===== */
+      .tf-btn { width: 44px; height: 44px; flex: none; display: flex; align-items: center; justify-content: center; border-radius: 12px; border: 2px solid #c7d2fe; background-color: #ffffff; color: #4f46e5; box-shadow: 0 1px 2px rgba(0,0,0,.08); transition: background-color .2s, border-color .2s, color .2s, transform .1s; }
+      .tf-btn:hover { background-color: #eef2ff; }
+      .tf-btn:active { transform: scale(0.95); }
+      .tf-btn.on { background-color: #22c55e; border-color: #16a34a; color: #ffffff; }
+      .tf-btn.on:hover { background-color: #16a34a; }
+      .dark .tf-btn { background-color: #111827; border-color: #374151; color: #a5b4fc; }
+      .dark .tf-btn:hover { background-color: #1f2937; }
+      .dark .tf-btn.on { background-color: #16a34a; border-color: #4ade80; color: #ffffff; }
+      .tf-cell { display: flex; align-items: stretch; height: 48px; border: 1px solid #d1d5db; border-radius: 12px; overflow: hidden; background-color: #ffffff; box-shadow: 0 1px 2px rgba(0,0,0,.06); }
+      .tf-cell:focus-within { border-color: #6366f1; box-shadow: 0 0 0 2px #c7d2fe; }
+      .tf-step { width: 44px; flex: none; display: flex; align-items: center; justify-content: center; background-color: #f9fafb; color: #4b5563; font-weight: 700; transition: background-color .2s; }
+      .tf-step:hover { background-color: #f3f4f6; }
+      .tf-step:active { background-color: #e5e7eb; }
+      .tf-step.l { border-right: 1px solid #e5e7eb; }
+      .tf-step.r { border-left: 1px solid #e5e7eb; }
+      .tf-input { flex: 1 1 auto; min-width: 0; width: 100%; background: transparent; outline: none; text-align: center; font-weight: 700; font-size: 18px; color: #1f2937; }
+      .tf-lock .tf-step { opacity: .35; pointer-events: none; }
+      .tf-lock .tf-input { font-size: 26px; pointer-events: none; }
+      .tg-chip.on-inf { background-color: #dbeafe; border-color: #3b82f6; color: #1d4ed8; }
+      .dark .tf-cell { background-color: #111827; border-color: #4b5563; }
+      .dark .tf-step { background-color: #1f2937; color: #d1d5db; }
+      .dark .tf-step:hover { background-color: #374151; }
+      .dark .tf-step.l { border-right-color: #374151; }
+      .dark .tf-step.r { border-left-color: #374151; }
+      .dark .tf-input { color: #f3f4f6; }
+      .dark .tg-chip.on-inf { background-color: #1e3a8a; border-color: #3b82f6; color: #dbeafe; }
       @media (max-width: 399px) {
         .tg-row { gap: 4px; }
         .tg-row label { font-size: 11px; }
@@ -121,526 +149,6 @@
       .dark #daily-revenue-body tbody tr.dr-today { background-color: #1e1b4b; }
       .dark #daily-revenue-body .sticky-col { box-shadow: 1px 0 0 #4b5563; }
       .dark #daily-revenue-body thead th.sticky-col, .dark #daily-revenue-body tfoot td.sticky-col { background-color: #1f2937; }
-    </style>
-      <style id="ui-redesign" media="(hover: hover) and (pointer: fine)">
-      /* =====================================================================
-         GIAO DIỆN MỚI - chỉ là lớp CSS phủ lên, không đổi logic / cấu trúc
-         ===================================================================== */
-      :root {
-        --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
-        --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
-        --glass: rgba(255, 255, 255, 0.72);
-        --glass-strong: rgba(255, 255, 255, 0.9);
-        --glass-border: rgba(255, 255, 255, 0.85);
-        --card-shadow: 0 10px 30px -12px rgba(79, 70, 229, 0.25), 0 2px 6px rgba(15, 23, 42, 0.05);
-        --card-shadow-hover: 0 18px 40px -14px rgba(79, 70, 229, 0.4), 0 4px 10px rgba(15, 23, 42, 0.08);
-      }
-      html.dark {
-        --glass: rgba(17, 24, 39, 0.72);
-        --glass-strong: rgba(17, 24, 39, 0.92);
-        --glass-border: rgba(99, 102, 241, 0.22);
-        --card-shadow: 0 12px 34px -14px rgba(0, 0, 0, 0.7), 0 2px 6px rgba(0, 0, 0, 0.4);
-        --card-shadow-hover: 0 20px 44px -14px rgba(99, 102, 241, 0.45), 0 4px 10px rgba(0, 0, 0, 0.5);
-      }
-
-      html { scroll-behavior: smooth; }
-      body {
-        font-family: "Inter", "Be Vietnam Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-        -webkit-font-smoothing: antialiased;
-        position: relative;
-        background: transparent !important;
-        animation: pageFade 0.7s var(--ease-out) both;
-      }
-      /* Nền aurora chuyển động */
-      body::before {
-        content: "";
-        position: fixed;
-        inset: 0;
-        z-index: -2;
-        background:
-          radial-gradient(900px 500px at 8% 6%, rgba(99, 102, 241, 0.28), transparent 60%),
-          radial-gradient(800px 520px at 95% 12%, rgba(236, 72, 153, 0.20), transparent 60%),
-          radial-gradient(900px 600px at 50% 105%, rgba(20, 184, 166, 0.22), transparent 60%),
-          linear-gradient(180deg, #eef2ff 0%, #f5f3ff 50%, #ecfeff 100%);
-        background-size: 140% 140%, 140% 140%, 140% 140%, 100% 100%;
-        animation: auroraShift 22s ease-in-out infinite alternate;
-      }
-      html.dark body::before {
-        background:
-          radial-gradient(900px 500px at 8% 6%, rgba(99, 102, 241, 0.30), transparent 60%),
-          radial-gradient(800px 520px at 95% 12%, rgba(168, 85, 247, 0.22), transparent 60%),
-          radial-gradient(900px 600px at 50% 105%, rgba(20, 184, 166, 0.16), transparent 60%),
-          linear-gradient(180deg, #060a18 0%, #0b1120 60%, #0a1322 100%);
-      }
-      html.dark body { background: transparent !important; }
-      .dark .bg-slate-100 { background-color: transparent !important; }
-      .bg-slate-100 { background-color: transparent !important; }
-
-      @keyframes auroraShift {
-        0%   { background-position: 0% 0%, 100% 0%, 50% 100%, 0 0; }
-        100% { background-position: 12% 18%, 85% 14%, 40% 90%, 0 0; }
-      }
-      @keyframes pageFade {
-        from { opacity: 0; }
-        to { opacity: 1; }
-      }
-      @keyframes riseIn {
-        from { opacity: 0; transform: translateY(22px) scale(0.985); }
-        to { opacity: 1; transform: translateY(0) scale(1); }
-      }
-      @keyframes popIn {
-        0% { opacity: 0; transform: translateY(24px) scale(0.92); }
-        60% { opacity: 1; }
-        100% { opacity: 1; transform: translateY(0) scale(1); }
-      }
-      @keyframes backdropIn {
-        from { opacity: 0; backdrop-filter: blur(0); }
-        to { opacity: 1; backdrop-filter: blur(8px); }
-      }
-      @keyframes tabFade {
-        from { opacity: 0; transform: translateY(10px); }
-        to { opacity: 1; transform: translateY(0); }
-      }
-      @keyframes itemIn {
-        from { opacity: 0; transform: translateX(-8px); }
-        to { opacity: 1; transform: translateX(0); }
-      }
-      @keyframes shine {
-        from { transform: translateX(-130%) skewX(-18deg); }
-        to { transform: translateX(260%) skewX(-18deg); }
-      }
-      @keyframes floatGlow {
-        0%, 100% { transform: translate(0, 0) scale(1); }
-        50% { transform: translate(20px, -14px) scale(1.12); }
-      }
-      @keyframes gradientFlow {
-        0% { background-position: 0% 50%; }
-        100% { background-position: 200% 50%; }
-      }
-
-      /* ---------- Khung chính: xuất hiện lần lượt ---------- */
-      .max-w-7xl > div:first-child { animation: riseIn 0.8s var(--ease-out) both; }
-      .max-w-7xl > .grid > .space-y-6 > :nth-child(1) { animation: riseIn 0.8s var(--ease-out) 0.12s both; }
-      .max-w-7xl > .grid > .space-y-6 > :nth-child(2) { animation: riseIn 0.8s var(--ease-out) 0.24s both; }
-
-      /* ---------- Header ---------- */
-      .max-w-7xl > div:first-child {
-        position: relative;
-        overflow: hidden;
-        background: linear-gradient(120deg, #4f46e5, #7c3aed, #db2777, #4f46e5) !important;
-        background-size: 250% 100% !important;
-        animation: riseIn 0.8s var(--ease-out) both, gradientFlow 14s linear infinite;
-        border: 1px solid rgba(255, 255, 255, 0.25);
-        border-radius: 1.75rem !important;
-        box-shadow: 0 24px 50px -18px rgba(124, 58, 237, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.35) !important;
-      }
-      .max-w-7xl > div:first-child::before {
-        content: "";
-        position: absolute;
-        width: 260px; height: 260px;
-        right: -60px; top: -110px;
-        border-radius: 50%;
-        background: radial-gradient(circle, rgba(255, 255, 255, 0.35), transparent 70%);
-        animation: floatGlow 9s ease-in-out infinite;
-        pointer-events: none;
-      }
-      .max-w-7xl > div:first-child h1 {
-        font-size: 1.75rem;
-        letter-spacing: 0.06em;
-        text-shadow: 0 2px 14px rgba(0, 0, 0, 0.25);
-      }
-      #system-date { color: rgba(255, 255, 255, 0.8) !important; }
-
-      /* ---------- Nút bấm: nâng nhẹ + vệt sáng quét ---------- */
-      button {
-        transition: transform 0.25s var(--ease-spring), box-shadow 0.3s var(--ease-out),
-          background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease, opacity 0.2s ease;
-        -webkit-tap-highlight-color: transparent;
-      }
-      button:active { transform: scale(0.95) !important; }
-      .max-w-7xl button.rounded-xl.shadow,
-      .max-w-7xl button.rounded-xl.font-bold.shadow {
-        position: relative;
-        overflow: hidden;
-        border: 1px solid rgba(255, 255, 255, 0.28);
-        box-shadow: 0 8px 18px -8px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
-      }
-      .max-w-7xl button.rounded-xl.shadow::after {
-        content: "";
-        position: absolute;
-        top: 0; left: 0;
-        width: 40%; height: 100%;
-        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.45), transparent);
-        transform: translateX(-130%) skewX(-18deg);
-        pointer-events: none;
-      }
-      .max-w-7xl button.rounded-xl.shadow:hover { transform: translateY(-3px) scale(1.03); }
-      .max-w-7xl button.rounded-xl.shadow:hover::after { animation: shine 0.9s var(--ease-out); }
-      .max-w-7xl button.rounded-xl.shadow i { transition: transform 0.35s var(--ease-spring); }
-      .max-w-7xl button.rounded-xl.shadow:hover i { transform: rotate(-12deg) scale(1.2); }
-
-      /* Nút gạt sáng/tối */
-      #theme-toggle {
-        background: rgba(255, 255, 255, 0.18) !important;
-        border: 1px solid rgba(255, 255, 255, 0.45) !important;
-        backdrop-filter: blur(8px);
-      }
-      #theme-toggle:hover { transform: scale(1.06); }
-      #theme-knob { transition: transform 0.5s var(--ease-spring) !important; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3); }
-      #theme-knob-icon { transition: transform 0.6s var(--ease-spring); }
-      #theme-toggle:hover #theme-knob-icon { transform: rotate(180deg); }
-
-      /* ---------- Thẻ tổng doanh thu ---------- */
-      .bg-indigo-700.text-white.rounded-2xl {
-        position: relative;
-        background: linear-gradient(135deg, #312e81 0%, #4338ca 45%, #6d28d9 100%) !important;
-        border: 1px solid rgba(255, 255, 255, 0.18);
-        border-radius: 1.75rem !important;
-        box-shadow: 0 28px 55px -22px rgba(67, 56, 202, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.25) !important;
-      }
-      .bg-indigo-700.text-white.rounded-2xl::before,
-      .bg-indigo-700.text-white.rounded-2xl::after {
-        content: "";
-        position: absolute;
-        border-radius: 50%;
-        pointer-events: none;
-        filter: blur(6px);
-      }
-      .bg-indigo-700.text-white.rounded-2xl::before {
-        width: 280px; height: 280px;
-        left: -90px; bottom: -140px;
-        background: radial-gradient(circle, rgba(34, 211, 238, 0.4), transparent 70%);
-        animation: floatGlow 11s ease-in-out infinite;
-      }
-      .bg-indigo-700.text-white.rounded-2xl::after {
-        width: 240px; height: 240px;
-        right: 30%; top: -120px;
-        background: radial-gradient(circle, rgba(244, 114, 182, 0.35), transparent 70%);
-        animation: floatGlow 13s ease-in-out infinite reverse;
-      }
-      .bg-indigo-700.text-white.rounded-2xl > * { position: relative; z-index: 1; }
-      #total-revenue {
-        font-size: 2.75rem;
-        background: linear-gradient(90deg, #ffffff, #fde68a, #ffffff);
-        background-size: 200% 100%;
-        -webkit-background-clip: text;
-        background-clip: text;
-        -webkit-text-fill-color: transparent;
-        animation: gradientFlow 6s linear infinite;
-        filter: drop-shadow(0 4px 14px rgba(0, 0, 0, 0.25));
-      }
-      .bg-indigo-700 .grid.grid-cols-2 > div {
-        background: rgba(255, 255, 255, 0.08);
-        border: 1px solid rgba(255, 255, 255, 0.14);
-        border-radius: 1rem;
-        padding: 0.75rem 0.9rem;
-        backdrop-filter: blur(6px);
-        transition: transform 0.35s var(--ease-spring), background-color 0.3s ease, box-shadow 0.3s ease;
-      }
-      .bg-indigo-700 .grid.grid-cols-2 > div:hover {
-        transform: translateY(-4px);
-        background: rgba(255, 255, 255, 0.16);
-        box-shadow: 0 12px 24px -12px rgba(0, 0, 0, 0.5);
-      }
-
-      /* Đồng hồ */
-      #clock-time { filter: drop-shadow(0 0 18px rgba(165, 180, 252, 0.45)); }
-      #clock-time + #clock-date, #clock-date { transition: transform 0.3s var(--ease-out); }
-      .lg\:w-\[340px\] {
-        border-radius: 1.5rem !important;
-        box-shadow: 0 20px 40px -18px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.12) !important;
-        transition: transform 0.4s var(--ease-out), box-shadow 0.4s var(--ease-out);
-      }
-      .lg\:w-\[340px\]:hover { transform: translateY(-4px); }
-
-      /* ---------- Khung tab ---------- */
-      .bg-white.rounded-2xl.shadow-sm.border {
-        background: var(--glass) !important;
-        backdrop-filter: blur(16px) saturate(1.4);
-        -webkit-backdrop-filter: blur(16px) saturate(1.4);
-        border: 1px solid var(--glass-border) !important;
-        border-radius: 1.75rem !important;
-        box-shadow: var(--card-shadow) !important;
-      }
-      .flex.border-b.text-sm.font-bold {
-        background: transparent !important;
-        position: relative;
-        padding: 0.4rem 0.4rem 0;
-        gap: 0.25rem;
-      }
-      [id^="tab-btn-"] {
-        position: relative;
-        border-radius: 1rem 1rem 0 0;
-        border-bottom-width: 0 !important;
-        transition: color 0.3s ease, background-color 0.3s ease, transform 0.3s var(--ease-spring) !important;
-      }
-      [id^="tab-btn-"]:hover { background: rgba(99, 102, 241, 0.08); transform: translateY(-1px); }
-      [id^="tab-btn-"].border-indigo-600 {
-        background: linear-gradient(180deg, rgba(99, 102, 241, 0.14), rgba(99, 102, 241, 0)) !important;
-        color: #4f46e5 !important;
-      }
-      [id^="tab-btn-"].border-indigo-600::after {
-        content: "";
-        position: absolute;
-        left: 18%; right: 18%; bottom: 0;
-        height: 3px;
-        border-radius: 3px;
-        background: linear-gradient(90deg, #6366f1, #a855f7, #ec4899);
-        animation: tabLine 0.5s var(--ease-out) both;
-      }
-      @keyframes tabLine { from { left: 50%; right: 50%; opacity: 0; } to { left: 18%; right: 18%; opacity: 1; } }
-      html.dark [id^="tab-btn-"].border-indigo-600 { color: #c7d2fe !important; }
-
-      #tab-upcoming, #tab-all, #tab-notes { animation: tabFade 0.5s var(--ease-out) both; }
-      #tab-upcoming:not(.hidden) > *, #tab-all:not(.hidden) > * {
-        animation: riseIn 0.6s var(--ease-out) both;
-      }
-      #tab-upcoming > :nth-child(2), #tab-all > :nth-child(2) { animation-delay: 0.07s; }
-      #tab-upcoming > :nth-child(3), #tab-all > :nth-child(3) { animation-delay: 0.14s; }
-      #tab-upcoming > :nth-child(4), #tab-all > :nth-child(4) { animation-delay: 0.21s; }
-
-      /* ---------- Thẻ từng acc ---------- */
-      #tab-upcoming > div, #tab-all > div {
-        background: var(--glass-strong) !important;
-        border: 1px solid rgba(99, 102, 241, 0.14) !important;
-        border-radius: 1.5rem !important;
-        box-shadow: var(--card-shadow);
-        transition: transform 0.4s var(--ease-out), box-shadow 0.4s var(--ease-out), border-color 0.3s ease;
-        position: relative;
-        overflow: hidden;
-      }
-      #tab-upcoming > div::before, #tab-all > div::before {
-        content: "";
-        position: absolute;
-        left: 0; top: 0; right: 0;
-        height: 4px;
-        background: linear-gradient(90deg, #6366f1, #a855f7, #ec4899, #6366f1);
-        background-size: 200% 100%;
-        animation: gradientFlow 5s linear infinite;
-        opacity: 0.9;
-      }
-      #tab-upcoming > div:hover, #tab-all > div:hover {
-        transform: translateY(-5px);
-        box-shadow: var(--card-shadow-hover);
-        border-color: rgba(99, 102, 241, 0.4) !important;
-      }
-      #tab-upcoming h3, #tab-all h3 { letter-spacing: 0.08em; }
-
-      /* Thẻ lịch thuê */
-      [id^="list-"] > div.bg-gradient-to-r {
-        position: relative;
-        border-radius: 1rem !important;
-        background: linear-gradient(120deg, rgba(255, 255, 255, 0.95), rgba(238, 242, 255, 0.9)) !important;
-        border: 1px solid rgba(99, 102, 241, 0.16) !important;
-        box-shadow: 0 6px 16px -10px rgba(79, 70, 229, 0.35) !important;
-        transition: transform 0.35s var(--ease-spring), box-shadow 0.3s ease, border-color 0.3s ease;
-        animation: itemIn 0.5s var(--ease-out) both;
-      }
-      [id^="list-"] > div.bg-gradient-to-r:hover {
-        transform: translateX(5px) translateY(-2px);
-        border-color: rgba(99, 102, 241, 0.5) !important;
-        box-shadow: 0 14px 26px -12px rgba(79, 70, 229, 0.5) !important;
-      }
-      html.dark [id^="list-"] > div.bg-gradient-to-r {
-        background: linear-gradient(120deg, #1f2937, #1e1b4b) !important;
-      }
-      [id^="list-"] > div.bg-gradient-to-r button {
-        border-radius: 0.7rem !important;
-      }
-      [id^="list-"] > div.bg-gradient-to-r button:hover { transform: translateY(-2px) scale(1.06); }
-      [id^="list-"] > div.bg-gradient-to-r .bg-indigo-600 {
-        background: linear-gradient(135deg, #6366f1, #8b5cf6) !important;
-        box-shadow: 0 4px 10px -3px rgba(99, 102, 241, 0.6);
-      }
-
-      /* Biểu tượng "đang trong ca" nhấp nháy nhẹ */
-      .fa-circle-play { animation: livePulse 1.8s ease-in-out infinite; }
-      @keyframes livePulse {
-        0%, 100% { transform: scale(1); filter: drop-shadow(0 0 0 rgba(16, 185, 129, 0)); }
-        50% { transform: scale(1.25); filter: drop-shadow(0 0 6px rgba(16, 185, 129, 0.9)); }
-      }
-      .fa-hourglass-half { animation: hourglass 3s ease-in-out infinite; }
-      @keyframes hourglass { 0%, 100% { transform: rotate(0); } 50% { transform: rotate(180deg); } }
-
-      /* Nút sổ xuống ở "Tất cả lịch" */
-      [id^="all-toggle-"] {
-        border-radius: 0.9rem !important;
-        transition: transform 0.3s var(--ease-spring), background-color 0.3s ease, box-shadow 0.3s ease !important;
-      }
-      [id^="all-toggle-"]:hover { transform: scale(1.1); box-shadow: 0 8px 18px -8px rgba(79, 70, 229, 0.6); }
-      [id^="list-all-"]:not(.hidden) { animation: tabFade 0.4s var(--ease-out) both; }
-
-      /* Ghi chú */
-      #list-notes > div {
-        border-radius: 1rem !important;
-        transition: transform 0.3s var(--ease-spring), box-shadow 0.3s ease;
-        animation: itemIn 0.5s var(--ease-out) both;
-      }
-      #list-notes > div:hover { transform: translateX(6px); box-shadow: 0 10px 22px -12px rgba(79, 70, 229, 0.5); }
-
-      /* ---------- MODAL ---------- */
-      [id^="modal-"].flex {
-        animation: backdropIn 0.35s ease both;
-        background: rgba(15, 23, 42, 0.5) !important;
-        backdrop-filter: blur(8px);
-        -webkit-backdrop-filter: blur(8px);
-      }
-      [id^="modal-"].flex > div {
-        animation: popIn 0.5s var(--ease-spring) both;
-        background: var(--glass-strong) !important;
-        border: 1px solid var(--glass-border);
-        border-radius: 1.75rem !important;
-        box-shadow: 0 40px 80px -24px rgba(30, 27, 75, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.5) !important;
-        backdrop-filter: blur(20px);
-        -webkit-backdrop-filter: blur(20px);
-        position: relative;
-        overflow-x: hidden;
-      }
-      [id^="modal-"].flex > div::before {
-        content: "";
-        position: absolute;
-        left: 0; top: 0; right: 0;
-        height: 4px;
-        background: linear-gradient(90deg, #6366f1, #a855f7, #ec4899, #6366f1);
-        background-size: 200% 100%;
-        animation: gradientFlow 5s linear infinite;
-        z-index: 2;
-      }
-      [id^="modal-"] h3.text-lg { letter-spacing: 0.01em; }
-      [id^="modal-"] .border-b { border-color: rgba(99, 102, 241, 0.18) !important; }
-
-      /* Ô nhập liệu */
-      input[type="text"], input[type="number"] { transition: box-shadow 0.25s ease, border-color 0.25s ease, background-color 0.25s ease; }
-      #modal-rental input#form-tenant,
-      #custom-prompt-input {
-        border-radius: 0.9rem !important;
-        border: 1.5px solid rgba(99, 102, 241, 0.25) !important;
-        background: rgba(255, 255, 255, 0.6);
-      }
-      html.dark #modal-rental input#form-tenant,
-      html.dark #custom-prompt-input { background: rgba(31, 41, 55, 0.8); }
-      #modal-rental input#form-tenant:focus,
-      #custom-prompt-input:focus { box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.2); border-color: #6366f1 !important; }
-      .rounded-xl.overflow-hidden.shadow-sm, .rounded-lg.overflow-hidden.shadow-sm {
-        transition: box-shadow 0.3s ease, border-color 0.3s ease, transform 0.3s var(--ease-out);
-      }
-      .rounded-xl.overflow-hidden.shadow-sm:focus-within { transform: translateY(-1px); }
-      .rounded-xl.overflow-hidden.shadow-sm button:hover i,
-      .rounded-lg.overflow-hidden.shadow-sm button:hover i { transform: scale(1.35); }
-      .rounded-xl.overflow-hidden.shadow-sm button i,
-      .rounded-lg.overflow-hidden.shadow-sm button i { transition: transform 0.25s var(--ease-spring); }
-
-      /* Nút chọn acc / đăng nhập */
-      [id$="-acc-picker"] button { border-radius: 1rem !important; }
-      [id$="-acc-picker"] button:hover { transform: translateY(-2px); }
-      [id^="form-device-"] { border-radius: 0.9rem !important; }
-      [id^="form-device-"]:hover { transform: translateY(-2px); }
-
-      /* Nút Hủy / Lưu / Đồng ý ở chân modal */
-      [id^="modal-"] .flex.gap-2 > button {
-        position: relative;
-        overflow: hidden;
-        border-radius: 1rem !important;
-        box-shadow: 0 10px 20px -10px rgba(0, 0, 0, 0.4);
-      }
-      [id^="modal-"] .flex.gap-2 > button:hover { transform: translateY(-3px); box-shadow: 0 16px 26px -12px rgba(0, 0, 0, 0.5); }
-      [id^="modal-"] .flex.gap-2 > button::after {
-        content: "";
-        position: absolute;
-        top: 0; left: 0;
-        width: 40%; height: 100%;
-        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
-        transform: translateX(-130%) skewX(-18deg);
-        pointer-events: none;
-      }
-      [id^="modal-"] .flex.gap-2 > button:hover::after { animation: shine 0.8s var(--ease-out); }
-
-      /* Ô email / mật khẩu / kịch bản */
-      [id^="modal-"] .bg-slate-50.border {
-        border-radius: 1rem !important;
-        transition: transform 0.3s var(--ease-out), box-shadow 0.3s ease, border-color 0.3s ease;
-      }
-      [id^="modal-"] .bg-slate-50.border:hover {
-        transform: translateY(-2px);
-        border-color: rgba(99, 102, 241, 0.5);
-        box-shadow: 0 10px 20px -12px rgba(79, 70, 229, 0.5);
-      }
-      [id^="modal-"] .bg-slate-50.border button { border-radius: 0.8rem !important; }
-      [id^="modal-"] .bg-slate-50.border button:hover { transform: scale(1.08) rotate(-4deg); }
-      #script-lines > div { animation: itemIn 0.5s var(--ease-out) both; }
-      #script-lines > div:nth-child(2) { animation-delay: 0.08s; }
-      #script-lines > div:nth-child(3) { animation-delay: 0.16s; }
-
-      /* Lựa chọn trong hộp thoại prompt */
-      #custom-prompt-options button { animation: itemIn 0.45s var(--ease-out) both; border-radius: 1rem !important; }
-      #custom-prompt-options button:nth-child(2) { animation-delay: 0.05s; }
-      #custom-prompt-options button:nth-child(3) { animation-delay: 0.1s; }
-      #custom-prompt-options button:nth-child(4) { animation-delay: 0.15s; }
-      #custom-prompt-options button:nth-child(5) { animation-delay: 0.2s; }
-      #custom-prompt-options button:nth-child(6) { animation-delay: 0.25s; }
-      #custom-prompt-options button:hover { transform: translateX(6px); }
-
-      /* Công tắc nhỏ (PC / Giờ ảo) */
-      #free-pc-toggle, #check-pc-toggle, #check-vh-toggle, #form-vh-toggle {
-        box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2);
-      }
-      #free-pc-toggle > span, #check-pc-toggle > span, #check-vh-toggle > span, #form-vh-toggle > span {
-        transition: transform 0.4s var(--ease-spring) !important;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
-      }
-
-      /* Các chip no30 / Đặt trước & nút nhanh */
-      .tg-chip { transition: all 0.3s var(--ease-spring); }
-      .tg-chip:hover { transform: translateY(-1px) scale(1.05); }
-      .qa-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 12px -6px rgba(0, 0, 0, 0.35); }
-
-      /* Bảng doanh thu mỗi ngày */
-      #daily-revenue-body tbody tr { transition: background-color 0.2s ease, transform 0.25s var(--ease-out); }
-      #daily-revenue-body tbody tr:hover { background-color: #e0e7ff !important; }
-      html.dark #daily-revenue-body tbody tr:hover { background-color: #312e81 !important; }
-      #daily-revenue-body tbody tr { animation: itemIn 0.45s var(--ease-out) both; }
-      #daily-revenue-body thead th { backdrop-filter: blur(6px); }
-
-      /* Biểu đồ: cột mọc lên */
-      #revenue-chart-body > div {
-        border-radius: 1.25rem !important;
-        transition: transform 0.35s var(--ease-out), box-shadow 0.35s ease;
-        animation: riseIn 0.6s var(--ease-out) both;
-      }
-      #revenue-chart-body > div:hover { transform: translateY(-3px); box-shadow: var(--card-shadow-hover); }
-      #revenue-chart-body svg rect {
-        transform-box: fill-box;
-        transform-origin: bottom;
-        animation: barGrow 0.8s var(--ease-out) both;
-        transition: filter 0.25s ease, opacity 0.25s ease;
-      }
-      #revenue-chart-body svg rect:hover { filter: brightness(1.2) drop-shadow(0 4px 8px rgba(0, 0, 0, 0.25)); }
-      @keyframes barGrow { from { transform: scaleY(0); opacity: 0; } to { transform: scaleY(1); opacity: 1; } }
-
-      /* Logo đăng nhập (Google / Facebook) bật nảy */
-      [id^="login-badges-"] > span { animation: popIn 0.5s var(--ease-spring) both; transition: transform 0.3s var(--ease-spring); }
-      [id^="login-badges-"] > span:hover { transform: scale(1.2) rotate(8deg); }
-
-      /* Thanh cuộn */
-      * { scrollbar-width: thin; scrollbar-color: rgba(99, 102, 241, 0.5) transparent; }
-      ::-webkit-scrollbar { width: 9px; height: 9px; }
-      ::-webkit-scrollbar-track { background: transparent; }
-      ::-webkit-scrollbar-thumb {
-        background: linear-gradient(180deg, #818cf8, #a855f7);
-        border-radius: 9999px;
-        border: 2px solid transparent;
-        background-clip: content-box;
-      }
-      ::selection { background: rgba(99, 102, 241, 0.35); }
-
-      /* Tôn trọng người dùng tắt hiệu ứng chuyển động */
-      @media (prefers-reduced-motion: reduce) {
-        *, *::before, *::after {
-          animation-duration: 0.01ms !important;
-          animation-iteration-count: 1 !important;
-          transition-duration: 0.01ms !important;
-        }
-      }
     </style>
   </head>
   <body class="bg-slate-100 min-h-screen text-gray-800 p-4 md:p-6">
@@ -1023,9 +531,9 @@
                       Acc: 4ss
                     <span id="login-badges-all-4ss" class="inline-flex items-center gap-1 ml-1.5"></span>
                     </h3>
-                    <div class="flex items-center gap-2">
-<button type="button" id="all-filter-4ss" onclick="event.stopPropagation(); openTimeFilter('4ss')" title="Lọc theo thời gian" class="w-11 h-11 flex items-center justify-center rounded-xl bg-white border-2 border-indigo-200 text-indigo-600 hover:bg-indigo-50 active:scale-95 transition shadow-sm"><i class="fa-solid fa-filter text-lg"></i></button>
-<button
+                    <div class="flex items-center gap-2 flex-shrink-0">
+                      <button type="button" id="tf-btn-4ss" onclick="event.stopPropagation(); openTimeFilter('4ss')" title="Lọc lịch theo thời gian" class="tf-btn"><i class="fa-solid fa-filter text-xl"></i></button>
+                      <button
                       type="button"
                       id="all-toggle-4ss"
                       aria-expanded="false"
@@ -1038,7 +546,7 @@
                         style="transform: rotate(-90deg)"
                       ></i>
                     </button>
-</div>
+                    </div>
                   </div>
                   <div id="list-all-4ss" class="hidden space-y-2 mt-3">
                     <p class="text-gray-400 text-sm italic">
@@ -1058,9 +566,9 @@
                       Acc: 2ss
                     <span id="login-badges-all-2ss" class="inline-flex items-center gap-1 ml-1.5"></span>
                     </h3>
-                    <div class="flex items-center gap-2">
-<button type="button" id="all-filter-2ss" onclick="event.stopPropagation(); openTimeFilter('2ss')" title="Lọc theo thời gian" class="w-11 h-11 flex items-center justify-center rounded-xl bg-white border-2 border-indigo-200 text-indigo-600 hover:bg-indigo-50 active:scale-95 transition shadow-sm"><i class="fa-solid fa-filter text-lg"></i></button>
-<button
+                    <div class="flex items-center gap-2 flex-shrink-0">
+                      <button type="button" id="tf-btn-2ss" onclick="event.stopPropagation(); openTimeFilter('2ss')" title="Lọc lịch theo thời gian" class="tf-btn"><i class="fa-solid fa-filter text-xl"></i></button>
+                      <button
                       type="button"
                       id="all-toggle-2ss"
                       aria-expanded="false"
@@ -1073,7 +581,7 @@
                         style="transform: rotate(-90deg)"
                       ></i>
                     </button>
-</div>
+                    </div>
                   </div>
                   <div id="list-all-2ss" class="hidden space-y-2 mt-3">
                     <p class="text-gray-400 text-sm italic">
@@ -1093,9 +601,9 @@
                       Acc: Isaac
                     <span id="login-badges-all-Isaac" class="inline-flex items-center gap-1 ml-1.5"></span>
                     </h3>
-                    <div class="flex items-center gap-2">
-<button type="button" id="all-filter-Isaac" onclick="event.stopPropagation(); openTimeFilter('Isaac')" title="Lọc theo thời gian" class="w-11 h-11 flex items-center justify-center rounded-xl bg-white border-2 border-indigo-200 text-indigo-600 hover:bg-indigo-50 active:scale-95 transition shadow-sm"><i class="fa-solid fa-filter text-lg"></i></button>
-<button
+                    <div class="flex items-center gap-2 flex-shrink-0">
+                      <button type="button" id="tf-btn-Isaac" onclick="event.stopPropagation(); openTimeFilter('Isaac')" title="Lọc lịch theo thời gian" class="tf-btn"><i class="fa-solid fa-filter text-xl"></i></button>
+                      <button
                       type="button"
                       id="all-toggle-Isaac"
                       aria-expanded="false"
@@ -1108,7 +616,7 @@
                         style="transform: rotate(-90deg)"
                       ></i>
                     </button>
-</div>
+                    </div>
                   </div>
                   <div id="list-all-Isaac" class="hidden space-y-2 mt-3">
                     <p class="text-gray-400 text-sm italic">
@@ -1128,9 +636,9 @@
                       Acc: White
                     <span id="login-badges-all-White" class="inline-flex items-center gap-1 ml-1.5"></span>
                     </h3>
-                    <div class="flex items-center gap-2">
-<button type="button" id="all-filter-White" onclick="event.stopPropagation(); openTimeFilter('White')" title="Lọc theo thời gian" class="w-11 h-11 flex items-center justify-center rounded-xl bg-white border-2 border-indigo-200 text-indigo-600 hover:bg-indigo-50 active:scale-95 transition shadow-sm"><i class="fa-solid fa-filter text-lg"></i></button>
-<button
+                    <div class="flex items-center gap-2 flex-shrink-0">
+                      <button type="button" id="tf-btn-White" onclick="event.stopPropagation(); openTimeFilter('White')" title="Lọc lịch theo thời gian" class="tf-btn"><i class="fa-solid fa-filter text-xl"></i></button>
+                      <button
                       type="button"
                       id="all-toggle-White"
                       aria-expanded="false"
@@ -1143,7 +651,7 @@
                         style="transform: rotate(-90deg)"
                       ></i>
                     </button>
-</div>
+                    </div>
                   </div>
                   <div id="list-all-White" class="hidden space-y-2 mt-3">
                     <p class="text-gray-400 text-sm italic">
@@ -2220,39 +1728,6 @@
       </div>
     </div>
 
-    <!-- MODAL LỌC THỜI GIAN (Tất cả lịch) -->
-    <div id="modal-time-filter" class="fixed inset-0 bg-black/50 hidden items-center justify-center p-4 z-50">
-      <div class="bg-white rounded-2xl w-full max-w-md p-6 space-y-4 shadow-xl">
-        <h3 class="text-lg font-bold text-gray-800 border-b pb-2">
-          Lọc Lịch Theo Thời Gian - Acc <span id="tf-acc-name"></span>
-        </h3>
-        <div class="space-y-1">
-          <p class="text-sm font-bold text-slate-600">Từ (mặc định: hiện tại)</p>
-          <div class="flex items-center gap-2">
-            <input id="tf-sday" type="text" inputmode="numeric" placeholder="Ngày" class="w-full border-2 border-gray-200 rounded-xl p-2 text-center font-bold" />
-            <input id="tf-smonth" type="text" inputmode="numeric" placeholder="Tháng" class="w-full border-2 border-gray-200 rounded-xl p-2 text-center font-bold" />
-            <input id="tf-syear" type="text" inputmode="numeric" placeholder="Năm" class="w-full border-2 border-gray-200 rounded-xl p-2 text-center font-bold" />
-            <input id="tf-shour" type="text" placeholder="Giờ" class="w-full border-2 border-gray-200 rounded-xl p-2 text-center font-bold" />
-          </div>
-        </div>
-        <div class="space-y-1">
-          <p class="text-sm font-bold text-slate-600">Đến (để trống tất cả = vô tận)</p>
-          <div class="flex items-center gap-2">
-            <input id="tf-eday" type="text" inputmode="numeric" placeholder="Ngày" class="w-full border-2 border-gray-200 rounded-xl p-2 text-center font-bold" />
-            <input id="tf-emonth" type="text" inputmode="numeric" placeholder="Tháng" class="w-full border-2 border-gray-200 rounded-xl p-2 text-center font-bold" />
-            <input id="tf-eyear" type="text" inputmode="numeric" placeholder="Năm" class="w-full border-2 border-gray-200 rounded-xl p-2 text-center font-bold" />
-            <input id="tf-ehour" type="text" placeholder="Giờ" class="w-full border-2 border-gray-200 rounded-xl p-2 text-center font-bold" />
-          </div>
-        </div>
-        <p id="tf-error" class="text-sm font-bold text-rose-600 hidden"></p>
-        <div class="flex gap-2 pt-2">
-          <button onclick="clearTimeFilter()" class="flex-1 py-2.5 rounded-xl bg-rose-500 hover:bg-rose-600 font-semibold text-white transition text-sm">Bỏ lọc</button>
-          <button onclick="closeTimeFilter()" class="flex-1 py-2.5 rounded-xl bg-gray-200 hover:bg-gray-300 font-semibold text-gray-800 transition text-sm">Hủy</button>
-          <button onclick="applyTimeFilter()" class="flex-1 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 font-semibold text-white transition text-sm">Áp dụng</button>
-        </div>
-      </div>
-    </div>
-
     <!-- MODAL RESET MẬT KHẨU - XEM LỊCH TRƯỚC KHI RESET -->
     <div
       id="modal-reset-now"
@@ -2284,7 +1759,6 @@
                 Acc: Isaac
                 <span id="login-badges-reset-now-Isaac" class="inline-flex items-center gap-1 ml-1.5"></span>
               </h3>
-              <button type="button" id="reset36-btn-reset-now-Isaac" onclick="toggleReset36('reset-now','Isaac')" aria-pressed="false" title="Chỉ hiện lịch trong vòng 36 tiếng tính từ lúc reset" class="w-11 h-11 flex items-center justify-center rounded-xl bg-white border-2 border-indigo-200 text-indigo-600 hover:bg-indigo-50 active:scale-95 transition shadow-sm"><i class="fa-solid fa-hourglass-half text-xl"></i></button>
             </div>
             <div class="flex items-center gap-2 mb-3 bg-slate-50 border border-indigo-100 rounded-xl p-2 pl-3">
               <span id="pw-reset-now-Isaac" class="flex-1 font-mono text-sm font-bold text-slate-800 tracking-wider break-all select-all">—</span>
@@ -2304,7 +1778,6 @@
                 Acc: White
                 <span id="login-badges-reset-now-White" class="inline-flex items-center gap-1 ml-1.5"></span>
               </h3>
-              <button type="button" id="reset36-btn-reset-now-White" onclick="toggleReset36('reset-now','White')" aria-pressed="false" title="Chỉ hiện lịch trong vòng 36 tiếng tính từ lúc reset" class="w-11 h-11 flex items-center justify-center rounded-xl bg-white border-2 border-indigo-200 text-indigo-600 hover:bg-indigo-50 active:scale-95 transition shadow-sm"><i class="fa-solid fa-hourglass-half text-xl"></i></button>
             </div>
             <div class="flex items-center gap-2 mb-3 bg-slate-50 border border-indigo-100 rounded-xl p-2 pl-3">
               <span id="pw-reset-now-White" class="flex-1 font-mono text-sm font-bold text-slate-800 tracking-wider break-all select-all">—</span>
@@ -2324,7 +1797,6 @@
                 Acc: 4ss
                 <span id="login-badges-reset-now-4ss" class="inline-flex items-center gap-1 ml-1.5"></span>
               </h3>
-              <button type="button" id="reset36-btn-reset-now-4ss" onclick="toggleReset36('reset-now','4ss')" aria-pressed="false" title="Chỉ hiện lịch trong vòng 36 tiếng tính từ lúc reset" class="w-11 h-11 flex items-center justify-center rounded-xl bg-white border-2 border-indigo-200 text-indigo-600 hover:bg-indigo-50 active:scale-95 transition shadow-sm"><i class="fa-solid fa-hourglass-half text-xl"></i></button>
             </div>
             <div class="flex items-center gap-2 mb-3 bg-slate-50 border border-indigo-100 rounded-xl p-2 pl-3">
               <span id="pw-reset-now-4ss" class="flex-1 font-mono text-sm font-bold text-slate-800 tracking-wider break-all select-all">—</span>
@@ -2344,7 +1816,6 @@
                 Acc: 2ss
                 <span id="login-badges-reset-now-2ss" class="inline-flex items-center gap-1 ml-1.5"></span>
               </h3>
-              <button type="button" id="reset36-btn-reset-now-2ss" onclick="toggleReset36('reset-now','2ss')" aria-pressed="false" title="Chỉ hiện lịch trong vòng 36 tiếng tính từ lúc reset" class="w-11 h-11 flex items-center justify-center rounded-xl bg-white border-2 border-indigo-200 text-indigo-600 hover:bg-indigo-50 active:scale-95 transition shadow-sm"><i class="fa-solid fa-hourglass-half text-xl"></i></button>
             </div>
             <div class="flex items-center gap-2 mb-3 bg-slate-50 border border-indigo-100 rounded-xl p-2 pl-3">
               <span id="pw-reset-now-2ss" class="flex-1 font-mono text-sm font-bold text-slate-800 tracking-wider break-all select-all">—</span>
@@ -2401,7 +1872,6 @@
                 Acc: Isaac
                 <span id="login-badges-reset-history-detail-Isaac" class="inline-flex items-center gap-1 ml-1.5"></span>
               </h3>
-              <button type="button" id="reset36-btn-reset-history-detail-Isaac" onclick="toggleReset36('reset-history-detail','Isaac')" aria-pressed="false" title="Chỉ hiện lịch trong vòng 36 tiếng tính từ lúc reset" class="w-11 h-11 flex items-center justify-center rounded-xl bg-white border-2 border-indigo-200 text-indigo-600 hover:bg-indigo-50 active:scale-95 transition shadow-sm"><i class="fa-solid fa-hourglass-half text-xl"></i></button>
             </div>
             <div class="flex items-center gap-2 mb-3 bg-slate-50 border border-indigo-100 rounded-xl p-2 pl-3">
               <span id="pw-reset-history-detail-Isaac" class="flex-1 font-mono text-sm font-bold text-slate-800 tracking-wider break-all select-all">—</span>
@@ -2421,7 +1891,6 @@
                 Acc: White
                 <span id="login-badges-reset-history-detail-White" class="inline-flex items-center gap-1 ml-1.5"></span>
               </h3>
-              <button type="button" id="reset36-btn-reset-history-detail-White" onclick="toggleReset36('reset-history-detail','White')" aria-pressed="false" title="Chỉ hiện lịch trong vòng 36 tiếng tính từ lúc reset" class="w-11 h-11 flex items-center justify-center rounded-xl bg-white border-2 border-indigo-200 text-indigo-600 hover:bg-indigo-50 active:scale-95 transition shadow-sm"><i class="fa-solid fa-hourglass-half text-xl"></i></button>
             </div>
             <div class="flex items-center gap-2 mb-3 bg-slate-50 border border-indigo-100 rounded-xl p-2 pl-3">
               <span id="pw-reset-history-detail-White" class="flex-1 font-mono text-sm font-bold text-slate-800 tracking-wider break-all select-all">—</span>
@@ -2441,7 +1910,6 @@
                 Acc: 4ss
                 <span id="login-badges-reset-history-detail-4ss" class="inline-flex items-center gap-1 ml-1.5"></span>
               </h3>
-              <button type="button" id="reset36-btn-reset-history-detail-4ss" onclick="toggleReset36('reset-history-detail','4ss')" aria-pressed="false" title="Chỉ hiện lịch trong vòng 36 tiếng tính từ lúc reset" class="w-11 h-11 flex items-center justify-center rounded-xl bg-white border-2 border-indigo-200 text-indigo-600 hover:bg-indigo-50 active:scale-95 transition shadow-sm"><i class="fa-solid fa-hourglass-half text-xl"></i></button>
             </div>
             <div class="flex items-center gap-2 mb-3 bg-slate-50 border border-indigo-100 rounded-xl p-2 pl-3">
               <span id="pw-reset-history-detail-4ss" class="flex-1 font-mono text-sm font-bold text-slate-800 tracking-wider break-all select-all">—</span>
@@ -2461,7 +1929,6 @@
                 Acc: 2ss
                 <span id="login-badges-reset-history-detail-2ss" class="inline-flex items-center gap-1 ml-1.5"></span>
               </h3>
-              <button type="button" id="reset36-btn-reset-history-detail-2ss" onclick="toggleReset36('reset-history-detail','2ss')" aria-pressed="false" title="Chỉ hiện lịch trong vòng 36 tiếng tính từ lúc reset" class="w-11 h-11 flex items-center justify-center rounded-xl bg-white border-2 border-indigo-200 text-indigo-600 hover:bg-indigo-50 active:scale-95 transition shadow-sm"><i class="fa-solid fa-hourglass-half text-xl"></i></button>
             </div>
             <div class="flex items-center gap-2 mb-3 bg-slate-50 border border-indigo-100 rounded-xl p-2 pl-3">
               <span id="pw-reset-history-detail-2ss" class="flex-1 font-mono text-sm font-bold text-slate-800 tracking-wider break-all select-all">—</span>
@@ -2485,6 +1952,37 @@
           >
             Đồng ý
           </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL LỌC THỜI GIAN (TẤT CẢ LỊCH) -->
+    <div
+      id="modal-timefilter"
+      class="fixed inset-0 bg-black/50 hidden items-center justify-center p-4 z-50"
+    >
+      <div class="bg-white rounded-2xl w-full max-w-md p-6 space-y-4 shadow-xl max-h-[92vh] overflow-y-auto">
+        <div class="flex items-center gap-2 border-b pb-2">
+          <i class="fa-solid fa-filter text-indigo-600"></i>
+          <h3 id="tf-title" class="text-lg font-bold text-gray-800">Lọc thời gian</h3>
+        </div>
+        <div>
+          <div class="tg-row mb-1">
+            <label class="font-bold text-sm text-indigo-600">TỪ</label>
+          </div>
+          <div id="tf-grid-s" class="grid grid-cols-2 gap-2"></div>
+        </div>
+        <div>
+          <div class="tg-row mb-1">
+            <label class="font-bold text-sm text-indigo-600">ĐẾN</label>
+            <button type="button" id="tf-inf-toggle" onclick="tfToggleInf()" class="tg-chip" title="Bật: không giới hạn thời gian kết thúc">Vô hạn</button>
+          </div>
+          <div id="tf-grid-e" class="grid grid-cols-2 gap-2"></div>
+        </div>
+        <div class="flex gap-2 pt-2">
+          <button onclick="closeTimeFilter()" class="flex-1 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 font-semibold text-white transition">Đóng</button>
+          <button onclick="turnOffTimeFilter()" class="flex-1 py-2.5 rounded-xl bg-red-500 hover:bg-red-600 font-semibold text-white transition">Tắt lọc</button>
+          <button onclick="applyTimeFilter()" class="flex-1 py-2.5 rounded-xl bg-green-500 hover:bg-green-600 font-semibold text-white transition">Bật lọc</button>
         </div>
       </div>
     </div>
@@ -2572,15 +2070,14 @@
       setInterval(updateClock, 1000);
 
       function getSystemDate() {
-        const nowString = new Date().toLocaleString("en-US", {
-          timeZone: "Asia/Ho_Chi_Minh",
-        });
-        const now = new Date(nowString);
+        // Giờ Việt Nam = UTC+7 (không có giờ mùa hè) -> tính trực tiếp từ UTC, không phụ thuộc
+        // định dạng chuỗi của trình duyệt (tránh Invalid Date / "24:00" lúc 0h làm hỏng mọi phép tính giờ)
+        const now = new Date(Date.now() + 7 * 3600 * 1000);
         return {
-          day: now.getDate(),
-          month: now.getMonth() + 1,
-          year: now.getFullYear(),
-          hour: now.getHours() + (now.getMinutes() >= 30 ? 0.5 : 0), // phút 30
+          day: now.getUTCDate(),
+          month: now.getUTCMonth() + 1,
+          year: now.getUTCFullYear(),
+          hour: now.getUTCHours() + (now.getUTCMinutes() >= 30 ? 0.5 : 0), // phút 30
         };
       }
 
@@ -3122,8 +2619,11 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
           activeDayObj.day - 15,
           activeDayObj.hour,
         );
+        if (!Number.isFinite(limitAbs)) return; // mốc thời gian lỗi -> tuyệt đối không xóa gì
         acc.schedule = acc.schedule.filter((r) => {
+          if (!r || !r.end) return true; // dữ liệu thiếu -> giữ lại, không tự xóa
           let e = getEpochHours(r.end.year, r.end.month, r.end.day, r.end.hour);
+          if (!Number.isFinite(e)) return true; // giờ lỗi -> giữ lại
           return e >= limitAbs;
         });
       }
@@ -3136,8 +2636,9 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
           activeDayObj.day - 15,
           0,
         );
+        if (!Number.isFinite(limitAbs)) return; // mốc thời gian lỗi -> tuyệt đối không xóa gì
         resetPasswordHistory = resetPasswordHistory.filter(
-          (item) => item.ts >= limitAbs,
+          (item) => !item || !Number.isFinite(item.ts) || item.ts >= limitAbs,
         );
       }
 
@@ -3190,135 +2691,166 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
         return changed;
       }
 
-      // ===== BẢO VỆ DỮ LIỆU: không bao giờ ghi đè Firebase khi chưa tải được dữ liệu thật =====
-      let dataLoaded = false; // chỉ true sau khi đã đọc dữ liệu từ Firebase thành công
-      const BACKUP_KEY = "rental_backup_latest";
-      const BACKUP_PREV_KEY = "rental_backup_prev";
-
-      function showDataBanner(msg) {
-        let b = document.getElementById("data-safety-banner");
-        if (!b) {
-          b = document.createElement("div");
-          b.id = "data-safety-banner";
-          b.style.cssText =
-            "position:fixed;left:0;right:0;top:0;z-index:99999;background:#e11d48;color:#fff;font-weight:700;font-size:14px;padding:10px 14px;text-align:center;box-shadow:0 4px 14px rgba(0,0,0,.3)";
-          document.body.appendChild(b);
-        }
-        b.innerText = msg;
-      }
-      function hideDataBanner() {
-        const b = document.getElementById("data-safety-banner");
-        if (b) b.remove();
-      }
-      // Sao lưu bản sao trên trình duyệt mỗi lần tải được dữ liệu thật (giữ 2 bản, bản cũ xoay vòng mỗi giờ)
-      function backupLocal(payload) {
-        try {
-          const now = Date.now();
-          const cur = localStorage.getItem(BACKUP_KEY);
-          if (cur) {
-            const old = JSON.parse(cur);
-            if (!old.t || now - old.t > 3600000) localStorage.setItem(BACKUP_PREV_KEY, cur);
-          }
-          localStorage.setItem(BACKUP_KEY, JSON.stringify({ t: now, data: payload }));
-        } catch (e) {}
-      }
-      function readBackupLocal() {
-        try {
-          const raw = localStorage.getItem(BACKUP_KEY);
-          if (!raw) return null;
-          const o = JSON.parse(raw);
-          return o && o.data && o.data.accounts ? o : null;
-        } catch (e) {
-          return null;
-        }
-      }
-
       function listenToFirebase() {
-        db.ref("rental_data").on(
-          "value",
-          (snapshot) => {
-            const data = snapshot.val();
-            if (data) {
-              hideDataBanner();
-              dataLoaded = true;
-              if (data.accounts) accounts = data.accounts;
-              if (data.notes) notes = data.notes;
-              if (data.resetPasswordHistory)
-                resetPasswordHistory = data.resetPasswordHistory;
-              if (data.revenueHistory) revenueHistory = data.revenueHistory;
+        db.ref("rental_data").on("value", (snapshot) => {
+          const data = snapshot.val();
+          dataLoaded = true; // đã nhận dữ liệu thật từ máy chủ -> mới được phép ghi
+          if (data) {
+            lastServerJson = JSON.stringify(data);
+            if (data.accounts) accounts = data.accounts;
+            if (data.notes) notes = data.notes;
+            if (data.resetPasswordHistory)
+              resetPasswordHistory = data.resetPasswordHistory;
+            if (data.revenueHistory) revenueHistory = data.revenueHistory;
 
-              accounts.forEach((acc) => {
-                if (!acc.schedule) acc.schedule = [];
-              });
-              const addedAcc = ensureAccounts();
-              backupLocal({
-                accounts: accounts,
-                notes: notes,
-                resetPasswordHistory: resetPasswordHistory,
-                revenueHistory: revenueHistory,
-              });
-              renderUI();
-              if (addedAcc) saveData();
-            } else if (!dataLoaded) {
-              // Firebase trả về RỖNG: có thể là DB mới, cũng có thể là dữ liệu bị mất -> KHÔNG tự ghi đè
-              const bk = readBackupLocal();
-              if (bk) {
-                showDataBanner(
-                  "Firebase đang trống nhưng máy này có bản sao lưu dữ liệu. Hệ thống tạm KHÔNG ghi dữ liệu để tránh mất thêm.",
+            accounts.forEach((acc) => {
+              if (!acc.schedule) acc.schedule = [];
+            });
+            const addedAcc = ensureAccounts();
+            renderUI();
+            if (addedAcc) saveData();
+          }
+        });
+      }
+
+      // ===== BẢO VỆ DỮ LIỆU: chống ghi đè / xóa sạch ngoài ý muốn =====
+      let dataLoaded = false; // chỉ cho ghi sau khi đã nhận dữ liệu thật từ máy chủ
+      let lastServerJson = ""; // bản dữ liệu máy chủ nhận lần cuối (dùng để so sánh + sao lưu)
+      let lastBackupBucket = null;
+      const BACKUP_KEEP_DAYS = 30;
+
+      function _arr(x) {
+        return Array.isArray(x) ? x : x ? Object.values(x) : [];
+      }
+
+      function _bucketKey(y, m, d, h) {
+        const p = (n) => String(n).padStart(2, "0");
+        return `${y}${p(m)}${p(d)}_${p(Math.floor(h / 6) * 6)}`;
+      }
+
+      // Sao lưu bản dữ liệu máy chủ (trước khi ghi đè) mỗi 6 tiếng, giữ 30 ngày
+      function backupServerData() {
+        try {
+          if (!lastServerJson) return;
+          const t = getSystemDate();
+          const bucket = _bucketKey(t.year, t.month, t.day, t.hour);
+          if (lastBackupBucket === bucket) return;
+          lastBackupBucket = bucket;
+          const ref = db.ref("rental_backups/" + bucket);
+          ref
+            .once("value")
+            .then((snap) => {
+              if (!snap.exists()) return ref.set({ savedAt: Date.now(), data: lastServerJson });
+            })
+            .then(() => {
+              // Xóa các bản sao lưu cũ quá 30 ngày (không tải dữ liệu về)
+              const base = getEpochHours(t.year, t.month, t.day, 0) - 24 * BACKUP_KEEP_DAYS;
+              for (let k = 0; k < 2; k++) {
+                const o = fromEpochHours(base - 24 * k);
+                [0, 6, 12, 18].forEach((hh) =>
+                  db.ref("rental_backups/" + _bucketKey(o.y, o.m, o.d, hh)).remove(),
                 );
-                showCustomConfirm(
-                  "Firebase đang trống nhưng máy này còn bản sao lưu dữ liệu cũ. Khôi phục dữ liệu từ bản sao lưu lên Firebase?",
-                  () => {
-                    const d = bk.data;
-                    accounts = d.accounts || accounts;
-                    notes = d.notes || [];
-                    resetPasswordHistory = d.resetPasswordHistory || [];
-                    revenueHistory = d.revenueHistory || {};
-                    dataLoaded = true;
-                    hideDataBanner();
-                    ensureAccounts();
-                    saveData();
-                    renderUI();
-                  },
-                );
-              } else {
-                dataLoaded = true; // DB mới hoàn toàn và không có bản sao lưu
               }
-            }
-          },
-          (err) => {
-            // Lỗi đọc (vd: Rules Firebase hết hạn / bị chặn quyền) -> KHÔNG coi là dữ liệu trống, KHÔNG ghi gì lên Firebase
-            console.error("Firebase read error:", err);
-            showDataBanner(
-              "Không đọc được dữ liệu từ Firebase (" +
-                (err && err.code ? err.code : "lỗi") +
-                "). Dữ liệu trên server KHÔNG bị xóa - hãy kiểm tra Rules của Realtime Database. Hệ thống tạm khóa ghi dữ liệu.",
-            );
-          },
+            })
+            .catch((e) => {
+              console.error("Sao lưu thất bại:", e);
+              lastBackupBucket = null;
+            });
+        } catch (e) {
+          console.error("Sao lưu lỗi:", e);
+        }
+      }
+
+      function _payloadValid(p) {
+        if (!Array.isArray(p.accounts) || p.accounts.length < ACC_NAMES.length) return false;
+        for (const a of p.accounts) {
+          if (!a || ACC_NAMES.indexOf(a.accountName) < 0) return false;
+          for (const r of a.schedule || []) {
+            if (!r || !r.start || !r.end) return false;
+            for (const t of [r.start, r.end])
+              for (const k of ["year", "month", "day", "hour"])
+                if (!Number.isFinite(Number(t[k]))) return false;
+          }
+        }
+        return true;
+      }
+
+      // Phát hiện kiểu "xóa sạch": máy chủ đang còn nhiều dữ liệu mà bản sắp ghi lại trống trơn
+      function _looksLikeWipe(p) {
+        if (!lastServerJson) return false;
+        let old;
+        try {
+          old = JSON.parse(lastServerJson);
+        } catch (e) {
+          return false;
+        }
+        const limit = getCurrentAbs() - 15 * 24;
+        let oldKept = 0,
+          newTotal = 0;
+        _arr(old.accounts).forEach((a) =>
+          _arr(a && a.schedule).forEach((r) => {
+            if (!r || !r.end) return;
+            const e = getEpochHours(r.end.year, r.end.month, r.end.day, r.end.hour);
+            if (!Number.isFinite(e) || e >= limit) oldKept++;
+          }),
+        );
+        p.accounts.forEach((a) => (newTotal += (a && a.schedule ? a.schedule.length : 0)));
+        if (oldKept >= 3 && newTotal === 0) return true;
+        if (_arr(old.resetPasswordHistory).length >= 3 && p.resetPasswordHistory.length === 0) return true;
+        if (Object.keys(old.revenueHistory || {}).length >= 3 && Object.keys(p.revenueHistory || {}).length === 0) return true;
+        return false;
+      }
+
+      // Khôi phục bộ nhớ trên máy về đúng dữ liệu máy chủ khi lần ghi bị chặn
+      function _revertToServer() {
+        try {
+          const d = JSON.parse(lastServerJson);
+          if (d.accounts) accounts = d.accounts;
+          if (d.notes) notes = d.notes;
+          if (d.resetPasswordHistory) resetPasswordHistory = d.resetPasswordHistory;
+          if (d.revenueHistory) revenueHistory = d.revenueHistory;
+          accounts.forEach((acc) => {
+            if (!acc.schedule) acc.schedule = [];
+          });
+          ensureAccounts();
+          renderUI();
+        } catch (e) {
+          console.error(e);
+        }
+      }
+
+      function _blockSave(reason) {
+        console.error("Đã chặn lần ghi dữ liệu:", reason);
+        _revertToServer();
+        showCustomAlert(
+          "Hệ thống đã CHẶN một lần lưu vì phát hiện dữ liệu bất thường (nguy cơ mất dữ liệu). Dữ liệu trên máy chủ vẫn được giữ nguyên. Hãy tải lại trang và thử lại.",
         );
       }
 
-      function saveData() {
+      // force = true chỉ dùng cho thao tác người dùng đã xác nhận xóa hàng loạt
+      function saveData(force) {
         if (!dataLoaded) {
-          console.warn("saveData bị chặn: chưa tải được dữ liệu thật từ Firebase");
-          showDataBanner(
-            "Chưa tải được dữ liệu từ Firebase nên KHÔNG thể lưu (để tránh ghi đè mất dữ liệu). Tải lại trang hoặc kiểm tra Rules.",
-          );
+          console.warn("Chưa nhận dữ liệu từ máy chủ -> không ghi để tránh ghi đè dữ liệu cũ.");
           return;
         }
-        db.ref("rental_data")
-          .set({
-            accounts: accounts,
-            notes: notes,
-            resetPasswordHistory: resetPasswordHistory,
-            revenueHistory: revenueHistory,
-          })
-          .catch((err) => {
-            console.error("Firebase write error:", err);
-            showDataBanner(
-              "Ghi dữ liệu lên Firebase thất bại (" + (err && err.code ? err.code : "lỗi") + "). Kiểm tra Rules / kết nối.",
-            );
-          });
+        const payload = {
+          accounts: accounts,
+          notes: notes,
+          resetPasswordHistory: resetPasswordHistory,
+          revenueHistory: revenueHistory,
+        };
+        if (!_payloadValid(payload)) return _blockSave("dữ liệu không hợp lệ");
+        if (force !== true && _looksLikeWipe(payload)) return _blockSave("nghi xóa sạch dữ liệu");
+        backupServerData();
+        db.ref("rental_data").set(payload);
+      }
+
+      // Tự động lưu lịch sử doanh thu (chạy lúc sang ngày mới): CHỈ ghi nhánh revenueHistory,
+      // tuyệt đối không ghi đè lịch / ghi chú / lịch sử reset
+      function saveRevenueHistoryOnly() {
+        if (!dataLoaded) return;
+        backupServerData();
+        db.ref("rental_data/revenueHistory").set(revenueHistory);
       }
 
       function initApp() {
@@ -3332,101 +2864,6 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
         });
         listenToFirebase();
       }
-
-      // ===== LỌC THỜI GIAN Ở "TẤT CẢ LỊCH" (mỗi acc một bộ lọc riêng) =====
-      // Chưa kích hoạt => hiện như cũ. Mặc định khi mở hộp lọc: từ giờ hiện tại đến vô tận.
-      const allTimeFilter = {};
-      let timeFilterAcc = null;
-
-      function parseTfYear(v) {
-        const n = parseInt(v, 10);
-        if (isNaN(n)) return NaN;
-        return n < 100 ? 2000 + n : n;
-      }
-      function fillTfFields(prefix, p) {
-        document.getElementById(`tf-${prefix}day`).value = p ? p.d : "";
-        document.getElementById(`tf-${prefix}month`).value = p ? p.m : "";
-        document.getElementById(`tf-${prefix}year`).value = p ? String(p.y % 100).padStart(2, "0") : "";
-        document.getElementById(`tf-${prefix}hour`).value = p ? fmtHourField(p.h) : "";
-      }
-      function openTimeFilter(name) {
-        timeFilterAcc = name;
-        document.getElementById("tf-acc-name").innerText = name;
-        document.getElementById("tf-error").classList.add("hidden");
-        const f = allTimeFilter[name];
-        if (f) {
-          fillTfFields("s", fromEpochHours(f.from));
-          fillTfFields("e", f.to === null ? null : fromEpochHours(f.to));
-        } else {
-          const t = getSystemDate();
-          fillTfFields("s", { y: t.year, m: t.month, d: t.day, h: t.hour });
-          fillTfFields("e", null);
-        }
-        const m = document.getElementById("modal-time-filter");
-        m.classList.remove("hidden");
-        m.classList.add("flex");
-      }
-      function closeTimeFilter() {
-        const m = document.getElementById("modal-time-filter");
-        m.classList.add("hidden");
-        m.classList.remove("flex");
-      }
-      function readTfPoint(prefix) {
-        const g = (k) => document.getElementById(`tf-${prefix}${k}`).value.trim();
-        if (!g("day") && !g("month") && !g("year") && !g("hour")) return { empty: true };
-        const d = parseInt(g("day"), 10), mo = parseInt(g("month"), 10);
-        const y = parseTfYear(g("year")), h = parseHourField(g("hour"));
-        if ([d, mo, y, h].some((x) => isNaN(x)) || mo < 1 || mo > 12 || d < 1 || d > getDaysInMonth(y, mo))
-          return { bad: true };
-        return { abs: getEpochHours(y, mo, d, h) };
-      }
-      function applyTimeFilter() {
-        const err = document.getElementById("tf-error");
-        const a = readTfPoint("s"), b = readTfPoint("e");
-        if (a.bad || b.bad || a.empty) {
-          err.innerText = "Thời gian chưa hợp lệ. Vui lòng nhập đủ Ngày, Tháng, Năm, Giờ (ô 'Từ' không được để trống).";
-          err.classList.remove("hidden");
-          return;
-        }
-        const to = b.empty ? null : b.abs;
-        if (to !== null && to < a.abs) {
-          err.innerText = "Mốc 'Đến' phải sau mốc 'Từ'.";
-          err.classList.remove("hidden");
-          return;
-        }
-        allTimeFilter[timeFilterAcc] = { from: a.abs, to: to };
-        closeTimeFilter();
-        renderUI();
-      }
-      function clearTimeFilter() {
-        delete allTimeFilter[timeFilterAcc];
-        closeTimeFilter();
-        renderUI();
-      }
-      function updateAllFilterBtn(name) {
-        const b = document.getElementById(`all-filter-${name}`);
-        if (!b) return;
-        const on = !!allTimeFilter[name];
-        b.className = on
-          ? "w-11 h-11 flex items-center justify-center rounded-xl bg-indigo-600 border-2 border-indigo-700 text-white hover:bg-indigo-700 active:scale-95 transition shadow-sm"
-          : "w-11 h-11 flex items-center justify-center rounded-xl bg-white border-2 border-indigo-200 text-indigo-600 hover:bg-indigo-50 active:scale-95 transition shadow-sm";
-      }
-      // ===== HẾT LỌC THỜI GIAN =====
-
-      // ===== GIỚI HẠN 36 TIẾNG Ở MODAL RESET MẬT KHẨU (mỗi acc một nút, mặc định TẮT) =====
-      const reset36State = {};
-      const resetFilterAbsByPrefix = {};
-      const RESET_LIMIT_HOURS = 36;
-      function clearReset36(prefix) {
-        ACC_NAMES.forEach((n) => delete reset36State[`${prefix}:${n}`]);
-      }
-      function toggleReset36(prefix, name) {
-        const k = `${prefix}:${name}`;
-        reset36State[k] = !reset36State[k];
-        if (resetFilterAbsByPrefix[prefix] !== undefined)
-          renderResetNowLists(resetFilterAbsByPrefix[prefix], prefix);
-      }
-      // ===== HẾT GIỚI HẠN 36 TIẾNG =====
 
       function switchTab(tabName) {
         activeTab = tabName;
@@ -3542,6 +2979,9 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
             const el = document.getElementById(`login-badges-${tab}-${accName}`);
             if (el) el.innerHTML = badges;
           });
+          // Icon lọc đổi màu khi đang lọc
+          const tfBtn = document.getElementById(`tf-btn-${accName}`);
+          if (tfBtn) tfBtn.classList.toggle("on", !!timeFilters[accName]);
 
           // Đang thuê
           const upContainer = document.getElementById(
@@ -3590,17 +3030,12 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
 
           // All
           const allContainer = document.getElementById(`list-all-${accName}`);
-          const tFlt = allTimeFilter[accName];
-          updateAllFilterBtn(accName);
           if (effSched.length === 0) {
             allContainer.innerHTML = `<p class="text-gray-400 text-sm italic">(Chưa có lịch thuê)</p>`;
           } else {
             let allHtml = "";
-            let shown = 0;
             effSched.forEach((r, rIdx) => {
-              if (tFlt && !(r.endAbs > tFlt.from && (tFlt.to === null || r.startAbs < tFlt.to)))
-                return;
-              shown++;
+              if (!passTimeFilter(accName, r)) return;
               allHtml += createRentalCardHtml(
                 r,
                 idx,
@@ -3609,9 +3044,8 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
               );
             });
             allContainer.innerHTML =
-              shown > 0
-                ? allHtml
-                : `<p class="text-gray-400 text-sm italic">(Không có lịch trong khoảng thời gian đã chọn)</p>`;
+              allHtml ||
+              `<p class="text-gray-400 text-sm italic">(Không có lịch trong khoảng thời gian đã lọc)</p>`;
           }
         });
         renderNotesTab();
@@ -4153,6 +3587,188 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
       }
 
       // --- THU GỌN / SỔ XUỐNG DANH SÁCH Ở "TẤT CẢ LỊCH" ---
+      // ===== BỘ LỌC THỜI GIAN (TẤT CẢ LỊCH) =====
+      // timeFilters[accName] = { startAbs, endAbs } khi đang bật (endAbs = Infinity nếu vô hạn)
+      const timeFilters = {};
+      let tfEditAcc = null;
+      let tfDraft = null; // { startAbs, endAbs, inf } - bản nháp đang chỉnh trong cửa sổ
+      let tfGridBuilt = false;
+
+      function tfBuildAbs(y, m, d, h) {
+        y = Math.min(2099, Math.max(2020, y));
+        m = Math.min(12, Math.max(1, m));
+        d = Math.min(getDaysInMonth(y, m), Math.max(1, d));
+        return getEpochHours(y, m, d, h);
+      }
+
+      function tfCellHtml(w, unit, label) {
+        const id = `tf-${w}${unit}`;
+        const inputAttr =
+          unit === "h"
+            ? 'inputmode="text"'
+            : 'inputmode="numeric"';
+        return `<div>
+          <label class="block text-xs font-bold text-gray-500 mb-1 text-center">${label}</label>
+          <div class="tf-cell">
+            <button type="button" class="tf-step l" onclick="tfStep('${w}','${unit}',-1)"><i class="fa-solid fa-minus text-xs"></i></button>
+            <input type="text" ${inputAttr} autocomplete="off" id="${id}" class="tf-input" onchange="tfSetField('${w}','${unit}',this.value)" />
+            <button type="button" class="tf-step r" onclick="tfStep('${w}','${unit}',1)"><i class="fa-solid fa-plus text-xs"></i></button>
+          </div>
+        </div>`;
+      }
+
+      function tfBuildGrids() {
+        if (tfGridBuilt) return;
+        ["s", "e"].forEach((w) => {
+          // Hàng trên: Giờ, Ngày - hàng dưới: Tháng, Năm
+          document.getElementById(`tf-grid-${w}`).innerHTML =
+            tfCellHtml(w, "h", "Giờ") +
+            tfCellHtml(w, "d", "Ngày") +
+            tfCellHtml(w, "m", "Tháng") +
+            tfCellHtml(w, "y", "Năm");
+        });
+        tfGridBuilt = true;
+      }
+
+      function tfRender() {
+        if (!tfDraft) return;
+        const sp = fromEpochHours(tfDraft.startAbs);
+        document.getElementById("tf-sh").value = fmtHourField(sp.h);
+        document.getElementById("tf-sd").value = sp.d;
+        document.getElementById("tf-sm").value = sp.m;
+        document.getElementById("tf-sy").value = sp.y;
+        const grid = document.getElementById("tf-grid-e");
+        const chip = document.getElementById("tf-inf-toggle");
+        if (tfDraft.inf) {
+          ["h", "d", "m", "y"].forEach((u) => {
+            const el = document.getElementById(`tf-e${u}`);
+            el.value = "∞";
+            el.readOnly = true;
+          });
+          grid.classList.add("tf-lock");
+          chip.classList.add("on-inf");
+        } else {
+          const ep = fromEpochHours(tfDraft.endAbs);
+          document.getElementById("tf-eh").value = fmtHourField(ep.h);
+          document.getElementById("tf-ed").value = ep.d;
+          document.getElementById("tf-em").value = ep.m;
+          document.getElementById("tf-ey").value = ep.y;
+          ["h", "d", "m", "y"].forEach((u) => {
+            document.getElementById(`tf-e${u}`).readOnly = false;
+          });
+          grid.classList.remove("tf-lock");
+          chip.classList.remove("on-inf");
+        }
+      }
+
+      function tfStep(w, unit, delta) {
+        if (!tfDraft || (w === "e" && tfDraft.inf)) return;
+        const key = w === "s" ? "startAbs" : "endAbs";
+        const cur = tfDraft[key];
+        const p = fromEpochHours(cur);
+        let abs;
+        if (unit === "h") abs = cur + 0.5 * delta;
+        else if (unit === "d") abs = cur + 24 * delta;
+        else if (unit === "m") {
+          let m = p.m + delta,
+            y = p.y;
+          if (m > 12) { m = 1; y++; }
+          if (m < 1) { m = 12; y--; }
+          abs = tfBuildAbs(y, m, p.d, p.h);
+        } else abs = tfBuildAbs(p.y + delta, p.m, p.d, p.h);
+        const pn = fromEpochHours(abs);
+        if (pn.y < 2020 || pn.y > 2099) return;
+        tfDraft[key] = abs;
+        tfRender();
+      }
+
+      function tfSetField(w, unit, raw) {
+        if (!tfDraft || (w === "e" && tfDraft.inf)) return;
+        const key = w === "s" ? "startAbs" : "endAbs";
+        const p = fromEpochHours(tfDraft[key]);
+        let { y, m, d, h } = p;
+        if (unit === "h") {
+          const x = parseHourField(raw);
+          if (!isNaN(x)) h = x;
+        } else {
+          const n = parseInt(raw, 10);
+          if (!isNaN(n)) {
+            if (unit === "d") d = n;
+            else if (unit === "m") m = n;
+            else y = n;
+          }
+        }
+        tfDraft[key] = tfBuildAbs(y, m, d, h);
+        tfRender();
+      }
+
+      function tfToggleInf() {
+        if (!tfDraft) return;
+        if (tfDraft.inf) {
+          tfDraft.inf = false;
+          tfDraft.endAbs = tfDraft.startAbs + 24; // tắt vô hạn: kết thúc cách bắt đầu 1 ngày
+        } else {
+          tfDraft.inf = true;
+        }
+        tfRender();
+      }
+
+      function openTimeFilter(accName) {
+        tfBuildGrids();
+        tfEditAcc = accName;
+        const cur = timeFilters[accName];
+        if (cur) {
+          const inf = !isFinite(cur.endAbs);
+          tfDraft = {
+            startAbs: cur.startAbs,
+            endAbs: inf ? cur.startAbs + 24 : cur.endAbs,
+            inf: inf,
+          };
+        } else {
+          // Mặc định: từ thời gian hiện tại đến vô tận
+          const now = getCurrentAbs();
+          tfDraft = { startAbs: now, endAbs: now + 24, inf: true };
+        }
+        document.getElementById("tf-title").innerText = `Lọc thời gian - Acc: ${accName}`;
+        tfRender();
+        const m = document.getElementById("modal-timefilter");
+        m.classList.remove("hidden");
+        m.classList.add("flex");
+      }
+
+      function closeTimeFilter() {
+        const m = document.getElementById("modal-timefilter");
+        m.classList.add("hidden");
+        m.classList.remove("flex");
+      }
+
+      function applyTimeFilter() {
+        if (!tfDraft || !tfEditAcc) return;
+        if (!tfDraft.inf && tfDraft.endAbs <= tfDraft.startAbs) {
+          showCustomAlert("Thời gian kết thúc phải sau thời gian bắt đầu!");
+          return;
+        }
+        timeFilters[tfEditAcc] = {
+          startAbs: tfDraft.startAbs,
+          endAbs: tfDraft.inf ? Infinity : tfDraft.endAbs,
+        };
+        closeTimeFilter();
+        renderUI();
+      }
+
+      function turnOffTimeFilter() {
+        if (tfEditAcc) delete timeFilters[tfEditAcc];
+        closeTimeFilter();
+        renderUI();
+      }
+
+      // Lịch có giao với khoảng thời gian lọc không (không lọc thì luôn hiện)
+      function passTimeFilter(accName, r) {
+        const f = timeFilters[accName];
+        if (!f) return true;
+        return r.endAbs > f.startAbs && r.startAbs < f.endAbs;
+      }
+
       function toggleAllList(name) {
         const list = document.getElementById(`list-all-${name}`);
         const caret = document.getElementById(`all-caret-${name}`);
@@ -4629,7 +4245,7 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
                 if (parseInt(choice) >= ACC_NAMES.length)
                   accounts.forEach((a) => (a.schedule = []));
                 else accounts[parseInt(choice)].schedule = [];
-                saveData();
+                saveData(true); // người dùng đã xác nhận xóa sạch
               },
               openClearAllDataModal,
             );
@@ -4667,7 +4283,7 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
             changed = true;
           }
         }
-        if (changed) saveData();
+        if (changed) saveRevenueHistoryOnly();
       }
 
       function fmtVnd(n) {
@@ -5084,33 +4700,29 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
         };
       }
 
+      // THÊM: chỉ hiện các lịch bắt đầu trong vòng 36 tiếng tính từ mốc reset (lịch đang chạy tại mốc reset vẫn giữ)
+      const RESET_WINDOW_HOURS = 36;
+      function limitResetWindow(list, resetAbs) {
+        return list.filter((r) => r.startAbs <= resetAbs + RESET_WINDOW_HOURS);
+      }
+
       function renderResetNowLists(filterAbs, prefix = "reset-now") {
         // filterAbs = mốc reset (cố định) để chọn lịch; nowAbs = giờ VN hiện tại để hiển thị
         const _t = getSystemDate();
         const nowAbs = getEpochHours(_t.year, _t.month, _t.day, _t.hour);
-        resetFilterAbsByPrefix[prefix] = filterAbs;
         ACC_NAMES.forEach((accName, idx) => {
           const acc = accounts[idx];
           const container = document.getElementById(
             `list-${prefix}-${accName}`,
           );
-          let list = getResetNowSchedule(acc, filterAbs);
-          // CHỈ THÊM: nút giới hạn 36 tiếng (tắt thì giữ nguyên logic cũ)
-          const limitOn = !!reset36State[`${prefix}:${accName}`];
-          if (limitOn)
-            list = list.filter((r) => r.startAbs <= filterAbs + RESET_LIMIT_HOURS);
-          const limitBtn = document.getElementById(`reset36-btn-${prefix}-${accName}`);
-          if (limitBtn) {
-            limitBtn.setAttribute("aria-pressed", limitOn ? "true" : "false");
-            limitBtn.className = limitOn
-              ? "w-11 h-11 flex items-center justify-center rounded-xl bg-indigo-600 border-2 border-indigo-700 text-white hover:bg-indigo-700 active:scale-95 transition shadow-sm"
-              : "w-11 h-11 flex items-center justify-center rounded-xl bg-white border-2 border-indigo-200 text-indigo-600 hover:bg-indigo-50 active:scale-95 transition shadow-sm";
-          }
+          const fullList = getResetNowSchedule(acc, filterAbs); // logic cũ (không giới hạn 36h)
+          const list = limitResetWindow(fullList, filterAbs); // lịch hiển thị: trong 36h
           const badgeEl = document.getElementById(
             `login-badges-${prefix}-${accName}`,
           );
+          // Logo Google / Facebook vẫn tính theo toàn bộ lịch (kể cả lịch ngoài 36h đang bị ẩn)
           if (badgeEl)
-            badgeEl.innerHTML = loginBadgesHtml(getResetLinkUsage(list));
+            badgeEl.innerHTML = loginBadgesHtml(getResetLinkUsage(fullList));
           if (list.length === 0) {
             container.innerHTML = `<p class="text-gray-400 text-sm italic">(Không có lịch)</p>`;
           } else {
@@ -5180,7 +4792,6 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
         resetPasswordHistory.push(item);
         saveData();
         resetNowTs = ts;
-        clearReset36("reset-now");
         setResetPasswords("reset-now", item);
         renderResetNowLists(ts, "reset-now");
         document.getElementById("modal-reset-now").classList.remove("hidden");
@@ -5269,7 +4880,6 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
         const item = resetPasswordHistory.find((x) => x.id === id);
         if (!item) return;
         resetDetailId = id;
-        clearReset36("reset-history-detail");
         setResetPasswords("reset-history-detail", item); // mật khẩu cố định theo lần reset
         refreshResetHistoryDetail();
 
