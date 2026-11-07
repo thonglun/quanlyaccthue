@@ -3531,7 +3531,13 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
         const line2 = isNow
           ? "Dạ mình quét QR xong rồi ạ, bạn vào chơi nghen."
           : "Dạ mình quét QR xong rồi ạ, đúng giờ bạn tự vào chơi mà không cần nói gì hết nghen.";
-        return [line1, line2];
+        const other = pick
+          ? `acc ${pick} khác`
+          : "acc Google khác hoặc acc Facebook khác";
+        const lineLinked =
+          `Dạ acc này đang liên kết với tài khoản Identity V khác mất rồi ạ, bạn vui lòng: Đổi sang ${other} ạ rồi gửi lại cho mình lại QR mới bạn nghen.\n\n` +
+          "HOẶC bạn cũng có thể hủy liên kết trong game Identity V trên điên thoại Android rồi bạn gửi lại cho mình QR mới bạn nghen.";
+        return [line1, lineLinked, line2];
       }
 
       let scriptLinesCtx = [];
@@ -4168,8 +4174,27 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
         pc,
         preorder,
       ) {
-                // Nếu cả 4 acc cùng 1 kết quả 100% thì dù chọn acc nào cũng trả về "tất cả 4 acc"
         const allIdxs = ACC_NAMES.map((_, i) => i);
+        // Nếu các acc đã chọn đều không trống (không acc nào có trống) thì tự động đổi thành tất cả acc
+        const noneFree = idxs.every(
+          (i) =>
+            checkResultRank(
+              runCheckSingle(
+                i,
+                checkS,
+                checkE,
+                durationCheck,
+                inS,
+                inE,
+                currentAbs,
+                pc,
+                preorder,
+              ),
+            ) !== 0,
+        );
+        if (noneFree) idxs = allIdxs;
+
+                // Nếu cả 4 acc cùng 1 kết quả 100% thì dù chọn acc nào cũng trả về "tất cả 4 acc"
         const allNorms = new Set(
           allIdxs.map((i) => {
             const n = accounts[i].accountName;
