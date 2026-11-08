@@ -2238,12 +2238,27 @@
         renderPreorder(key);
       }
 
-      // "Loại kịch bản dành cho thuê ngay": thời gian bắt đầu trùng giờ hiện tại VN
-      // HOẶC cách giờ hiện tại VN đúng 30 phút về tương lai. Bật "Đặt trước" thì luôn là kịch bản đặt trước.
-      function isRentNowScenario(startAbs, currentAbs, preorder) {
+      // Giờ hiện tại VN CHÍNH XÁC đến từng mili-giây (đơn vị: giờ, cùng hệ với getEpochHours)
+      function getPreciseNowAbs() {
+        return (Date.now() + 7 * 3600 * 1000) / 3600000;
+      }
+
+      // "Loại kịch bản dành cho thuê ngay": thời gian bắt đầu nằm trong QUÁ KHỨ (dù chỉ 1 giây) so với giờ VN.
+      // Bật "Đặt trước" thì luôn là kịch bản đặt trước.
+      function isRentNowScenario(startAbs, preorder) {
         if (preorder) return false;
-        const diff = startAbs - currentAbs;
-        return diff === 0 || diff === 0.5;
+        return startAbs < getPreciseNowAbs();
+      }
+
+      // Loại kịch bản của 1 lịch đã lưu: dùng giá trị đã CHỐT lúc nhập lịch (rentNow);
+      // lịch cũ chưa có giá trị chốt thì tính theo quy tắc mới
+      function rentalIsNow(r) {
+        if (typeof r.rentNow === "boolean") return r.rentNow;
+        const s = r.start;
+        return isRentNowScenario(
+          getEpochHours(s.year, s.month, s.day, s.hour),
+          !!r.preorder,
+        );
       }
 
       // Hiển thị năm bằng 2 chữ số cuối (26), giá trị thật đọc ra vẫn là 2026 nên mọi logic cũ giữ nguyên
@@ -3257,8 +3272,8 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
       // Lưu lại thông tin lịch đang xem để nút "Kịch bản" dùng
       let emailResultCtx = null;
 
-      function showEmailResult(accName, devVal, startObj, preorder) {
-        emailResultCtx = { devVal: devVal, start: startObj || null, preorder: !!preorder };
+      function showEmailResult(accName, devVal, startObj, rentNow) {
+        emailResultCtx = { devVal: devVal, start: startObj || null, rentNow: !!rentNow };
         const email = getRentalEmail(accName, devVal);
         const pw = getLatestResetPassword(accName);
         document.getElementById("email-result-title").innerText =
@@ -3300,12 +3315,7 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
         const ctx = emailResultCtx;
         if (!ctx || !ctx.start) return;
 
-        const s = ctx.start;
-        const isNow = isRentNowScenario(
-          getEpochHours(s.year, s.month, s.day, s.hour),
-          getCurrentAbs(), // giờ hiện tại Việt Nam
-          ctx.preorder,
-        );
+        const isNow = ctx.rentNow; // loại kịch bản đã chốt lúc nhập lịch
         const isLine = ctx.devVal === "LINE";
 
         let text = "";
@@ -3516,7 +3526,7 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
         );
         const s = rental.start;
         const startAbs = getEpochHours(s.year, s.month, s.day, s.hour);
-        const isNow = isRentNowScenario(startAbs, currentAbs, rental.preorder);
+        const isNow = rentalIsNow(rental);
 
         // Cả Google lẫn Facebook đều đã có người dùng và lịch này đứng sau lịch gần nhất
         if (u.google && u.facebook && startAbs > u.nearest.startAbs) {
@@ -4085,7 +4095,7 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
       ) {
         const accName = accounts[accIdx].accountName;
         const res = getCoverage(accIdx, checkS, checkE, currentAbs, pc);
-        const timeDesc = isRentNowScenario(inS, currentAbs, preorder)
+        const timeDesc = isRentNowScenario(inS, preorder)
           ? "hiện tại"
           : "lúc đó";
 
@@ -4111,6 +4121,7 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
           for (let s of freeSlots) {
             if (nextHour >= s.s && (s.e === -1 || nextHour < s.e)) {
               nextHourFree = true;
+              nextHour = Math.max(s.s, inS); // báo đúng giờ BẮT ĐẦU trống của khung đó (vd 14h thay vì 14h15)
               break;
             }
           }
@@ -4307,7 +4318,8 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
           const dayAbs = todayAbs - 24 * back;
           const dt = fromEpochHours(dayAbs);
           const key = revDateKey(dt.y, dt.m, dt.d);
-          if (back > 0 && revenueHistory[key]) continue; // ngày cũ đã lưu thì giữ nguyên
+          // Ngày đã trôi qua hơn 7 ngày và đã lưu -> "hóa đá" vĩnh viễn, không bao giờ tính lại / ghi đè
+          if (back > 7 && revenueHistory[key]) continue;
           const vals = revDayValues(dayAbs);
           const old = revenueHistory[key];
           const same = old && ACC_NAMES.every((n) => (old[n] || 0) === vals[n]);
@@ -5139,7 +5151,7 @@ function setFormDevice(type) {
           openGoogleFbScript(accIdx, r);
           return;
         }
-        showEmailResult(accName, r.deviceType, r.start, r.preorder);
+        showEmailResult(accName, r.deviceType, r.start, rentalIsNow(r));
       }
 
       function editRentalByKey(accIdx, encKey) {
@@ -5412,9 +5424,11 @@ function setFormDevice(type) {
 
         const revStartAbs = parseRevenueStartTime(acc.revenueStartTime, today);
 
+        let editOldRental = null;
         if (editRentalIdx !== -1 && editAccIdx !== -1) {
           const oldAcc = accounts[editAccIdx];
           const oldR = oldAcc.schedule[editRentalIdx];
+          editOldRental = oldR;
           const oldStartAbs = toAbsoluteHours(
             oldR.start.year,
             oldR.start.month,
@@ -5437,12 +5451,28 @@ function setFormDevice(type) {
           oldAcc.schedule.splice(editRentalIdx, 1);
         }
 
+        // CHỐT loại kịch bản ngay lúc nhập lịch: bắt đầu trong quá khứ (dù 1 giây) => thuê ngay.
+        // Khi sửa lịch mà giờ bắt đầu + "Đặt trước" không đổi thì giữ nguyên loại đã chốt trước đó.
+        let rentNowLocked = isRentNowScenario(startAbs, preorderState.form);
+        if (editOldRental) {
+          const o = editOldRental;
+          const sameStart =
+            o.start.year === sY &&
+            o.start.month === sM &&
+            o.start.day === sDay &&
+            o.start.hour === sHour;
+          if (sameStart && !!o.preorder === !!preorderState.form) {
+            rentNowLocked = rentalIsNow(o);
+          }
+        }
+
         const newRental = {
           tenantName: tenant,
           start: { year: sY, month: sM, day: sDay, hour: sHour },
           end: { year: eY, month: eM, day: eDay, hour: eHour },
           deviceType: devVal,
           preorder: preorderState.form,
+          rentNow: rentNowLocked,
         };
         acc.schedule.push(newRental);
 
@@ -5470,7 +5500,7 @@ function setFormDevice(type) {
                 day: sDay,
                 hour: sHour,
               },
-              preorderState.form,
+              rentNowLocked,
             );
           }
         }
