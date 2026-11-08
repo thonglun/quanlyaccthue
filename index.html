@@ -3487,8 +3487,25 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
 
       // Chế độ "PC": nếu cả Google và Facebook đều đã có người dùng thì toàn bộ thời gian
       // đằng trước lịch Google/Facebook gần nhất được xem như không trống
+      // Acc bị đóng băng (tạm ngưng cho thuê): luôn xem là KHÔNG TRỐNG
+      const FROZEN_ACCS = ["White"];
+
+      function isFrozenAcc(accIdx) {
+        return FROZEN_ACCS.includes(accounts[accIdx].accountName);
+      }
+
+      // Dòng riêng (luôn ở cuối) cho các acc đóng băng nếu lựa chọn có chúng
+      function frozenLine(frozenIdxs, pos) {
+        if (frozenIdxs.length === 0) return "";
+        const who = joinAccNames(frozenIdxs.map((i) => accounts[i].accountName));
+        return pos === 0
+          ? `Dạ ${who} đang tạm ngừng cho thuê vì gặp trục trặc ạ.`
+          : `${CONNECTORS[pos]} ${who} thì đang tạm ngừng cho thuê vì gặp trục trặc ạ.`;
+      }
+
       function getFreeSlots(accIdx, dayObj, currentAbs, pcMode) {
         const acc = accounts[accIdx];
+        if (FROZEN_ACCS.includes(acc.accountName)) return [];
         const slots = generateFreeSlots(acc, dayObj, currentAbs);
         if (!pcMode) return slots;
         const u = getLinkUsage(acc, currentAbs);
@@ -3883,13 +3900,17 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
                 // Nếu cả 4 acc có lịch trống giống nhau 100% thì dù chọn acc nào cũng trả về "tất cả 4 acc"
         const allIdxs = ACC_NAMES.map((_, i) => i);
         const allKeys = new Set(
-          allIdxs.map((i) =>
+          allIdxs.filter((i) => !isFrozenAcc(i)).map((i) =>
             getFreeSlots(i, today, currentAbs, pc)
               .map((x) => formatSlotT(x.s, x.e, currentAbs))
               .join("\n"),
           ),
         );
         if (allKeys.size === 1) indices = allIdxs;
+
+        // Acc đóng băng tách riêng, hiện ở dòng cuối cùng
+        const frozenSel = indices.filter((i) => isFrozenAcc(i));
+        indices = indices.filter((i) => !isFrozenAcc(i));
 
         // Các acc có danh sách khung giờ trống giống nhau 100% thì gộp thành 1 khối
         const groups = [];
@@ -3905,6 +3926,13 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
         const blocks = groups.map((g, pos) => {
           const plural = g.valid.length > 1 ? "các " : "";
           const who = joinAccNames(g.names);
+
+          // Acc đóng băng / không có khung giờ trống nào
+          if (g.valid.length === 0) {
+            return pos === 0
+              ? `Dạ ${who} hiện không trống ạ.`
+              : `${CONNECTORS[pos]} ${who} thì hiện không trống ạ.`;
+          }
 
           // Chỉ có 1 khung giờ -> viết liền mạch trong 1 câu
           if (g.valid.length === 1) {
@@ -3925,10 +3953,14 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
           });
           return b.trim();
         });
+        if (frozenSel.length > 0) blocks.push(frozenLine(frozenSel, blocks.length));
+        const anyFree = groups.some((g) => g.valid.length > 0);
         const msg =
           (pc ? PC_HEADER : "") +
           blocks.join("\n\n") +
-          "\n\nBạn có thể đặt trước trong tương lai bằng cách chuyển tiền trước để giữ chỗ nghen.";
+          (anyFree
+            ? "\n\nBạn có thể đặt trước trong tương lai bằng cách chuyển tiền trước để giữ chỗ nghen."
+            : "");
         showCustomAlert(msg, true, () => openFreeScheduleModal(true));
       }
 
@@ -4192,7 +4224,8 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
       ) {
         const allIdxs = ACC_NAMES.map((_, i) => i);
         // Nếu các acc đã chọn đều không trống (không acc nào có trống) thì tự động đổi thành tất cả acc
-        const noneFree = idxs.every(
+        const activeSel = idxs.filter((i) => !isFrozenAcc(i));
+        const noneFree = activeSel.length > 0 && activeSel.every(
           (i) =>
             checkResultRank(
               runCheckSingle(
@@ -4212,7 +4245,7 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
 
                 // Nếu cả 4 acc cùng 1 kết quả 100% thì dù chọn acc nào cũng trả về "tất cả 4 acc"
         const allNorms = new Set(
-          allIdxs.map((i) => {
+          allIdxs.filter((i) => !isFrozenAcc(i)).map((i) => {
             const n = accounts[i].accountName;
             return runCheckSingle(
               i,
@@ -4232,8 +4265,10 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
         );
         if (allNorms.size === 1) idxs = allIdxs;
 
+        // Acc đóng băng tách riêng, hiện ở dòng cuối cùng
+        const frozenSel = idxs.filter((i) => isFrozenAcc(i));
         const groups = [];
-        idxs.forEach((i) => {
+        idxs.filter((i) => !isFrozenAcc(i)).forEach((i) => {
           const name = accounts[i].accountName;
           const msg = runCheckSingle(
             i,
@@ -4261,6 +4296,7 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
           if (k > 0 && m.startsWith("Dạ ")) m = CONNECTORS[k] + " " + m.substring(3);
           return m;
         });
+        if (frozenSel.length > 0) blocks.push(frozenLine(frozenSel, blocks.length));
         return (pc ? PC_HEADER : "") + blocks.join("\n\n");
       }
 
