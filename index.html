@@ -753,7 +753,7 @@
       <div class="bg-white rounded-2xl w-full max-w-md p-6 space-y-4 shadow-xl">
         <div class="flex items-center justify-between border-b pb-2">
           <h3 class="text-lg font-bold text-gray-800">Kiểm Tra Khung Giờ</h3>
-          <div class="flex items-center gap-3">
+          <div class="flex flex-wrap justify-end items-center gap-x-3 gap-y-1">
           <div
             class="flex items-center gap-1.5"
             title="Chỉ xét khung giờ trống dùng được cho PC"
@@ -763,6 +763,24 @@
               type="button"
               id="check-pc-toggle"
               onclick="togglePC('check')"
+              class="w-9 h-5 rounded-full bg-gray-300 relative transition-colors duration-300 flex-shrink-0"
+            >
+              <span
+                class="absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform duration-300"
+              ></span>
+            </button>
+          </div>
+          <div
+            class="flex items-center gap-1.5"
+            title="Bật: dùng kịch bản thuê ngay bất chấp thời gian"
+          >
+            <span class="text-[10px] font-bold text-gray-400 uppercase"
+              >Thuê ngay</span
+            >
+            <button
+              type="button"
+              id="check-rentnow-toggle"
+              onclick="toggleRentNow('check')"
               class="w-9 h-5 rounded-full bg-gray-300 relative transition-colors duration-300 flex-shrink-0"
             >
               <span
@@ -1281,6 +1299,25 @@
           <h3 id="modal-title" class="text-lg font-bold text-gray-800">
             Nhập Lịch Thuê Mới
           </h3>
+          <div class="flex items-center gap-3">
+          <div
+            class="flex items-center gap-1.5"
+            title="Bật: dùng kịch bản thuê ngay bất chấp thời gian"
+          >
+            <span class="text-[10px] font-bold text-gray-400 uppercase"
+              >Thuê ngay</span
+            >
+            <button
+              type="button"
+              id="form-rentnow-toggle"
+              onclick="toggleRentNow('form')"
+              class="w-9 h-5 rounded-full bg-gray-300 relative transition-colors duration-300 flex-shrink-0"
+            >
+              <span
+                class="absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform duration-300"
+              ></span>
+            </button>
+          </div>
           <div
             class="flex items-center gap-1.5"
             title="Bật: dùng kịch bản dành cho đặt trước"
@@ -1299,6 +1336,7 @@
               ></span>
             </button>
           </div>
+          </div>
         </div>
 
         <input type="hidden" id="edit-acc-idx" />
@@ -1312,12 +1350,12 @@
 
           <div>
             <label class="block font-medium mb-1">Cách Đăng Nhập</label>
-            <div class="grid grid-cols-3 gap-2">
+            <div class="grid grid-cols-4 gap-2">
               <button
                 type="button"
                 onclick="setFormDevice('LINE')"
                 id="form-device-LINE"
-                class="py-2.5 px-3 rounded-xl border font-bold text-xs transition-all duration-200 active:scale-95 shadow-lg ring-4 ring-indigo-200 scale-[1.03] bg-indigo-50 border-indigo-500 text-indigo-700"
+                class="py-2.5 px-2 rounded-xl border font-bold text-xs transition-all duration-200 active:scale-95 shadow-lg ring-4 ring-indigo-200 scale-[1.03] bg-indigo-50 border-indigo-500 text-indigo-700"
               >
                 LINE
               </button>
@@ -1325,7 +1363,7 @@
                 type="button"
                 onclick="setFormDevice('Google')"
                 id="form-device-Google"
-                class="py-2.5 px-3 rounded-xl border font-bold text-xs transition-all duration-200 active:scale-95 shadow-sm hover:border-indigo-500 hover:bg-indigo-50 bg-gray-50 border-gray-200 text-gray-700"
+                class="py-2.5 px-2 rounded-xl border font-bold text-xs transition-all duration-200 active:scale-95 shadow-sm hover:border-indigo-500 hover:bg-indigo-50 bg-gray-50 border-gray-200 text-gray-700"
               >
                 Google
               </button>
@@ -1333,9 +1371,17 @@
                 type="button"
                 onclick="setFormDevice('Facebook')"
                 id="form-device-Facebook"
-                class="py-2.5 px-3 rounded-xl border font-bold text-xs transition-all duration-200 active:scale-95 shadow-sm hover:border-indigo-500 hover:bg-indigo-50 bg-gray-50 border-gray-200 text-gray-700"
+                class="py-2.5 px-2 rounded-xl border font-bold text-xs transition-all duration-200 active:scale-95 shadow-sm hover:border-indigo-500 hover:bg-indigo-50 bg-gray-50 border-gray-200 text-gray-700"
               >
                 Facebook
+              </button>
+              <button
+                type="button"
+                onclick="setFormDevice('Scan PC')"
+                id="form-device-ScanPC"
+                class="py-2.5 px-2 rounded-xl border font-bold text-xs transition-all duration-200 active:scale-95 shadow-sm hover:border-indigo-500 hover:bg-indigo-50 bg-gray-50 border-gray-200 text-gray-700"
+              >
+                Scan PC
               </button>
             </div>
           </div>
@@ -2213,6 +2259,7 @@
       // hour TẮT: ô giờ nhảy 15 phút mỗi lần bấm | hour BẬT: ô giờ nhảy 1 tiếng mỗi lần bấm
       const hourState = { check: false, form: false };
       const preorderState = { check: false, form: false };
+      const rentNowState = { check: false, form: false };
 
       function renderHour(key) {
         const b = document.getElementById(key + "-hour-toggle");
@@ -2225,7 +2272,7 @@
         if (!btn) return;
         const knob = btn.querySelector("span");
         btn.classList.toggle("bg-gray-300", !preorderState[key]);
-        btn.classList.toggle("bg-violet-500", preorderState[key]);
+        btn.classList.toggle("bg-green-500", preorderState[key]);
         if (knob) knob.classList.toggle("translate-x-4", preorderState[key]);
         btn.setAttribute("aria-pressed", preorderState[key] ? "true" : "false");
       }
@@ -2235,7 +2282,28 @@
       }
       function togglePreorder(key) {
         preorderState[key] = !preorderState[key];
+        if (preorderState[key]) {
+          rentNowState[key] = false; // chỉ 1 trong 2 nút được bật
+          renderRentNow(key);
+        }
         renderPreorder(key);
+      }
+      function renderRentNow(key) {
+        const btn = document.getElementById(key + "-rentnow-toggle");
+        if (!btn) return;
+        const knob = btn.querySelector("span");
+        btn.classList.toggle("bg-gray-300", !rentNowState[key]);
+        btn.classList.toggle("bg-green-500", rentNowState[key]);
+        if (knob) knob.classList.toggle("translate-x-4", rentNowState[key]);
+        btn.setAttribute("aria-pressed", rentNowState[key] ? "true" : "false");
+      }
+      function toggleRentNow(key) {
+        rentNowState[key] = !rentNowState[key];
+        if (rentNowState[key]) {
+          preorderState[key] = false; // chỉ 1 trong 2 nút được bật
+          renderPreorder(key);
+        }
+        renderRentNow(key);
       }
 
       // Giờ hiện tại VN CHÍNH XÁC đến từng mili-giây (đơn vị: giờ, cùng hệ với getEpochHours)
@@ -2245,7 +2313,8 @@
 
       // "Loại kịch bản dành cho thuê ngay": thời gian bắt đầu nằm trong QUÁ KHỨ (dù chỉ 1 giây) so với giờ VN.
       // Bật "Đặt trước" thì luôn là kịch bản đặt trước.
-      function isRentNowScenario(startAbs, preorder) {
+      function isRentNowScenario(startAbs, preorder, forceNow) {
+        if (forceNow) return true; // nút "Thuê ngay": luôn là kịch bản thuê ngay
         if (preorder) return false;
         return startAbs < getPreciseNowAbs();
       }
@@ -2922,7 +2991,7 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
                     </div>
                     <div class="flex items-center gap-1.5">
                         ${
-                          r.deviceType === "Google" || r.deviceType === "Facebook"
+                          r.deviceType === "Google" || r.deviceType === "Facebook" || r.deviceType === "Scan PC"
                             ? `<button onclick="showRentalResultByKey(${accIdx}, '${rentalKeyEnc(r)}')" class="bg-white hover:bg-amber-50 text-amber-600 border border-amber-200 px-3 py-1.5 rounded-lg text-xs font-bold transition shadow-sm flex items-center gap-1">
                             <i class="fa-solid fa-scroll"></i> Kịch bản
                         </button>`
@@ -3487,25 +3556,8 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
 
       // Chế độ "PC": nếu cả Google và Facebook đều đã có người dùng thì toàn bộ thời gian
       // đằng trước lịch Google/Facebook gần nhất được xem như không trống
-      // Acc bị đóng băng (tạm ngưng cho thuê): luôn xem là KHÔNG TRỐNG
-      const FROZEN_ACCS = ["White"];
-
-      function isFrozenAcc(accIdx) {
-        return FROZEN_ACCS.includes(accounts[accIdx].accountName);
-      }
-
-      // Dòng riêng (luôn ở cuối) cho các acc đóng băng nếu lựa chọn có chúng
-      function frozenLine(frozenIdxs, pos) {
-        if (frozenIdxs.length === 0) return "";
-        const who = joinAccNames(frozenIdxs.map((i) => accounts[i].accountName));
-        return pos === 0
-          ? `Dạ ${who} đang tạm ngừng cho thuê vì gặp trục trặc ạ.`
-          : `${CONNECTORS[pos]} ${who} thì đang tạm ngừng cho thuê vì gặp trục trặc ạ.`;
-      }
-
       function getFreeSlots(accIdx, dayObj, currentAbs, pcMode) {
         const acc = accounts[accIdx];
-        if (FROZEN_ACCS.includes(acc.accountName)) return [];
         const slots = generateFreeSlots(acc, dayObj, currentAbs);
         if (!pcMode) return slots;
         const u = getLinkUsage(acc, currentAbs);
@@ -3514,9 +3566,22 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
       }
 
       // "acc 4ss", "acc 4ss và acc White", "acc 4ss, acc 2ss và acc White"
+      // Acc ngừng cho thuê vô thời hạn (luôn không trống, hiển thị riêng ở "Kiểm tra" và "Lịch trống")
+      const PERMA_OFF_ACC = "White";
+      const PERMA_OFF_ACTIVE_COUNT = ACC_NAMES.filter(
+        (n) => n !== PERMA_OFF_ACC,
+      ).length;
+      function permaOffBlock(pos) {
+        const lead = pos === 0 ? "Dạ" : CONNECTORS[pos];
+        return `${lead} acc ${PERMA_OFF_ACC} thì ngừng cho thuê vô thời hạn vì gặp trục trặc ạ. Dạ bạn tham khảo ${PERMA_OFF_ACTIVE_COUNT} acc còn lại bạn nghen.`;
+      }
+
             function joinAccNames(names) {
-        if (names.length === ACC_NAMES.length)
-          return `tất cả ${ACC_NAMES.length} acc`;
+        if (
+          names.length === PERMA_OFF_ACTIVE_COUNT &&
+          !names.includes(PERMA_OFF_ACC)
+        )
+          return `tất cả ${PERMA_OFF_ACTIVE_COUNT} acc`;
         const list = names.map((n) => `acc ${n}`);
         if (list.length === 1) return list[0];
         return `${list.slice(0, -1).join(", ")} và ${list[list.length - 1]}`;
@@ -3534,6 +3599,14 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
 
       // Trả về mảng các dòng kịch bản (mỗi dòng có 1 nút copy riêng)
       function buildGoogleFbScript(accIdx, rental) {
+        if (rental.deviceType === "Scan PC") {
+          return [
+            "Dạ nếu bạn Scan PC thì mình chỉ scan được 1 lần thôi nên mình khuyên bạn hãy làm theo hướng dẫn ở trên để thuận tiện ra vào acc bạn nghen.\n\nCòn nếu như bạn vẫn muốn Scan PC và bạn chấp nhận rủi ro chỉ scan được 1 lần thì bạn gửi lại cho mình QR Scan PC mới bạn nghen.",
+            rentalIsNow(rental)
+              ? "Dạ mình quét QR xong rồi ạ, bạn vào chơi nghen."
+              : "Dạ mình quét QR xong rồi ạ, đúng giờ bạn tự vào chơi mà không cần nói gì hết nghen.",
+          ];
+        }
         const t = getSystemDate();
         const currentAbs = getCurrentAbs();
         const u = getLinkUsage(
@@ -3897,20 +3970,30 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
         const currentAbs = getCurrentAbs();
         const pc = pcState.free;
 
-                // Nếu cả 4 acc có lịch trống giống nhau 100% thì dù chọn acc nào cũng trả về "tất cả 4 acc"
+        // Acc ngừng cho thuê vô thời hạn: tách riêng, không tính vào lịch trống
         const allIdxs = ACC_NAMES.map((_, i) => i);
+        const activeIdxs = allIdxs.filter(
+          (i) => accounts[i].accountName !== PERMA_OFF_ACC,
+        );
+        // Chỉ chọn mỗi acc ngừng cho thuê => mở rộng ra tất cả acc để khách tham khảo
+        if (indices.every((i) => accounts[i].accountName === PERMA_OFF_ACC))
+          indices = allIdxs;
+        const hasPermaOff = indices.some(
+          (i) => accounts[i].accountName === PERMA_OFF_ACC,
+        );
+        indices = indices.filter(
+          (i) => accounts[i].accountName !== PERMA_OFF_ACC,
+        );
+
+        // Nếu các acc còn cho thuê có lịch trống giống nhau 100% thì dù chọn acc nào cũng trả về "tất cả 3 acc"
         const allKeys = new Set(
-          allIdxs.filter((i) => !isFrozenAcc(i)).map((i) =>
+          activeIdxs.map((i) =>
             getFreeSlots(i, today, currentAbs, pc)
               .map((x) => formatSlotT(x.s, x.e, currentAbs))
               .join("\n"),
           ),
         );
-        if (allKeys.size === 1) indices = allIdxs;
-
-        // Acc đóng băng tách riêng, hiện ở dòng cuối cùng
-        const frozenSel = indices.filter((i) => isFrozenAcc(i));
-        indices = indices.filter((i) => !isFrozenAcc(i));
+        if (allKeys.size === 1) indices = activeIdxs;
 
         // Các acc có danh sách khung giờ trống giống nhau 100% thì gộp thành 1 khối
         const groups = [];
@@ -3926,13 +4009,6 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
         const blocks = groups.map((g, pos) => {
           const plural = g.valid.length > 1 ? "các " : "";
           const who = joinAccNames(g.names);
-
-          // Acc đóng băng / không có khung giờ trống nào
-          if (g.valid.length === 0) {
-            return pos === 0
-              ? `Dạ ${who} hiện không trống ạ.`
-              : `${CONNECTORS[pos]} ${who} thì hiện không trống ạ.`;
-          }
 
           // Chỉ có 1 khung giờ -> viết liền mạch trong 1 câu
           if (g.valid.length === 1) {
@@ -3953,14 +4029,11 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
           });
           return b.trim();
         });
-        if (frozenSel.length > 0) blocks.push(frozenLine(frozenSel, blocks.length));
-        const anyFree = groups.some((g) => g.valid.length > 0);
+        if (hasPermaOff) blocks.push(permaOffBlock(blocks.length));
         const msg =
           (pc ? PC_HEADER : "") +
           blocks.join("\n\n") +
-          (anyFree
-            ? "\n\nBạn có thể đặt trước trong tương lai bằng cách chuyển tiền trước để giữ chỗ nghen."
-            : "");
+          "\n\nBạn có thể đặt trước trong tương lai bằng cách chuyển tiền trước để giữ chỗ nghen.";
         showCustomAlert(msg, true, () => openFreeScheduleModal(true));
       }
 
@@ -3999,8 +4072,10 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
 
         hourState.check = false;
         preorderState.check = false;
+        rentNowState.check = false;
         renderHour("check");
         renderPreorder("check");
+        renderRentNow("check");
         resetQuickAdd(true, "check");
 
         document.getElementById("modal-check").classList.remove("hidden");
@@ -4127,7 +4202,7 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
       ) {
         const accName = accounts[accIdx].accountName;
         const res = getCoverage(accIdx, checkS, checkE, currentAbs, pc);
-        const timeDesc = isRentNowScenario(inS, preorder)
+        const timeDesc = isRentNowScenario(inS, preorder, rentNowState.check)
           ? "hiện tại"
           : "lúc đó";
 
@@ -4223,9 +4298,11 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
         preorder,
       ) {
         const allIdxs = ACC_NAMES.map((_, i) => i);
+        const isPermaOff = (i) => accounts[i].accountName === PERMA_OFF_ACC;
+        const activeIdxs = allIdxs.filter((i) => !isPermaOff(i));
         // Nếu các acc đã chọn đều không trống (không acc nào có trống) thì tự động đổi thành tất cả acc
-        const activeSel = idxs.filter((i) => !isFrozenAcc(i));
-        const noneFree = activeSel.length > 0 && activeSel.every(
+        // (acc ngừng cho thuê vô thời hạn luôn không trống nên không tính vào điều kiện này)
+        const noneFree = idxs.filter((i) => !isPermaOff(i)).every(
           (i) =>
             checkResultRank(
               runCheckSingle(
@@ -4243,9 +4320,9 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
         );
         if (noneFree) idxs = allIdxs;
 
-                // Nếu cả 4 acc cùng 1 kết quả 100% thì dù chọn acc nào cũng trả về "tất cả 4 acc"
+                // Nếu các acc còn cho thuê cùng 1 kết quả 100% thì dù chọn acc nào cũng trả về "tất cả 3 acc"
         const allNorms = new Set(
-          allIdxs.filter((i) => !isFrozenAcc(i)).map((i) => {
+          activeIdxs.map((i) => {
             const n = accounts[i].accountName;
             return runCheckSingle(
               i,
@@ -4265,10 +4342,11 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
         );
         if (allNorms.size === 1) idxs = allIdxs;
 
-        // Acc đóng băng tách riêng, hiện ở dòng cuối cùng
-        const frozenSel = idxs.filter((i) => isFrozenAcc(i));
+        const hasPermaOff = idxs.some(isPermaOff);
+        idxs = idxs.filter((i) => !isPermaOff(i));
+
         const groups = [];
-        idxs.filter((i) => !isFrozenAcc(i)).forEach((i) => {
+        idxs.forEach((i) => {
           const name = accounts[i].accountName;
           const msg = runCheckSingle(
             i,
@@ -4296,7 +4374,7 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
           if (k > 0 && m.startsWith("Dạ ")) m = CONNECTORS[k] + " " + m.substring(3);
           return m;
         });
-        if (frozenSel.length > 0) blocks.push(frozenLine(frozenSel, blocks.length));
+        if (hasPermaOff) blocks.push(permaOffBlock(blocks.length));
         return (pc ? PC_HEADER : "") + blocks.join("\n\n");
       }
 
@@ -4797,7 +4875,9 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
             `list-${prefix}-${accName}`,
           );
           const fullList = getResetNowSchedule(acc, filterAbs); // logic cũ (không giới hạn 36h)
-          const list = limitResetWindow(fullList, filterAbs); // lịch hiển thị: trong 36h
+          const list = limitResetWindow(fullList, filterAbs).filter(
+            (r) => r.deviceType === "LINE",
+          ); // lịch hiển thị: trong 36h
           const badgeEl = document.getElementById(
             `login-badges-${prefix}-${accName}`,
           );
@@ -5078,14 +5158,14 @@ function formatCardTime(sAbs, eAbs, currentAbs) {
       let formDeviceChoice = "LINE";
 function setFormDevice(type) {
   formDeviceChoice = type;
-  ["LINE", "Google", "Facebook"].forEach((t) => {
-    const btn = document.getElementById(`form-device-${t}`);
+  ["LINE", "Google", "Facebook", "Scan PC"].forEach((t) => {
+    const btn = document.getElementById(`form-device-${t.replace(/\s/g, "")}`);
     if (t === type) {
             btn.className =
-              "py-2.5 px-3 rounded-xl border font-bold text-xs transition-all duration-200 active:scale-95 shadow-lg ring-4 ring-indigo-200 scale-[1.03] bg-indigo-50 border-indigo-500 text-indigo-700";
+              "py-2.5 px-2 rounded-xl border font-bold text-xs transition-all duration-200 active:scale-95 shadow-lg ring-4 ring-indigo-200 scale-[1.03] bg-indigo-50 border-indigo-500 text-indigo-700";
           } else {
             btn.className =
-              "py-2.5 px-3 rounded-xl border font-bold text-xs transition-all duration-200 active:scale-95 shadow-sm hover:border-indigo-500 hover:bg-indigo-50 bg-gray-50 border-gray-200 text-gray-700";
+              "py-2.5 px-2 rounded-xl border font-bold text-xs transition-all duration-200 active:scale-95 shadow-sm hover:border-indigo-500 hover:bg-indigo-50 bg-gray-50 border-gray-200 text-gray-700";
           }
         });
       }
@@ -5129,8 +5209,10 @@ function setFormDevice(type) {
         resetQuickAdd(true, "form");
         hourState.form = false;
         preorderState.form = false;
+        rentNowState.form = false;
         renderHour("form");
         renderPreorder("form");
+        renderRentNow("form");
 
         document.getElementById("modal-rental").classList.remove("hidden");
         document.getElementById("modal-rental").classList.add("flex");
@@ -5183,7 +5265,7 @@ function setFormDevice(type) {
                 const r = accounts[accIdx].schedule[idx];
         const accName = accounts[accIdx].accountName;
         // Đăng nhập Google/Facebook: hiện thẳng "Kịch bản" thay cho Email
-        if (r.deviceType === "Google" || r.deviceType === "Facebook") {
+        if (r.deviceType === "Google" || r.deviceType === "Facebook" || r.deviceType === "Scan PC") {
           openGoogleFbScript(accIdx, r);
           return;
         }
@@ -5232,8 +5314,10 @@ function setFormDevice(type) {
         resetQuickAdd(true, "form");
         hourState.form = false;
         preorderState.form = !!r.preorder;
+        rentNowState.form = !!r.rentNowForce;
         renderHour("form");
         renderPreorder("form");
+        renderRentNow("form");
 
         document.getElementById("modal-rental").classList.remove("hidden");
         document.getElementById("modal-rental").classList.add("flex");
@@ -5489,7 +5573,7 @@ function setFormDevice(type) {
 
         // CHỐT loại kịch bản ngay lúc nhập lịch: bắt đầu trong quá khứ (dù 1 giây) => thuê ngay.
         // Khi sửa lịch mà giờ bắt đầu + "Đặt trước" không đổi thì giữ nguyên loại đã chốt trước đó.
-        let rentNowLocked = isRentNowScenario(startAbs, preorderState.form);
+        let rentNowLocked = isRentNowScenario(startAbs, preorderState.form, rentNowState.form);
         if (editOldRental) {
           const o = editOldRental;
           const sameStart =
@@ -5497,7 +5581,11 @@ function setFormDevice(type) {
             o.start.month === sM &&
             o.start.day === sDay &&
             o.start.hour === sHour;
-          if (sameStart && !!o.preorder === !!preorderState.form) {
+          if (
+            sameStart &&
+            !!o.preorder === !!preorderState.form &&
+            !!o.rentNowForce === !!rentNowState.form
+          ) {
             rentNowLocked = rentalIsNow(o);
           }
         }
@@ -5509,6 +5597,7 @@ function setFormDevice(type) {
           deviceType: devVal,
           preorder: preorderState.form,
           rentNow: rentNowLocked,
+          rentNowForce: rentNowState.form,
         };
         acc.schedule.push(newRental);
 
@@ -5522,7 +5611,7 @@ function setFormDevice(type) {
         saveData();
 
         if (editRentalIdx === -1) {
-          if (devVal === "Google" || devVal === "Facebook") {
+          if (devVal === "Google" || devVal === "Facebook" || devVal === "Scan PC") {
             // Google/Facebook: hiện thẳng "Kịch bản" thay cho trang Email
             openGoogleFbScript(accIdx, newRental);
           } else {
